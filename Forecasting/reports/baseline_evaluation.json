@@ -1,0 +1,19 @@
+{
+  "forecast_origin": "2011-05-31",
+  "horizon_days": 7,
+  "evaluated_products": 1976,
+  "actual_total_quantity": 58300.0,
+  "models": {
+    "naive_7": {
+      "MAE": 25.5304,
+      "RMSE": 109.3731,
+      "WAPE_percent": 86.5317
+    },
+    "moving_average_28": {
+      "MAE": 24.3502,
+      "RMSE": 65.5958,
+      "WAPE_percent": 82.5317
+    }
+  },
+  "note": "Single validation origin. Not a final model comparison."
+}

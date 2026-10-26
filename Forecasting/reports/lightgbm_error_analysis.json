@@ -1,0 +1,48 @@
+{
+  "overall_rows": 25688,
+  "zero_actual_rows": 8946,
+  "groups": {
+    "frequent": {
+      "rows": 4966,
+      "products": 382,
+      "ma28": {
+        "MAE": 65.1505,
+        "RMSE": 138.3834,
+        "WAPE_percent": 63.5386
+      },
+      "lightgbm": {
+        "MAE": 61.4569,
+        "RMSE": 129.5303,
+        "WAPE_percent": 59.9364
+      }
+    },
+    "intermittent": {
+      "rows": 20553,
+      "products": 1581,
+      "ma28": {
+        "MAE": 15.5907,
+        "RMSE": 56.6169,
+        "WAPE_percent": 93.5676
+      },
+      "lightgbm": {
+        "MAE": 20.3752,
+        "RMSE": 53.3604,
+        "WAPE_percent": 122.2822
+      }
+    },
+    "very_intermittent": {
+      "rows": 169,
+      "products": 13,
+      "ma28": {
+        "MAE": 3.2278,
+        "RMSE": 9.3048,
+        "WAPE_percent": 159.5029
+      },
+      "lightgbm": {
+        "MAE": 12.3222,
+        "RMSE": 14.2666,
+        "WAPE_percent": 608.9047
+      }
+    }
+  }
+}

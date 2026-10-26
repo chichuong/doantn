@@ -1,0 +1,26 @@
+{
+  "dataset": "UCI Online Retail II",
+  "evaluation": "held_out_test",
+  "horizon_days": 7,
+  "test_origins": 13,
+  "test_rows": 25688,
+  "unique_products": 1976,
+  "scores": {
+    "naive_7": {
+      "MAE": 37.613,
+      "RMSE": 122.986,
+      "WAPE_percent": 75.893
+    },
+    "moving_average_28": {
+      "MAE": 32.3594,
+      "RMSE": 101.0778,
+      "WAPE_percent": 65.2925
+    },
+    "lightgbm_l1": {
+      "MAE": 29.2514,
+      "RMSE": 101.3918,
+      "WAPE_percent": 59.0215
+    }
+  },
+  "model_retrained_on_test": false
+}

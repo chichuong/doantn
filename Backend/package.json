@@ -1,0 +1,37 @@
+{
+  "name": "omnichannel-retail-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend API cho he thong quan tri ban hang da kenh",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:check": "node scripts/check-db.js",
+    "templates:create": "node scripts/create-import-templates.js",
+    "docs:generate": "node scripts/generate-openapi.js",
+    "db:expire-reservations": "node scripts/expire-reservations.js",
+    "db:preflight": "node scripts/inventory-preflight.js",
+    "db:reconcile:010": "node scripts/run-sql-file.js database/010_inventory_safe_reconciliation.sql",
+    "db:migrate:010": "node scripts/run-sql-file.js database/migrations/010_inventory_consistency.sql",
+    "db:migrate:011": "node scripts/run-sql-file.js database/migrations/011_catalog_and_warehouse_workflows.sql",
+    "db:migrate:012": "node scripts/run-sql-file.js database/migrations/012_manual_transfer_payments.sql",
+    "db:migrate:013": "node scripts/run-sql-file.js database/migrations/013_forecasting_metadata.sql",
+    "db:migrate:014": "node scripts/run-sql-file.js database/migrations/014_staff_warehouse_access.sql",
+    "db:migrate:015": "node scripts/run-sql-file.js database/migrations/015_document_scan_verification.sql",
+    "db:precheck:016": "node scripts/run-sql-file.js database/016_core_precheck.sql",
+    "db:backfill:016": "node scripts/run-sql-file.js database/016_core_safe_backfill.sql",
+    "db:migrate:016": "node scripts/run-sql-file.js database/migrations/016_core_inventory_and_state_machine.sql",
+    "db:migrate:017": "node scripts/run-sql-file.js database/migrations/017_order_history_integrity.sql",
+    "db:accept:016": "node scripts/run-sql-file.js database/016_core_acceptance.sql"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "pg": "^8.13.1"
+  }
+}

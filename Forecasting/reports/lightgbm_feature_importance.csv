@@ -1,0 +1,16 @@
+﻿feature,importance
+rolling_sum_28,301
+month,257
+rolling_sum_7,198
+active_days_28,165
+trend_7,115
+rolling_sum_14,104
+lag_28,62
+active_days_7,61
+lag_1,52
+lag_14,36
+lag_7,35
+rolling_mean_28,29
+day_of_week,12
+rolling_mean_14,7
+rolling_mean_7,6

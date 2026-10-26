@@ -1,0 +1,2 @@
+sku,barcode,name,description,category,cost_price,sale_price,reorder_level,is_active
+SP-NEW-001,8930000000999,San pham mau,Mo ta san pham mau,Do gia dung,10000,15000,10,true

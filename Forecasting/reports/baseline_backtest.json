@@ -1,0 +1,19 @@
+{
+  "horizon_days": 7,
+  "validation_origins": 13,
+  "evaluated_rows": 25688,
+  "unique_products": 1976,
+  "models": {
+    "naive_7": {
+      "MAE": 28.8503,
+      "RMSE": 99.4646,
+      "WAPE_percent": 86.984
+    },
+    "moving_average_28": {
+      "MAE": 25.0903,
+      "RMSE": 79.1665,
+      "WAPE_percent": 75.6474
+    }
+  },
+  "note": "Rolling-origin validation. Each forecast uses historical sales only."
+}

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retail Backend API</title><style>
+body{font:16px system-ui,sans-serif;max-width:1050px;margin:32px auto;padding:0 20px;background:#f7f9fc;color:#172033}
+input{width:100%;padding:12px;box-sizing:border-box;margin:16px 0;border:1px solid #ccd5e1;border-radius:6px}
+details{background:white;border:1px solid #dce3ec;border-radius:6px;margin:8px 0;padding:14px}summary{cursor:pointer;font-family:monospace}
+pre{overflow:auto;font:13px monospace;background:#f2f5f9;padding:16px}a{color:#155bb5}</style></head>
+<body><h1>Retail Backend API</h1><p><a href="/api/v1/openapi.json">Tải OpenAPI JSON</a> để nhập vào Swagger Editor hoặc Postman.</p>
+<p>Đơn online: checkout → confirm → assign → picking → scan → ready_to_pack → pack → shipment. Chuyển khoản cần nhân viên đối soát.</p>
+<input id="search" type="search" placeholder="Tìm endpoint…" aria-label="Tìm endpoint"><main id="operations">Đang đọc tài liệu…</main>
+<script>
+fetch('/api/v1/openapi.json').then(r=>r.json()).then(spec=>{
+ const target=document.getElementById('operations');target.textContent='';
+ for(const [path,methods] of Object.entries(spec.paths))for(const [method,operation] of Object.entries(methods)){
+  const details=document.createElement('details'),summary=document.createElement('summary'),pre=document.createElement('pre');
+  summary.textContent=method.toUpperCase()+' /api/v1'+path;pre.textContent=JSON.stringify(operation,null,2);
+  details.append(summary,pre);target.append(details);
+ }
+ const schemas=document.createElement('details'),title=document.createElement('summary'),pre=document.createElement('pre');
+ title.textContent='Request schemas';pre.textContent=JSON.stringify(spec.components.schemas,null,2);schemas.append(title,pre);target.append(schemas);
+ document.getElementById('search').addEventListener('input',event=>{for(const item of target.children)item.hidden=!item.firstChild.textContent.toLowerCase().includes(event.target.value.toLowerCase());});
+}).catch(()=>document.getElementById('operations').textContent='Không đọc được OpenAPI. Chạy npm run docs:generate.');
+</script></body></html>

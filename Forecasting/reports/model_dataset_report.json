@@ -1,0 +1,14 @@
+{
+  "selected_products": 1976,
+  "model_rows": 1339699,
+  "split_rows": {
+    "train": 978091,
+    "validation": 181792,
+    "test": 179816
+  },
+  "date_min": "2009-12-01",
+  "date_max": "2011-11-30",
+  "zero_filled_days": 922366,
+  "total_quantity": 8979775.0,
+  "assumption": "Zero recorded sales after first sale does not prove zero underlying demand or continued product availability."
+}

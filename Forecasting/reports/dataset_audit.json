@@ -1,0 +1,33 @@
+{
+  "source": "UCI Online Retail II",
+  "dataset_id": 502,
+  "sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+  "total_rows": 1067371,
+  "columns": [
+    "InvoiceNo",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "UnitPrice",
+    "CustomerID",
+    "Country"
+  ],
+  "missing_values": {
+    "InvoiceNo": 0,
+    "StockCode": 0,
+    "Description": 4382,
+    "Quantity": 0,
+    "InvoiceDate": 0,
+    "UnitPrice": 0,
+    "CustomerID": 243007,
+    "Country": 0
+  },
+  "duplicate_rows": 34335,
+  "cancelled_rows": 19494,
+  "negative_quantity_rows": 22950,
+  "nonpositive_price_rows": 6207,
+  "unique_products": 5305,
+  "date_min": "2009-12-01 07:45:00",
+  "date_max": "2011-12-09 12:50:00"
+}

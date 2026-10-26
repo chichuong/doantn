@@ -1,0 +1,18 @@
+{
+  "raw_rows": 1067371,
+  "exclusion_reasons": {
+    "cancelled_invoice": 19494,
+    "invalid_quantity": 22950,
+    "invalid_price": 6207,
+    "invalid_date": 0,
+    "missing_stock_code": 0,
+    "non_product_code": 5796
+  },
+  "duplicate_rows_observed": 34335,
+  "duplicates_removed": 0,
+  "policy": "Gross positive sales; cancellations and returns excluded",
+  "clean_rows": 1037108,
+  "excluded_rows": 30263,
+  "clean_products": 4904,
+  "daily_rows": 531263
+}

@@ -1,0 +1,29 @@
+{
+  "periods": {
+    "train": {
+      "rows": 1721681,
+      "products": 4455,
+      "products_with_30_days": 4149,
+      "products_with_sales": 4455,
+      "total_quantity": 7936117.0
+    },
+    "validation": {
+      "rows": 279482,
+      "products": 3208,
+      "products_with_30_days": 3107,
+      "products_with_sales": 3053,
+      "total_quantity": 1211640.0
+    },
+    "test": {
+      "rows": 267532,
+      "products": 3252,
+      "products_with_30_days": 3109,
+      "products_with_sales": 3229,
+      "total_quantity": 1941761.0
+    }
+  },
+  "products_in_all_three_periods": 2808,
+  "eligible_by_history": 2435,
+  "eligible_and_present_in_all_periods": 2044,
+  "warning": "Presence does not prove continuous availability. Product lifecycle must be handled explicitly."
+}

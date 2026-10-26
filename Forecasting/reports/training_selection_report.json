@@ -1,0 +1,17 @@
+{
+  "train_end": "2011-05-31",
+  "selection_uses_future_data": false,
+  "products_in_train": 4455,
+  "selected_products": 1976,
+  "excluded_products": 2479,
+  "selection_rules": {
+    "minimum_history_days": 180,
+    "minimum_active_days": 60,
+    "history_reference": "First sale to train cutoff"
+  },
+  "selected_group_counts": {
+    "intermittent": 1604,
+    "frequent": 372
+  },
+  "selected_total_train_quantity": 6846168.0
+}

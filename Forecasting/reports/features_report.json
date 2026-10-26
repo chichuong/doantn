@@ -1,0 +1,30 @@
+{
+  "horizon_days": 7,
+  "feature_count": 15,
+  "features": [
+    "lag_1",
+    "lag_7",
+    "lag_14",
+    "lag_28",
+    "rolling_sum_7",
+    "rolling_mean_7",
+    "rolling_sum_14",
+    "rolling_mean_14",
+    "rolling_sum_28",
+    "rolling_mean_28",
+    "active_days_7",
+    "active_days_28",
+    "trend_7",
+    "month",
+    "day_of_week"
+  ],
+  "total_rows": 1246827,
+  "split_rows": {
+    "train": 908931,
+    "validation": 169936,
+    "test": 167960
+  },
+  "train_max_origin": "2011-05-24",
+  "validation_min_origin": "2011-05-31",
+  "test_min_origin": "2011-08-31"
+}

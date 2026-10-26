@@ -1,0 +1,12 @@
+{
+  "products": 4904,
+  "original_daily_rows": 531263,
+  "full_daily_rows": 2287683,
+  "zero_filled_days": 1756420,
+  "zero_filled_ratio": 0.7678,
+  "total_quantity_preserved": true,
+  "date_min": "2009-12-01",
+  "date_max": "2011-12-09",
+  "scope": "First-to-last observed sale per product",
+  "zero_policy": "No recorded sale, not proven zero demand"
+}

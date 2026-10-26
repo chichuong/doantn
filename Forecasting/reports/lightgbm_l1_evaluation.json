@@ -1,0 +1,28 @@
+{
+  "model": "LightGBM_L1",
+  "horizon_days": 7,
+  "train_rows": 908931,
+  "validation_rows": 25688,
+  "validation_origins": 13,
+  "feature_count": 15,
+  "best_iteration": 130,
+  "scores": {
+    "naive_7": {
+      "MAE": 28.8503,
+      "RMSE": 99.4646,
+      "WAPE_percent": 86.984
+    },
+    "moving_average_28": {
+      "MAE": 25.0903,
+      "RMSE": 79.1665,
+      "WAPE_percent": 75.6474
+    },
+    "lightgbm_l1": {
+      "MAE": 21.5683,
+      "RMSE": 75.3157,
+      "WAPE_percent": 65.0287
+    }
+  },
+  "test_used": false,
+  "note": "Model selection uses validation only. Test remains untouched."
+}

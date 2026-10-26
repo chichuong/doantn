@@ -1,0 +1,14 @@
+{
+  "products": 4904,
+  "group_counts": {
+    "intermittent": 2482,
+    "very_intermittent": 1550,
+    "frequent": 872
+  },
+  "activity_ratio_median": 0.19144268716353866,
+  "adi_median": 5.223496240601504,
+  "cv2_median": 1.735694537067612,
+  "products_span_180_days": 3873,
+  "products_active_60_days": 2555,
+  "products_both_conditions": 2435
+}
