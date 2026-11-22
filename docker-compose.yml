@@ -38,8 +38,6 @@ services:
     depends_on:
       mssql:
         condition: service_healthy
-      forecasting:
-        condition: service_started
     environment:
       NODE_ENV: "production"
       PORT: 3000
