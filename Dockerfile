@@ -1,5 +1,5 @@
 # Stage 1: Build Frontend Web (Vite + React)
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 WORKDIR /app/Frontend_Web
 COPY Frontend_Web/package*.json ./
 RUN npm ci
@@ -7,7 +7,7 @@ COPY Frontend_Web/ ./
 RUN npm run build
 
 # Stage 2: Production Full-stack Runtime (Express API + Static Web)
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 WORKDIR /app
 
 # Copy Backend dependencies
