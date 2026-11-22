@@ -224,27 +224,27 @@ export const ProductsPage = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex bg-slate-100 p-1 rounded-lg text-xs font-medium">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+          <div className="flex bg-slate-100 p-1 rounded-lg text-xs font-medium flex-1 sm:flex-initial">
             <button
               type="button"
               onClick={() => setActiveTab('products')}
-              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
+              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
                 activeTab === 'products' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
               }`}
             >
-              <Package className="w-3.5 h-3.5" />
-              <span>Sản phẩm ({pagination.total})</span>
+              <Package className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Sản phẩm ({pagination.total})</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('categories')}
-              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
+              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
                 activeTab === 'categories' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
               }`}
             >
-              <Tags className="w-3.5 h-3.5" />
-              <span>Danh mục ({categories.length})</span>
+              <Tags className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Danh mục ({categories.length})</span>
             </button>
           </div>
 
@@ -252,7 +252,7 @@ export const ProductsPage = () => {
             <button
               type="button"
               onClick={openAddProduct}
-              className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium flex items-center gap-1.5 transition"
+              className="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition"
             >
               <Plus className="w-4 h-4" />
               <span>Thêm sản phẩm</span>
@@ -263,7 +263,7 @@ export const ProductsPage = () => {
             <button
               type="button"
               onClick={openAddCategory}
-              className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium flex items-center gap-1.5 transition"
+              className="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition"
             >
               <Plus className="w-4 h-4" />
               <span>Thêm danh mục</span>
@@ -273,7 +273,7 @@ export const ProductsPage = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4">
         {error && (
           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
             {error}
@@ -333,9 +333,81 @@ export const ProductsPage = () => {
               </button>
             </div>
 
-            {/* Products Table */}
+            {/* Products List: Mobile Cards + Desktop Table */}
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
-              <div className="overflow-x-auto">
+              {/* Mobile Cards (< md) */}
+              <div className="md:hidden divide-y divide-slate-100">
+                {loading ? (
+                  <div className="py-10 text-center text-xs text-slate-400">
+                    Đang tải danh sách sản phẩm...
+                  </div>
+                ) : products.length === 0 ? (
+                  <div className="py-10 text-center text-xs text-slate-400">
+                    Không tìm thấy sản phẩm phù hợp.
+                  </div>
+                ) : (
+                  products.map((p) => {
+                    const imgUrl = p.image_url || p.imageUrl;
+                    return (
+                      <div key={p.id} className="p-3.5 space-y-2.5">
+                        <div className="flex items-start gap-3">
+                          <div className="w-14 h-14 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center shrink-0">
+                            {imgUrl ? (
+                              <img
+                                src={imgUrl}
+                                alt={p.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <Package className="w-5 h-5 text-slate-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-mono text-[11px] font-bold text-blue-700">{p.sku}</span>
+                              {p.is_active ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  Đang bán
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                  Ngừng bán
+                                </span>
+                              )}
+                            </div>
+                            <div className="font-bold text-xs text-slate-900 mt-0.5 line-clamp-2">{p.name}</div>
+                            <div className="text-[11px] text-slate-500 mt-0.5">
+                              {p.category_name || 'Chưa phân loại'}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                          <div className="space-x-3 tabular-nums">
+                            <span className="text-slate-500">Vốn: <strong>{formatCurrency(p.cost_price)}</strong></span>
+                            <span className="text-blue-700">Bán: <strong>{formatCurrency(p.sale_price)}</strong></span>
+                          </div>
+                          {canManageProducts && (
+                            <button
+                              type="button"
+                              onClick={() => openEditProduct(p)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Sửa</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Desktop Table (>= md) */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase text-slate-500">

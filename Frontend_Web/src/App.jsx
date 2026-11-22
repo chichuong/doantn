@@ -52,7 +52,7 @@ const ProtectedContent = () => {
   const homePath = getHomePath(hasPermission, hasAnyPermission, hasAllPermissions);
 
   return (
-    <div className="h-screen overflow-hidden bg-[#f8fafc] flex flex-col font-sans text-slate-900">
+    <div className="h-[100dvh] overflow-hidden bg-[#f8fafc] flex flex-col font-sans text-slate-900">
       <Navbar
         onOpenShiftClick={canManageSession ? () => setIsOpenShiftModalOpen(true) : undefined}
         onCloseShiftClick={canManageSession ? () => setIsCloseShiftModalOpen(true) : undefined}

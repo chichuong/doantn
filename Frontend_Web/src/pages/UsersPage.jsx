@@ -527,27 +527,27 @@ export const UsersPage = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex bg-slate-100 p-1 rounded-lg text-xs font-medium">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+          <div className="flex bg-slate-100 p-1 rounded-lg text-xs font-medium flex-1 sm:flex-initial">
             <button
               type="button"
               onClick={() => setActiveTab('users')}
-              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
+              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
                 activeTab === 'users' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
               }`}
             >
-              <Users className="w-3.5 h-3.5" />
-              <span>Danh sách Tài khoản ({pagination.total})</span>
+              <Users className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Tài khoản ({pagination.total})</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('roles')}
-              className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
+              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
                 activeTab === 'roles' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
               }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Vai trò & Quyền hạn ({roles.length})</span>
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Vai trò & Quyền ({roles.length})</span>
             </button>
           </div>
 
@@ -555,7 +555,7 @@ export const UsersPage = () => {
             <button
               type="button"
               onClick={openCreateUser}
-              className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium flex items-center gap-1.5 transition"
+              className="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Thêm tài khoản</span>
@@ -565,7 +565,7 @@ export const UsersPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4">
         {error && (
           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
             {error}
@@ -613,9 +613,71 @@ export const UsersPage = () => {
               </button>
             </div>
 
-            {/* Users Table */}
+            {/* Users List: Mobile Cards + Desktop Table */}
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
-              <div className="overflow-x-auto">
+              {/* Mobile View (< md) */}
+              <div className="md:hidden divide-y divide-slate-100">
+                {loadingUsers ? (
+                  <div className="py-10 text-center text-xs text-slate-400">
+                    Đang tải danh sách tài khoản...
+                  </div>
+                ) : users.length === 0 ? (
+                  <div className="py-10 text-center text-xs text-slate-400">
+                    Không tìm thấy tài khoản nào phù hợp.
+                  </div>
+                ) : (
+                  users.map((u) => {
+                    const st = STATUS_BADGES[u.status] || STATUS_BADGES.inactive;
+                    const roleInfo = getRoleDisplay({ code: u.role_code, name: u.role_name });
+                    const initials = (u.full_name || u.email || 'U')
+                      .split(' ')
+                      .filter(Boolean)
+                      .slice(-2)
+                      .map((w) => w[0]?.toUpperCase())
+                      .join('');
+                    return (
+                      <div key={u.id} className="p-3.5 space-y-2.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0">
+                              {initials}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-bold text-xs text-slate-900 truncate">{u.full_name}</div>
+                              <div className="text-[11px] text-slate-500 truncate">{u.email}</div>
+                            </div>
+                          </div>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border shrink-0 ${st.cls}`}>
+                            {st.label}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-slate-600">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                            {roleInfo.name}
+                          </span>
+                          <span>SĐT: {u.phone || 'Chưa cập nhật'}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px] text-slate-500">
+                          <span>Đăng nhập: {u.last_login_at ? formatDate(u.last_login_at) : 'Chưa từng'}</span>
+                          {canUpdateUser && (
+                            <button
+                              type="button"
+                              onClick={() => openEditUser(u)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Chỉnh sửa</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Desktop Table (>= md) */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase text-slate-500">

@@ -238,9 +238,9 @@ export const PosPage = () => {
   }
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col lg:flex-row h-full overflow-y-auto lg:overflow-hidden bg-[#f8fafc] p-4 sm:p-5 gap-4">
+    <div className="flex-1 min-h-0 flex flex-col lg:flex-row h-full overflow-y-auto lg:overflow-hidden bg-[#f8fafc] p-3 sm:p-5 gap-3 sm:gap-4">
       {/* KHỐI TRÁI: Tìm kiếm sản phẩm theo SKU */}
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-[360px] lg:min-h-0 flex flex-col lg:overflow-hidden">
         {/* Search Bar */}
         <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
           <div className="relative flex-1 w-full">

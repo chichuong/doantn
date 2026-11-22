@@ -158,9 +158,8 @@ export const OrdersPage = () => {
 
         {/* Filter Bar (Gọn 1 hàng) */}
         <div
-          className={`p-4 rounded-xl bg-white border border-slate-200 grid grid-cols-1 sm:grid-cols-2 ${
-            isSalesOnly ? 'lg:grid-cols-5' : 'lg:grid-cols-6'
-          } gap-3 shadow-2xs`}
+          className={`p-4 rounded-xl bg-white border border-slate-200 grid grid-cols-1 sm:grid-cols-2 ${isSalesOnly ? 'lg:grid-cols-5' : 'lg:grid-cols-6'
+            } gap-3 shadow-2xs`}
         >
           {/* Search Input */}
           <div className="relative">
@@ -269,9 +268,97 @@ export const OrdersPage = () => {
           </div>
         </div>
 
-        {/* Orders Table */}
+        {/* Orders List: Mobile Cards + Desktop Table */}
         <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
-          <div className="overflow-x-auto">
+          {/* Mobile Cards (< md) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {loading ? (
+              <div className="py-12 text-center text-xs text-slate-400">
+                Đang tải danh sách đơn hàng...
+              </div>
+            ) : filteredOrders.length === 0 ? (
+              <div className="py-12 text-center text-xs text-slate-400">
+                Không tìm thấy đơn hàng nào phù hợp
+              </div>
+            ) : (
+              filteredOrders.map((order, idx) => {
+                const statusMeta = ORDER_STATUS_META[order.status] || {
+                  label: order.status,
+                  color: 'bg-slate-100 text-slate-700 border-slate-200',
+                };
+                const channel = order.channel || (isSalesOnly ? 'pos' : 'web');
+                const channelMeta = CHANNEL_META[channel] || {
+                  label: channel,
+                  badge: 'bg-slate-100 text-slate-700 border-slate-200',
+                };
+                const fullOrderCode = String(
+                  order.order_number || order.orderNumber || order.id || '---'
+                );
+                const displayOrderCode =
+                  fullOrderCode.length > 18
+                    ? `${fullOrderCode.slice(0, 10)}…${fullOrderCode.slice(-5)}`
+                    : fullOrderCode;
+
+                return (
+                  <div
+                    key={order.id || `m-order-${idx}`}
+                    onClick={() => canViewDetail && setSelectedOrderId(order.id)}
+                    className="p-3.5 space-y-2 hover:bg-slate-50 active:bg-slate-100 transition cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono font-bold text-xs text-blue-700">
+                        #{displayOrderCode}
+                      </span>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${statusMeta.color}`}
+                      >
+                        {statusMeta.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="font-semibold text-slate-900 truncate">
+                        {order.customer_name || order.customerName || 'Khách lẻ'}
+                        {order.customer_phone && (
+                          <span className="text-slate-500 font-normal"> • {order.customer_phone}</span>
+                        )}
+                      </div>
+                      <span
+                        className={`inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border shrink-0 ${channelMeta.badge}`}
+                      >
+                        {channelMeta.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 text-xs">
+                      <span className="text-[11px] text-slate-500 tabular-nums">
+                        {formatDateTime(order.created_at || order.createdAt)}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-slate-900 tabular-nums">
+                          {formatCurrency(order.total_amount || order.totalAmount || 0)}
+                        </span>
+                        {canViewDetail && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedOrderId(order.id);
+                            }}
+                            className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-semibold text-[11px] flex items-center gap-1"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span>Chi tiết</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Desktop Table (>= md) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[920px] text-left text-xs border-collapse">
               <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase font-semibold border-b border-slate-200">
                 <tr>

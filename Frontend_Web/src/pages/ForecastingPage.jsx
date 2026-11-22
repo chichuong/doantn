@@ -499,8 +499,59 @@ export const ForecastingPage = () => {
             </div>
           </div>
 
-          {/* Table Rows */}
-          <div className="overflow-x-auto">
+          {/* Mobile Cards (< md) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {loadingDetail ? (
+              <div className="py-10 text-center text-xs text-slate-400">
+                Đang tải dữ liệu...
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="py-10 text-center text-xs text-slate-400">
+                Chưa có dữ liệu dự báo phù hợp.
+              </div>
+            ) : (
+              filteredProducts.map((item) => {
+                const avail = item.availableQuantity;
+                const pred = item.predictedQuantity;
+                const isSmall = pred > 0 && pred < 1;
+                return (
+                  <div key={item.productId} className="p-3.5 space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-mono text-[11px] font-bold text-blue-700">{item.sku}</div>
+                        <div className="font-bold text-xs text-slate-900 line-clamp-2">{item.name}</div>
+                      </div>
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold border shrink-0 ${item.status?.badgeClass}`}
+                      >
+                        {item.status?.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                      <div className="space-x-3 tabular-nums">
+                        <span className="text-slate-500">
+                          Tồn khả dụng: <strong className="text-slate-900">{avail === null || avail === undefined ? 'Chưa rõ' : formatNumber(avail)}</strong>
+                        </span>
+                        <span className="text-blue-700">
+                          Dự kiến bán: <strong>{isSmall ? 'Dưới 1' : pred === 0 ? '0' : Math.round(pred)}</strong>
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProductForDetail(item)}
+                        className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-semibold text-xs"
+                      >
+                        Chi tiết
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Desktop Table (>= md) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[820px] text-left text-xs border-collapse">
               <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase font-semibold border-b border-slate-200">
                 <tr>

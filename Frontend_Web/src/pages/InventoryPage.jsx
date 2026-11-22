@@ -270,9 +270,90 @@ export const InventoryPage = () => {
           </div>
         </div>
 
-        {/* Inventory Table */}
+        {/* Inventory List: Mobile Cards + Desktop Table */}
         <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
-          <div className="overflow-x-auto">
+          {/* Mobile Cards (< md) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {loading ? (
+              <div className="py-12 text-center text-xs text-slate-400">
+                Đang tải dữ liệu tồn kho...
+              </div>
+            ) : filteredInventory.length === 0 ? (
+              <div className="py-12 text-center text-xs text-slate-400">
+                Không tìm thấy sản phẩm nào trong kho này
+              </div>
+            ) : (
+              filteredInventory.map((item, idx) => {
+                const qty = Number(item.quantity || 0);
+                const res = Number(item.reserved_quantity || item.reservedQuantity || 0);
+                const avail = Number(
+                  item.available_quantity ?? item.availableQuantity ?? qty - res
+                );
+                const reorder = Number(item.reorder_level || item.reorderLevel || 10);
+                const isLow = avail <= reorder;
+                const itemKey = `m-${item.warehouse_id || 'wh'}-${item.product_id || item.id || idx}`;
+                const imgUrl = item.image_url || item.imageUrl;
+
+                return (
+                  <div key={itemKey} className="p-3.5 space-y-2.5">
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-11 h-11 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center shrink-0">
+                          {imgUrl ? (
+                            <img
+                              src={imgUrl}
+                              alt={item.product_name || item.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <Boxes className="w-4 h-4 text-slate-400" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-mono text-[11px] font-bold text-blue-700">{item.sku || '---'}</div>
+                          <div className="font-bold text-xs text-slate-900 line-clamp-2">
+                            {item.product_name || item.productName || item.name}
+                          </div>
+                        </div>
+                      </div>
+                      {isLow ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-700 border border-red-200 shrink-0">
+                          <AlertTriangle className="w-3 h-3" />
+                          <span>Sắp hết</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Đủ hàng</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs tabular-nums pt-1">
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/80">
+                        <div className="text-[10px] text-slate-500">Tổng tồn</div>
+                        <div className="font-bold text-slate-900 mt-0.5">{formatNumber(qty)}</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-amber-50/50 border border-amber-200/70">
+                        <div className="text-[10px] text-amber-700">Đang giữ</div>
+                        <div className="font-bold text-amber-700 mt-0.5">{res > 0 ? `-${formatNumber(res)}` : '0'}</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-blue-50/60 border border-blue-200">
+                        <div className="text-[10px] text-blue-700">Có thể bán</div>
+                        <div className="font-bold text-blue-700 mt-0.5">{formatNumber(avail)}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Desktop Table (>= md) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[860px] text-left text-xs border-collapse">
               <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase font-semibold border-b border-slate-200">
                 <tr>

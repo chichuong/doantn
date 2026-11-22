@@ -21,14 +21,14 @@ export const Navbar = ({ onOpenShiftClick, onCloseShiftClick, onMenuClick }) => 
     user?.role === 'admin'
       ? 'Quản trị viên'
       : user?.role === 'manager'
-      ? 'Quản lý'
-      : user?.role === 'sales'
-      ? 'Thu ngân'
-      : user?.role === 'warehouse'
-      ? 'Thủ kho'
-      : user?.role === 'customer'
-      ? 'Khách hàng'
-      : user?.role_name || user?.role || 'Nhân viên';
+        ? 'Quản lý'
+        : user?.role === 'sales'
+          ? 'Thu ngân'
+          : user?.role === 'warehouse'
+            ? 'Thủ kho'
+            : user?.role === 'customer'
+              ? 'Khách hàng'
+              : user?.role_name || user?.role || 'Nhân viên';
 
   return (
     <header className="h-16 shrink-0 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-5 lg:px-6 flex items-center justify-between sticky top-0 z-30">

@@ -343,27 +343,27 @@ export const ShopPage = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium w-full md:w-auto">
           <button
             type="button"
             onClick={() => setActiveTab('catalog')}
-            className={`px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition ${
+            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
               activeTab === 'catalog' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
             }`}
           >
-            <Package className="w-4 h-4" />
-            <span>Sản phẩm</span>
+            <Package className="w-4 h-4 shrink-0" />
+            <span className="truncate">Sản phẩm</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('cart')}
-            className={`px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition ${
+            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
               activeTab === 'cart' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
             }`}
           >
-            <ShoppingCart className="w-4 h-4" />
-            <span>Giỏ hàng</span>
+            <ShoppingCart className="w-4 h-4 shrink-0" />
+            <span className="truncate">Giỏ hàng</span>
             {totalCartItems > 0 && (
               <span className="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold tabular-nums">
                 {totalCartItems}
@@ -374,29 +374,29 @@ export const ShopPage = () => {
           <button
             type="button"
             onClick={() => setActiveTab('orders')}
-            className={`px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition ${
+            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
               activeTab === 'orders' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
             }`}
           >
-            <ClipboardList className="w-4 h-4" />
-            <span>Đơn hàng của tôi</span>
+            <ClipboardList className="w-4 h-4 shrink-0" />
+            <span className="truncate">Đơn hàng</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('profile')}
-            className={`px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition ${
+            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
               activeTab === 'profile' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
             }`}
           >
-            <MapPin className="w-4 h-4" />
-            <span>Sổ địa chỉ ({addresses.length})</span>
+            <MapPin className="w-4 h-4 shrink-0" />
+            <span className="truncate">Địa chỉ ({addresses.length})</span>
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4">
         {error && (
           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
             {error}
@@ -593,58 +593,62 @@ export const ShopPage = () => {
                     const qty = Number(item.quantity ?? 1);
                     const imgUrl = item.image_url || item.imageUrl;
                     return (
-                      <div key={item.product_id} className="py-3.5 flex items-center justify-between gap-4">
-                        <div className="w-12 h-12 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center shrink-0">
-                          {imgUrl ? (
-                            <img
-                              src={imgUrl}
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <Package className="w-5 h-5 text-slate-400" />
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-xs font-bold text-slate-900">{item.name}</div>
-                          <div className="text-[11px] text-slate-500 font-mono">
-                            SKU: {item.sku} • Đơn giá: {formatCurrency(price)}
+                      <div key={item.product_id} className="py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="w-12 h-12 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center shrink-0">
+                            {imgUrl ? (
+                              <img
+                                src={imgUrl}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <Package className="w-5 h-5 text-slate-400" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold text-slate-900 line-clamp-2">{item.name}</div>
+                            <div className="text-[11px] text-slate-500 font-mono">
+                              {item.sku} • {formatCurrency(price)}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pl-15 sm:pl-0">
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCartQty(item.product_id, qty - 1)}
+                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-xs font-bold w-6 text-center tabular-nums">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCartQty(item.product_id, qty + 1)}
+                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="text-xs font-bold text-blue-600 sm:w-24 text-right tabular-nums">
+                            {formatCurrency(price * qty)}
+                          </div>
+
                           <button
                             type="button"
-                            onClick={() => handleUpdateCartQty(item.product_id, qty - 1)}
-                            className="p-1 rounded border border-slate-200 hover:bg-slate-100"
+                            onClick={() => handleUpdateCartQty(item.product_id, 0)}
+                            className="p-1.5 text-slate-400 hover:text-red-600"
+                            title="Xóa khỏi giỏ"
                           >
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
-                          <span className="text-xs font-bold w-6 text-center">{qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateCartQty(item.product_id, qty + 1)}
-                            className="p-1 rounded border border-slate-200 hover:bg-slate-100"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-
-                        <div className="text-xs font-bold text-blue-600 w-28 text-right">
-                          {formatCurrency(price * qty)}
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateCartQty(item.product_id, 0)}
-                          className="p-1.5 text-slate-400 hover:text-red-600"
-                          title="Xóa khỏi giỏ"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
                     );
                   })}
