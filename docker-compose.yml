@@ -1,0 +1,68 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: karat-mssql
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+      MSSQL_SA_PASSWORD: "KaratStrongPassword!123"
+    ports:
+      - "14333:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./Backend/database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'KaratStrongPassword!123' -C -Q 'SELECT 1' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  forecasting:
+    build:
+      context: ./Forecasting
+      dockerfile: Dockerfile
+    container_name: karat-forecasting-ai
+    restart: unless-stopped
+    environment:
+      FORECAST_SERVICE_TOKEN: "karat-local-dev-token"
+    ports:
+      - "8001:8001"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: karat-retail-fullstack
+    restart: unless-stopped
+    depends_on:
+      mssql:
+        condition: service_healthy
+      forecasting:
+        condition: service_started
+    environment:
+      NODE_ENV: "production"
+      PORT: 3000
+      DB_HOST: "mssql"
+      DB_PORT: 1433
+      DB_NAME: "Karat_retail"
+      DB_USER: "sa"
+      DB_PASSWORD: "KaratStrongPassword!123"
+      DB_SSL: "false"
+      JWT_SECRET: "187ebd1cdefde9988a9a3d4740e19094ae05965458649263692f19c76df2855b"
+      JWT_EXPIRES_IN: "8h"
+      BCRYPT_SALT_ROUNDS: 12
+      CORS_ORIGINS: "https://karats.studio,https://www.karats.studio,http://localhost:3000"
+      FORECAST_SERVICE_URL: "http://forecasting:8001"
+      FORECAST_SERVICE_TOKEN: "karat-local-dev-token"
+      RESEND_API_KEY: "${RESEND_API_KEY:-}"
+      SMTP_HOST: "${SMTP_HOST:-smtp.ethereal.email}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_USER: "${SMTP_USER:-jjcr7fcsmyeixric@ethereal.email}"
+      SMTP_PASS: "${SMTP_PASS:-sNhSe38rdSA2z1txEz}"
+      SMTP_FROM: "Karat Retail <no-reply@karats.studio>"
+    ports:
+      - "3000:3000"
+
+volumes:
+  mssql_data:

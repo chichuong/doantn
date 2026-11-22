@@ -32,7 +32,8 @@ export const env = {
   smtpPort: Number(process.env.SMTP_PORT || 587),
   smtpUser: process.env.SMTP_USER || '',
   smtpPass: process.env.SMTP_PASS || '',
-  smtpFrom: process.env.SMTP_FROM || ''
+  smtpFrom: process.env.SMTP_FROM || 'Karat Retail <no-reply@karats.studio>',
+  resendApiKey: process.env.RESEND_API_KEY || ''
 };
 
 if (!Number.isInteger(env.reservationTtlMinutes) || env.reservationTtlMinutes < 0 || env.reservationTtlMinutes > 10080) {

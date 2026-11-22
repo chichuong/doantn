@@ -6,7 +6,7 @@ export const httpSecurity = (request, response, next) => {
   response.setHeader('Referrer-Policy', 'no-referrer');
   const origin = request.get('Origin');
   const isLocalhostOrigin = origin && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-  const isPublicTunnelOrigin = origin && /^https:\/\/[a-z0-9-]+\.(trycloudflare\.com|loca\.lt|vercel\.app|onrender\.com)$/i.test(origin);
+  const isPublicTunnelOrigin = origin && /^https?:\/\/([a-z0-9-]+\.)?(karats\.studio|trycloudflare\.com|loca\.lt|vercel\.app|onrender\.com)$/i.test(origin);
   const isAllowedOrigin = origin && (env.corsOrigins.includes('*') || env.corsOrigins.includes(origin));
   if (isLocalhostOrigin || isPublicTunnelOrigin || isAllowedOrigin) {
     response.setHeader('Access-Control-Allow-Origin', origin);

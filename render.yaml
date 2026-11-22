@@ -26,4 +26,4 @@ services:
       - key: SMTP_PASS
         value: sNhSe38rdSA2z1txEz
       - key: SMTP_FROM
-        value: "Karat Retail <karatretail@karat.vn>"
+        value: "Karat Retail <no-reply@karats.studio>"
