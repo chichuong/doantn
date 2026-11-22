@@ -1,0 +1,35 @@
+name: CI/CD Production Build & Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-verify:
+    name: Build Full-stack (Frontend + Backend)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install & Check Backend Syntax
+        working-directory: ./Backend
+        run: |
+          npm ci
+          node --check src/server.js
+          node --check src/app.js
+          node --check src/services/auth.service.js
+
+      - name: Install & Build Frontend Web (Production)
+        working-directory: ./Frontend_Web
+        run: |
+          npm ci
+          npm run build

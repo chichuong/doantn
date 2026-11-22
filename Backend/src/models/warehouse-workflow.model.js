@@ -2,17 +2,20 @@ import { query } from '../config/database.js';
 import { withTransaction } from '../utils/transaction.js';
 import { changeStock } from './inventory.model.js';
 import { AppError } from '../utils/app-error.js';
-import { recordOrderStateEvent } from '../domain/order-state-machine.js';
+import { ORDER_STATUS, recordOrderStateEvent, transitionOrder } from '../domain/order-state-machine.js';
 
 export const getOrderCheck = async (orderId) => {
   const header = await query(`SELECT id, order_number, warehouse_id, status FROM orders
     WHERE id = $1 AND channel IN ('web', 'mobile')`, [orderId]);
   if (!header.rowCount) throw new AppError(404, 'Không tìm thấy đơn online');
-  const items = await query(`SELECT oi.id AS order_item_id, oi.product_id, p.sku, p.barcode, p.name,
-    oi.quantity, COALESCE(SUM(e.quantity), 0)::int AS scanned_quantity
+  const items = await query(`SELECT oi.id AS order_item_id, oi.product_id, p.sku, p.barcode, p.name, p.name AS product_name,
+    p.image_url, p.image_url AS "imageUrl",
+    oi.quantity, oi.quantity AS required_quantity, COALESCE(SUM(e.quantity), 0) AS scanned_quantity
     FROM order_items oi JOIN products p ON p.id = oi.product_id
     LEFT JOIN order_scan_events e ON e.order_item_id = oi.id
-    WHERE oi.order_id = $1 GROUP BY oi.id, p.id ORDER BY oi.product_id`, [orderId]);
+    WHERE oi.order_id = $1
+    GROUP BY oi.id, oi.product_id, p.id, p.sku, p.barcode, p.name, p.image_url, oi.quantity
+    ORDER BY oi.product_id`, [orderId]);
   return { ...header.rows[0], items: items.rows,
     all_checked: items.rowCount > 0 && items.rows.every(item => item.quantity === item.scanned_quantity) };
 };
@@ -35,9 +38,21 @@ export const scanOrderItem = (input) => withTransaction(async (client) => {
     throw new AppError(409, 'Chỉ quét kiểm tra khi đơn đã xác nhận và chưa đóng gói');
   }
   const task = await client.query('SELECT status FROM order_processing_tasks WHERE order_id = $1 FOR UPDATE', [orderId]);
-  if (!['picking', 'ready_to_pack'].includes(task.rows[0]?.status)) throw new AppError(409, 'Cần bắt đầu lấy hàng trước khi quét kiểm tra');
+  if (!['picking', 'ready_to_pack'].includes(task.rows[0]?.status)) {
+    if (order.rows[0].status === 'ready_to_pack') {
+      await client.query(
+        `MERGE INTO order_processing_tasks AS target
+         USING (SELECT $1 AS order_id) AS source ON target.order_id = source.order_id
+         WHEN MATCHED THEN UPDATE SET status = 'ready_to_pack', completed_at = COALESCE(target.completed_at, NOW()), updated_at = NOW()
+         WHEN NOT MATCHED THEN INSERT (order_id, status, assigned_at, completed_at, updated_at) VALUES (source.order_id, 'ready_to_pack', NOW(), NOW(), NOW());`,
+        [orderId]
+      );
+    } else {
+      throw new AppError(409, 'Cần bắt đầu lấy hàng trước khi quét kiểm tra');
+    }
+  }
   const item = await client.query(`SELECT oi.id, oi.quantity FROM order_items oi JOIN products p ON p.id = oi.product_id
-    WHERE oi.order_id = $1 AND (p.sku = $2 OR p.barcode = $2)`, [orderId, identifier]);
+    WHERE oi.order_id = $1 AND p.sku = $2`, [orderId, identifier]);
   if (item.rowCount !== 1) throw new AppError(409, 'Mã không thuộc đơn hoặc không xác định duy nhất một sản phẩm');
   const scanned = await client.query('SELECT COALESCE(SUM(quantity),0)::int AS total FROM order_scan_events WHERE order_item_id = $1', [item.rows[0].id]);
   if (scanned.rows[0].total + quantity > item.rows[0].quantity) throw new AppError(409, 'Số lượng quét vượt số lượng của dòng đơn');
@@ -60,13 +75,44 @@ export const getReturnReceipt = async (orderId) => {
 };
 
 export const receiveOrderReturn = (input) => withTransaction(async (client) => {
-  const { orderId, items, note, userId } = input;
+  const { orderId, note, userId } = input;
+  let { items } = input;
   const order = await client.query(`SELECT id, status, warehouse_id, order_number FROM orders
     WHERE id = $1 AND channel IN ('web', 'mobile') FOR UPDATE`, [orderId]);
   if (!order.rowCount) throw new AppError(404, 'Không tìm thấy đơn online');
   const header = order.rows[0];
+  if (['handover', 'shipping', 'delivered'].includes(header.status)) {
+    const shipment = await client.query('SELECT id, status FROM shipments WHERE order_id = $1 FOR UPDATE', [orderId]);
+    if (shipment.rowCount && shipment.rows[0].status !== 'returned') {
+      await client.query(
+        `UPDATE shipments SET status = 'returned', failed_at = COALESCE(failed_at, NOW()), updated_at = NOW() WHERE id = $1`,
+        [shipment.rows[0].id]
+      );
+      await client.query(
+        `INSERT INTO shipment_status_history (shipment_id, status, note, changed_by) VALUES ($1, 'returned', $2, $3)`,
+        [shipment.rows[0].id, note || 'Hoàn trả đơn hàng về kho', userId]
+      );
+    }
+    await transitionOrder(client, {
+      orderId,
+      toStatus: ORDER_STATUS.RETURNED,
+      expectedFrom: ['handover', 'shipping', 'delivered'],
+      note: note || 'Chuyển trạng thái hoàn trả hàng về kho',
+      changedBy: userId
+    });
+    header.status = 'returned';
+  }
   if (header.status !== 'returned') throw new AppError(409, 'Đơn chưa được báo hoàn từ giao nhận');
   if (!header.warehouse_id) throw new AppError(409, 'Đơn cũ chưa xác định được kho xuất');
+  const lines = await client.query('SELECT id, product_id, quantity FROM order_items WHERE order_id = $1 ORDER BY product_id', [orderId]);
+  if (!lines.rowCount) throw new AppError(400, 'Đơn hàng không có dòng sản phẩm');
+  if (!items || !items.length) {
+    items = lines.rows.map(line => ({
+      orderItemId: line.id,
+      receivedQuantity: line.quantity,
+      restockQuantity: line.quantity
+    }));
+  }
   const existing = await client.query('SELECT id FROM order_return_receipts WHERE order_id = $1', [orderId]);
   if (existing.rowCount) {
     const prior = await client.query(`SELECT order_item_id, received_quantity, restock_quantity
@@ -79,9 +125,8 @@ export const receiveOrderReturn = (input) => withTransaction(async (client) => {
     return existing.rows[0].id;
   }
   const shipment = await client.query('SELECT status FROM shipments WHERE order_id = $1 FOR UPDATE', [orderId]);
-  if (shipment.rows[0]?.status !== 'returned') throw new AppError(409, 'Vận đơn chưa được xác nhận hoàn về');
-  const lines = await client.query('SELECT id, product_id, quantity FROM order_items WHERE order_id = $1 ORDER BY product_id', [orderId]);
-  if (!lines.rowCount || lines.rowCount !== items.length) throw new AppError(400, 'Phiếu hoàn phải khai báo toàn bộ dòng đơn');
+  if (shipment.rowCount && shipment.rows[0]?.status !== 'returned') throw new AppError(409, 'Vận đơn chưa được xác nhận hoàn về');
+  if (lines.rowCount !== items.length) throw new AppError(400, 'Phiếu hoàn phải khai báo toàn bộ dòng đơn');
   const received = new Map(items.map(item => [item.orderItemId, item]));
   const receipt = await client.query(`INSERT INTO order_return_receipts (order_id, warehouse_id, received_by, note)
     VALUES ($1,$2,$3,$4) RETURNING id`, [orderId, header.warehouse_id, userId, note || null]);

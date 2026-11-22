@@ -23,6 +23,9 @@
     "db:backfill:016": "node scripts/run-sql-file.js database/016_core_safe_backfill.sql",
     "db:migrate:016": "node scripts/run-sql-file.js database/migrations/016_core_inventory_and_state_machine.sql",
     "db:migrate:017": "node scripts/run-sql-file.js database/migrations/017_order_history_integrity.sql",
+    "db:migrate:018": "node scripts/run-sql-file.js database/migrations/018_warehouse_approval_and_qr_workflow.sql",
+    "db:migrate:019": "node scripts/run-sql-file.js database/migrations/019_warehouse_iot_qr_verification.sql",
+    "db:migrate:020": "node scripts/run-sql-file.js database/migrations/020_single_central_warehouse_setup.sql",
     "db:accept:016": "node scripts/run-sql-file.js database/016_core_acceptance.sql"
   },
   "dependencies": {
@@ -31,7 +34,9 @@
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mssql": "^12.8.0",
     "multer": "^2.0.2",
+    "nodemailer": "^10.6.1",
     "pg": "^8.13.1"
   }
 }

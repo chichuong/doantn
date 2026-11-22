@@ -17,6 +17,8 @@ import {
   upsertCartItem
 } from '../models/customer.model.js';
 
+import { getCentralWarehouseId } from './central-warehouse.service.js';
+
 const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
 const pageParams = paging;
 const pagination = (result, page, limit) => ({ data: result.rows, pagination: { page, limit, total: result.total, totalPages: Math.ceil(result.total / limit) } });
@@ -75,14 +77,18 @@ export const removeAddress = async (userId, id) => {
 };
 
 export const createOrder = async (userId, input, key) => {
-  if (!isUuid(input.warehouseId)) throw new AppError(400, 'warehouseId không hợp lệ');
+  let warehouseId = input.warehouseId;
+  if (!warehouseId || !isUuid(warehouseId)) {
+    warehouseId = await getCentralWarehouseId();
+  }
+  if (!isUuid(warehouseId)) throw new AppError(400, 'Không xác định được kho xử lý');
   if (input.addressId && !isUuid(input.addressId)) throw new AppError(400, 'addressId không hợp lệ');
   if (input.channel && !['web', 'mobile'].includes(input.channel)) throw new AppError(400, 'channel phải là web hoặc mobile');
   for (const [field, max] of [['customerName',150],['customerPhone',30],['note',255]]) {
     if (input[field] !== undefined) assertText(input[field], field, max);
   }
   try {
-    const id = await checkout({ ...input, channel: input.channel || 'web', orderNumber: `ONL-${randomUUID()}`,
+    const id = await checkout({ ...input, warehouseId, channel: input.channel || 'web', orderNumber: `ONL-${randomUUID()}`,
       userId, idempotencyKey: validateIdempotencyKey(key) });
     return getOrder(userId, id);
   } catch (error) {
@@ -111,8 +117,8 @@ export const orderDetail = async (userId, orderId) => {
 
 export const cancel = async (userId, orderId, note) => {
   if (!isUuid(orderId)) throw new AppError(400, 'orderId không hợp lệ');
-  if (note !== undefined) assertText(note, 'note', 255);
-  try { await cancelOrder(userId, orderId, note); return await getOrder(userId, orderId); }
+  const noteText = (typeof note === 'string' && note.trim().length > 0) ? note.trim() : 'Khách hàng yêu cầu hủy đơn';
+  try { await cancelOrder(userId, orderId, noteText); return await getOrder(userId, orderId); }
   catch (error) {
     if (error.code === 'ORDER_NOT_FOUND') throw new AppError(404, 'Không tìm thấy đơn hàng của khách hàng');
     if (error.code === 'ORDER_NOT_CANCELLABLE') throw new AppError(409, 'Đơn hàng không còn ở trạng thái có thể hủy');

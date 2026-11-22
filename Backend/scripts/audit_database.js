@@ -2,11 +2,11 @@ import { query, closeDatabase } from '../src/config/database.js';
 
 async function checkSchema() {
   try {
-    console.log('--- TABLES IN PUBLIC SCHEMA ---');
+    console.log('--- TABLES IN DBO SCHEMA ---');
     const tables = await query(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'public' 
+      WHERE table_schema = 'dbo' 
       ORDER BY table_name;
     `);
     console.log(tables.rows.map(r => r.table_name).join(', '));
@@ -14,19 +14,13 @@ async function checkSchema() {
     console.log('\n--- CHECKING CONSTRAINTS & FOREIGN KEYS ---');
     const fkQuery = await query(`
       SELECT
-        tc.table_name, 
-        kcu.column_name, 
-        ccu.table_name AS foreign_table_name,
-        ccu.column_name AS foreign_column_name 
-      FROM information_schema.table_constraints AS tc 
-      JOIN information_schema.key_column_usage AS kcu
-        ON tc.constraint_name = kcu.constraint_name
-        AND tc.table_schema = kcu.table_schema
-      JOIN information_schema.constraint_column_usage AS ccu
-        ON ccu.constraint_name = tc.constraint_name
-        AND ccu.table_schema = tc.table_schema
-      WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public'
-      ORDER BY tc.table_name, kcu.column_name;
+        OBJECT_NAME(f.parent_object_id) AS table_name,
+        COL_NAME(fc.parent_object_id, fc.parent_column_id) AS column_name,
+        OBJECT_NAME(f.referenced_object_id) AS foreign_table_name,
+        COL_NAME(fc.referenced_object_id, fc.referenced_column_id) AS foreign_column_name
+      FROM sys.foreign_keys AS f
+      INNER JOIN sys.foreign_key_columns AS fc ON f.object_id = fc.constraint_object_id
+      ORDER BY table_name, column_name;
     `);
     console.log(`Total Foreign Keys: ${fkQuery.rowCount}`);
 

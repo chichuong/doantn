@@ -1,4 +1,5 @@
 import { AppError } from '../utils/app-error.js';
+import { query } from '../config/database.js';
 import {
   createShipment,
   findOrderForShipment,
@@ -24,14 +25,21 @@ export const scan = async (identifier, actor) => {
 };
 
 export const create = async (input, actor) => {
-  if (!isUuid(input.orderId) || !isUuid(input.assignedTo)) throw new AppError(400, 'orderId và assignedTo phải là UUID');
+  let assignedTo = input.assignedTo;
+  if (!assignedTo) {
+    const defaultShipper = await query(
+      `SELECT u.id FROM users u JOIN roles r ON r.id = u.role_id WHERE r.code = 'shipper' AND u.status = 'active' ORDER BY u.created_at ASC LIMIT 1`
+    );
+    assignedTo = defaultShipper.rows[0]?.id;
+  }
+  if (!isUuid(input.orderId) || !isUuid(assignedTo)) throw new AppError(400, 'orderId và assignedTo phải là UUID');
   if (!/^[A-Za-z0-9_-]{4,60}$/.test(String(input.trackingNumber || ''))) throw new AppError(400, 'trackingNumber không hợp lệ');
-  const shipper = await findShipper(input.assignedTo);
+  const shipper = await findShipper(assignedTo);
   if (!shipper || shipper.status !== 'active') throw new AppError(400, 'assignedTo phải là shipper đang hoạt động');
   const order = await findOrderForShipment(input.orderId);
   if (!order) throw new AppError(404, 'Không tìm thấy đơn hàng');
   try {
-    return await createShipment({ ...input, createdBy: actor.id });
+    return await createShipment({ ...input, assignedTo, createdBy: actor.id });
   } catch (error) {
     if (error.code === 'ORDER_NOT_FOUND') throw new AppError(404, 'Không tìm thấy đơn hàng');
     if (error.code === 'ORDER_NOT_PACKED') throw new AppError(409, 'Đơn hàng phải ở trạng thái packed trước khi tạo vận đơn');

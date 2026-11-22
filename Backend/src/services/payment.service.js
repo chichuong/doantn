@@ -7,9 +7,12 @@ const note = (value) => value === undefined ? undefined : assertText(value, 'not
 export const instructions = async (id, userId) => {
   const state = await model.getCustomerPayment(assertUuid(id, 'orderId'), userId);
   const configured = Boolean(env.bankName && env.bankAccountNumber && env.bankAccountName);
+  const dynamicVietQr = configured
+    ? `https://img.vietqr.io/image/970436-${encodeURIComponent(env.bankAccountNumber)}-compact2.png?amount=${Math.round(Number(state.order.total_amount || 0))}&addInfo=${encodeURIComponent(state.order.order_number)}&accountName=${encodeURIComponent(env.bankAccountName)}`
+    : null;
   return { ...state, transfer: { configured, bankName: env.bankName || null,
     accountNumber: env.bankAccountNumber || null, accountName: env.bankAccountName || null,
-    qrImageUrl: env.bankQrImageUrl || null, amount: state.order.total_amount,
+    qrImageUrl: env.bankQrImageUrl || dynamicVietQr, amount: state.order.total_amount,
     transferContent: state.order.order_number, confirmationMode: 'manual_review' } };
 };
 export const submit = async (id, input, userId) => {

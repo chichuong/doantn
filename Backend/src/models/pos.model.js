@@ -7,15 +7,14 @@ import { ORDER_STATUS, recordInitialOrderState, transitionOrder } from '../domai
 
 export const findSaleProduct = async (identifier, warehouseId) => {
   const result = await query(
-    `SELECT p.id, p.sku, p.barcode, p.name, p.sale_price,
+    `SELECT p.id, p.sku, p.barcode, p.name, p.sale_price, p.image_url, p.image_url AS "imageUrl",
        i.warehouse_id, i.quantity, i.reserved_quantity,
        (i.quantity - i.reserved_quantity)::int AS available_quantity
      FROM products p
      JOIN inventory i ON i.product_id = p.id AND i.warehouse_id = $2
-     WHERE p.is_active = TRUE AND (p.sku = $1 OR p.barcode = $1)`,
+     WHERE p.is_active = TRUE AND p.sku = $1`,
     [identifier, warehouseId]
   );
-  if (result.rowCount > 1) throw new AppError(409, 'Mã trùng giữa SKU và barcode của các sản phẩm; cần sửa định danh');
   return result.rows[0] || null;
 };
 
@@ -23,12 +22,12 @@ export const getCurrentSession = async (userId) => {
   const result = await query(
     `SELECT s.id, s.warehouse_id, w.code AS warehouse_code, w.name AS warehouse_name,
        s.status, s.opening_cash, s.opened_at, s.updated_at,
-       COALESCE(SUM(p.amount) FILTER (WHERE p.status = 'paid'), 0)::numeric(14,2) AS paid_sales
+       CAST(COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) AS DECIMAL(14,2)) AS paid_sales
      FROM pos_sessions s JOIN warehouses w ON w.id = s.warehouse_id
      LEFT JOIN orders o ON o.pos_session_id = s.id AND o.channel = 'pos' AND o.status = 'delivered'
      LEFT JOIN payments p ON p.order_id = o.id
      WHERE s.opened_by = $1 AND s.status = 'open'
-     GROUP BY s.id, w.id`,
+     GROUP BY s.id, s.warehouse_id, w.id, w.code, w.name, s.status, s.opening_cash, s.opened_at, s.updated_at`,
     [userId]
   );
   return result.rows[0] || null;
@@ -77,15 +76,19 @@ const saleSelect = `
 
 export const listSales = async ({ userId, status, from, to, limit, offset }) => {
   const values = [userId, from, to];
-  const conditions = ["o.channel = 'pos'", 'o.created_by = $1', 'o.created_at >= $2::date', "o.created_at < ($3::date + INTERVAL '1 day')"];
+  const conditions = ["o.channel = 'pos'", 'o.created_by = $1', 'o.created_at >= CAST($2 AS DATE)', 'o.created_at < DATEADD(day, 1, CAST($3 AS DATE))'];
   if (status) { values.push(status); conditions.push(`o.status = $${values.length}`); }
   const where = `WHERE ${conditions.join(' AND ')}`;
-  const count = await query(`SELECT COUNT(*)::int AS total FROM orders o ${where}`, values);
+  const count = await query(`SELECT COUNT(*) AS total FROM orders o ${where}`, values);
   values.push(limit, offset);
   const result = await query(
-    `SELECT ${saleSelect}, COUNT(oi.id)::int AS item_lines
-     FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id
-     ${where} GROUP BY o.id ORDER BY o.created_at DESC
+    `SELECT ${saleSelect}, w.name AS warehouse_name, w.code AS warehouse_code, COUNT(oi.id) AS item_lines
+     FROM orders o
+     LEFT JOIN warehouses w ON w.id = o.warehouse_id
+     LEFT JOIN order_items oi ON oi.order_id = o.id
+     ${where}
+     GROUP BY ${saleSelect}, w.id, w.name, w.code
+     ORDER BY o.created_at DESC
      LIMIT $${values.length - 1} OFFSET $${values.length}`,
     values
   );
@@ -94,18 +97,29 @@ export const listSales = async ({ userId, status, from, to, limit, offset }) => 
 
 export const getSale = async (saleId, userId) => {
   const header = await query(
-    `SELECT ${saleSelect} FROM orders o
+    `SELECT ${saleSelect}, w.name AS warehouse_name, w.code AS warehouse_code
+     FROM orders o
+     LEFT JOIN warehouses w ON w.id = o.warehouse_id
      WHERE o.id = $1 AND o.created_by = $2 AND o.channel = 'pos'`,
     [saleId, userId]
   );
   if (!header.rows[0]) return null;
-  const [items, payments] = await Promise.all([
-    query(`SELECT oi.product_id, p.sku, p.barcode, p.name, oi.quantity, oi.unit_price, oi.line_total
+  const [items, payments, history] = await Promise.all([
+    query(`SELECT oi.product_id, p.sku, p.barcode, p.name, p.image_url, p.image_url AS "imageUrl", oi.quantity, oi.unit_price, oi.line_total
            FROM order_items oi JOIN products p ON p.id = oi.product_id WHERE oi.order_id = $1`, [saleId]),
     query(`SELECT id, method, amount, status, transaction_reference, refund_reference, paid_at, refunded_at
-           FROM payments WHERE order_id = $1 ORDER BY paid_at`, [saleId])
+           FROM payments WHERE order_id = $1 ORDER BY paid_at`, [saleId]),
+    query(`SELECT id, from_status, status, note, changed_by, created_at FROM order_status_history WHERE order_id = $1 ORDER BY created_at ASC`, [saleId])
   ]);
-  return { ...header.rows[0], items: items.rows, payments: payments.rows };
+  const firstPayment = payments.rows[0] || null;
+  return {
+    ...header.rows[0],
+    payment_method: firstPayment?.method || 'cash',
+    transaction_reference: firstPayment?.transaction_reference || null,
+    items: items.rows,
+    payments: payments.rows,
+    status_history: history.rows
+  };
 };
 
 export const createSale = async ({ sessionId, userId, customerName, customerPhone, paymentMethod, transactionReference, items, orderNumber, idempotencyKey }) => {

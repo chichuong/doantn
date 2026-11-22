@@ -20,17 +20,33 @@ export const findUserByEmail = async (email) => {
 export const findUserAuthorization = async (userId) => {
   const result = await query(
     `SELECT ${userColumns},
-       COALESCE(JSON_AGG(p.code) FILTER (WHERE p.code IS NOT NULL), '[]') AS permissions,
-       COALESCE((SELECT JSON_AGG(uw.warehouse_id) FROM user_warehouses uw WHERE uw.user_id = u.id), '[]') AS warehouse_ids
+       COALESCE((
+         SELECT p.code
+         FROM role_permissions rp
+         JOIN permissions p ON p.id = rp.permission_id
+         WHERE rp.role_id = r.id
+         FOR JSON PATH
+       ), '[]') AS permissions,
+       COALESCE((
+         SELECT uw.warehouse_id
+         FROM user_warehouses uw
+         WHERE uw.user_id = u.id
+         FOR JSON PATH
+       ), '[]') AS warehouse_ids
      FROM users u
      JOIN roles r ON r.id = u.role_id
-     LEFT JOIN role_permissions rp ON rp.role_id = r.id
-     LEFT JOIN permissions p ON p.id = rp.permission_id
-     WHERE u.id = $1
-     GROUP BY u.id, r.id`,
+     WHERE u.id = $1`,
     [userId]
   );
-  return result.rows[0] || null;
+  if (!result.rows[0]) return null;
+  const row = result.rows[0];
+  row.permissions = Array.isArray(row.permissions)
+    ? row.permissions.map((x) => (typeof x === 'object' && x !== null ? x.code : x))
+    : [];
+  row.warehouse_ids = Array.isArray(row.warehouse_ids)
+    ? row.warehouse_ids.map((x) => String(typeof x === 'object' && x !== null ? x.warehouse_id : x).toLowerCase())
+    : [];
+  return row;
 };
 
 export const updateLastLogin = (userId) => query(
@@ -79,13 +95,17 @@ export const findRoleByCode = async (code) => {
 export const listRoles = async () => {
   const result = await query(
     `SELECT r.id, r.code, r.name, r.description, r.is_system, r.created_at, r.updated_at,
-       COUNT(rp.permission_id)::int AS permission_count
+       (SELECT COUNT(*) FROM role_permissions rp WHERE rp.role_id = r.id) AS permission_count,
+       COALESCE((SELECT rp.permission_id FROM role_permissions rp WHERE rp.role_id = r.id FOR JSON PATH), '[]') AS permission_ids
      FROM roles r
-     LEFT JOIN role_permissions rp ON rp.role_id = r.id
-     GROUP BY r.id
      ORDER BY r.is_system DESC, r.name ASC`
   );
-  return result.rows;
+  return result.rows.map((row) => ({
+    ...row,
+    permission_ids: Array.isArray(row.permission_ids)
+      ? row.permission_ids.map((x) => String(typeof x === 'object' && x !== null ? x.permission_id : x).toLowerCase())
+      : []
+  }));
 };
 
 export const createRole = async ({ code, name, description }) => {
@@ -129,7 +149,7 @@ export const replaceRolePermissions = async (roleId, permissionIds) => {
     if (permissionIds.length) {
       await client.query(
         `INSERT INTO role_permissions (role_id, permission_id)
-         SELECT $1, unnest($2::uuid[])`,
+         SELECT $1, CAST(value AS UNIQUEIDENTIFIER) FROM OPENJSON($2)`,
         [roleId, permissionIds]
       );
     }
@@ -173,6 +193,16 @@ export const updateUser = async (userId, { fullName, phone, status, roleId }) =>
      WHERE id = $1
      RETURNING id, email, full_name, phone, status, role_id, created_at, updated_at`,
     [userId, fullName || null, phone || null, status || null, roleId || null]
+  );
+  return result.rows[0] || null;
+};
+
+export const updateUserPassword = async (userId, passwordHash) => {
+  const result = await query(
+    `UPDATE users SET password_hash = $2, updated_at = NOW()
+     WHERE id = $1
+     RETURNING id, email, full_name, status`,
+    [userId, passwordHash]
   );
   return result.rows[0] || null;
 };

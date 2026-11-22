@@ -20,11 +20,11 @@ export const importCategories = ({ rows, job }) => withTransaction(async (client
 export const exportCategories = async () => (await query(`SELECT name, description, is_active FROM categories ORDER BY name`)).rows;
 
 export const exportSales = async ({ from, to }) => (await query(`SELECT
-  (o.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AS date, o.channel,
-  COUNT(*)::int AS orders,
-  COUNT(*) FILTER (WHERE o.status = 'delivered')::int AS completed_orders,
-  COALESCE(SUM(o.total_amount) FILTER (WHERE o.status = 'delivered'), 0)::numeric(14,2) AS revenue,
-  COALESCE(SUM(o.total_amount) FILTER (WHERE o.status = 'returned'), 0)::numeric(14,2) AS returned_amount
-  FROM orders o WHERE o.created_at >= ($1::date::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh')
-    AND o.created_at < (($2::date + 1)::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh')
-  GROUP BY (o.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date, o.channel ORDER BY date, o.channel`, [from, to])).rows;
+  CONVERT(VARCHAR(10), o.created_at AT TIME ZONE 'SE Asia Standard Time', 23) AS date, o.channel,
+  COUNT(*) AS orders,
+  SUM(CASE WHEN o.status = 'delivered' THEN 1 ELSE 0 END) AS completed_orders,
+  CAST(COALESCE(SUM(CASE WHEN o.status = 'delivered' THEN o.total_amount ELSE 0 END), 0) AS DECIMAL(14,2)) AS revenue,
+  CAST(COALESCE(SUM(CASE WHEN o.status = 'returned' THEN o.total_amount ELSE 0 END), 0) AS DECIMAL(14,2)) AS returned_amount
+  FROM orders o WHERE o.created_at >= CAST($1 AS DATE)
+    AND o.created_at < DATEADD(day, 1, CAST($2 AS DATE))
+  GROUP BY CONVERT(VARCHAR(10), o.created_at AT TIME ZONE 'SE Asia Standard Time', 23), o.channel ORDER BY date, o.channel`, [from, to])).rows;

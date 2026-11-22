@@ -17,7 +17,7 @@ export const replaceUserWarehouses = (userId, warehouseIds, actorId) => withTran
   if (warehouses.rowCount !== warehouseIds.length) throw new AppError(400, 'Có kho không tồn tại hoặc đã ngừng hoạt động');
   await client.query('DELETE FROM user_warehouses WHERE user_id = $1', [userId]);
   if (warehouseIds.length) await client.query(`INSERT INTO user_warehouses (user_id, warehouse_id, assigned_by)
-    SELECT $1, unnest($2::uuid[]), $3`, [userId, warehouseIds, actorId]);
+    SELECT $1, CAST(value AS UNIQUEIDENTIFIER), $3 FROM OPENJSON($2)`, [userId, warehouseIds, actorId]);
   await client.query(`INSERT INTO audit_logs (actor_user_id, action, entity_type, entity_id, metadata)
     VALUES ($1,'replace_warehouses','user',$2,$3::jsonb)`, [actorId, userId, JSON.stringify({ warehouseIds })]);
 });

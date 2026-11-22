@@ -7,10 +7,16 @@ import { authenticate, requirePermission, requireRole } from '../middlewares/aut
 import { requireWarehouseAccess } from '../middlewares/warehouse-access.middleware.js';
 
 const router = Router();
-router.use(authenticate, requireRole('admin', 'warehouse'));
+router.use(authenticate, requireRole('admin', 'warehouse', 'manager'));
 
+router.post('/iot/heartbeat', asyncHandler(warehouseController.recordIotHeartbeat));
+router.get('/iot/status', asyncHandler(warehouseController.getIotStatus));
+router.post('/iot/sync-pc-wifi', asyncHandler(warehouseController.syncPcWifiToIot));
 router.get('/scan', requirePermission('warehouse.inventory.read'), requireWarehouseAccess('query'), asyncHandler(warehouseController.scan));
+router.get('/inventory', requirePermission('warehouse.inventory.read'), requireWarehouseAccess('query'), asyncHandler(warehouseController.listInventory));
 router.get('/documents', requirePermission('warehouse.documents.read'), requireWarehouseAccess('query'), asyncHandler(warehouseController.listDocuments));
+router.get('/documents/lookup', requirePermission('warehouse.documents.read'), asyncHandler(warehouseController.lookupByQr));
+router.get('/documents/lookup/:identifier', requirePermission('warehouse.documents.read'), asyncHandler(warehouseController.lookupByQr));
 router.get('/documents/:documentId', requirePermission('warehouse.documents.read'), requireWarehouseAccess('document'), asyncHandler(warehouseController.getDocument));
 router.post('/documents', requirePermission('warehouse.documents.create'), requireWarehouseAccess('body'), asyncHandler(warehouseController.createDocument));
 router.post('/documents/:documentId/complete', requirePermission('warehouse.documents.complete'), requireWarehouseAccess('document'), asyncHandler(warehouseController.completeDocument));

@@ -1,0 +1,6 @@
+sku,name,description,category,cost_price,sale_price,reorder_level,is_active
+SP-BEP-001,Chảo chống dính vân đá 24cm,Chảo đá đáy từ dùng mọi loại bếp,Dụng cụ nhà bếp,120000,199000,10,true
+SP-BEP-002,Dao làm bếp inox cao cấp 20cm,Dao thái lưỡi thép carbon không gỉ,Dụng cụ nhà bếp,85000,145000,15,true
+SP-VPP-001,Sổ tay bìa da A5 cao cấp,Sổ ghi chép 200 trang giấy ngà chống lóa,Văn phòng phẩm,35000,65000,20,true
+SP-VPP-002,Bút ký kim loại ngòi gel 0.5mm,Bút ký sang trọng mực đen cao cấp,Văn phòng phẩm,25000,49000,30,true
+

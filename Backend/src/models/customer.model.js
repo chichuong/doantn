@@ -16,12 +16,15 @@ export const listCatalog = async ({ search, categoryId, limit, offset }) => {
   values.push(limit, offset);
   const result = await query(
     `SELECT p.id, p.sku, p.barcode, p.name, p.description, p.category_id,
-       c.name AS category_name, p.sale_price, p.reorder_level,
-       COALESCE(SUM(i.quantity - i.reserved_quantity), 0)::int AS available_quantity
+       c.name AS category_name, p.sale_price, p.sale_price AS price, p.reorder_level,
+       p.image_url, p.image_url AS "imageUrl",
+       COALESCE(SUM(i.quantity - i.reserved_quantity), 0) AS available_quantity,
+       COALESCE(SUM(i.quantity - i.reserved_quantity), 0) AS available_stock
      FROM products p LEFT JOIN categories c ON c.id = p.category_id
-     LEFT JOIN inventory i ON i.product_id = p.id AND i.warehouse_id IN (SELECT id FROM warehouses WHERE is_active = TRUE)
+     LEFT JOIN inventory i ON i.product_id = p.id AND i.warehouse_id IN (SELECT id FROM warehouses WHERE is_active = 1)
      ${where}
-     GROUP BY p.id, c.id ORDER BY p.name ASC
+     GROUP BY p.id, p.sku, p.barcode, p.name, p.description, p.category_id, c.name, p.sale_price, p.reorder_level, p.image_url
+     ORDER BY p.name ASC
      LIMIT $${values.length - 1} OFFSET $${values.length}`,
     values
   );
@@ -29,18 +32,23 @@ export const listCatalog = async ({ search, categoryId, limit, offset }) => {
 };
 
 const cartSelect = `
-  ci.id AS cart_item_id, ci.product_id, p.sku, p.barcode, p.name,
-  p.sale_price, ci.quantity,
-  COALESCE((SELECT SUM(i.quantity - i.reserved_quantity) FROM inventory i JOIN warehouses w ON w.id = i.warehouse_id WHERE i.product_id = p.id AND w.is_active = TRUE), 0)::int AS available_quantity,
-  (p.sale_price * ci.quantity)::numeric(14,2) AS line_total
+  ci.id AS cart_item_id, ci.product_id, p.sku, p.barcode, p.name, p.name AS product_name,
+  p.image_url, p.image_url AS "imageUrl",
+  p.sale_price, p.sale_price AS price, ci.quantity,
+  COALESCE((SELECT SUM(i.quantity - i.reserved_quantity) FROM inventory i JOIN warehouses w ON w.id = i.warehouse_id WHERE i.product_id = p.id AND w.is_active = 1), 0) AS available_quantity,
+  COALESCE((SELECT SUM(i.quantity - i.reserved_quantity) FROM inventory i JOIN warehouses w ON w.id = i.warehouse_id WHERE i.product_id = p.id AND w.is_active = 1), 0) AS available_stock,
+  CAST(p.sale_price * ci.quantity AS DECIMAL(14,2)) AS line_total
 `;
 
 export const getOrCreateCart = async (userId) => {
-  const result = await query(
-    `INSERT INTO carts (user_id) VALUES ($1) ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
-     RETURNING id, user_id, created_at, updated_at`,
+  await query(
+    `MERGE INTO carts AS target
+     USING (SELECT $1 AS user_id) AS source ON target.user_id = source.user_id
+     WHEN MATCHED THEN UPDATE SET updated_at = NOW()
+     WHEN NOT MATCHED THEN INSERT (user_id) VALUES (source.user_id);`,
     [userId]
   );
+  const result = await query(`SELECT id, user_id, created_at, updated_at FROM carts WHERE user_id = $1`, [userId]);
   return result.rows[0];
 };
 
@@ -57,16 +65,27 @@ export const getCart = async (userId) => {
 
 export const upsertCartItem = async (userId, productId, quantity) => {
   return withTransaction(async (client) => {
-    const cart = await client.query(`INSERT INTO carts (user_id) VALUES ($1)
-      ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW() RETURNING id`, [userId]);
-    const product = await client.query('SELECT id, is_active FROM products WHERE id = $1 FOR SHARE', [productId]);
+    await client.query(
+      `MERGE INTO carts AS target
+       USING (SELECT $1 AS user_id) AS source ON target.user_id = source.user_id
+       WHEN MATCHED THEN UPDATE SET updated_at = NOW()
+       WHEN NOT MATCHED THEN INSERT (user_id) VALUES (source.user_id);`,
+      [userId]
+    );
+    const cart = await client.query(`SELECT id FROM carts WHERE user_id = $1`, [userId]);
+    const product = await client.query('SELECT id, is_active FROM products WHERE id = $1', [productId]);
     if (!product.rows[0] || !product.rows[0].is_active) { const error = new Error('PRODUCT_NOT_FOUND'); error.code = 'PRODUCT_NOT_FOUND'; throw error; }
-    const result = await client.query(
-      `INSERT INTO cart_items (cart_id, product_id, quantity)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (cart_id, product_id) DO UPDATE SET quantity = EXCLUDED.quantity, updated_at = NOW()
-       RETURNING id, cart_id, product_id, quantity, updated_at`,
+    await client.query(
+      `MERGE INTO cart_items AS target
+       USING (SELECT $1 AS cart_id, $2 AS product_id, $3 AS quantity) AS source
+       ON target.cart_id = source.cart_id AND target.product_id = source.product_id
+       WHEN MATCHED THEN UPDATE SET quantity = source.quantity, updated_at = NOW()
+       WHEN NOT MATCHED THEN INSERT (cart_id, product_id, quantity) VALUES (source.cart_id, source.product_id, source.quantity);`,
       [cart.rows[0].id, productId, quantity]
+    );
+    const result = await client.query(
+      `SELECT id, cart_id, product_id, quantity, updated_at FROM cart_items WHERE cart_id = $1 AND product_id = $2`,
+      [cart.rows[0].id, productId]
     );
     return result.rows[0];
   });
@@ -76,8 +95,10 @@ export const removeCartItem = async (userId, productId) => {
   return withTransaction(async (client) => {
     await client.query('SELECT id FROM carts WHERE user_id = $1 FOR UPDATE', [userId]);
     const result = await client.query(
-      `DELETE FROM cart_items ci USING carts c
-       WHERE ci.cart_id = c.id AND c.user_id = $1 AND ci.product_id = $2 RETURNING ci.id`,
+      `DELETE ci OUTPUT DELETED.id
+       FROM cart_items ci
+       JOIN carts c ON ci.cart_id = c.id
+       WHERE c.user_id = $1 AND ci.product_id = $2`,
       [userId, productId]
     );
     return result.rowCount > 0;
@@ -119,11 +140,11 @@ export const updateAddress = (userId, addressId, input) => withTransaction(async
   const result = await client.query(`UPDATE customer_addresses SET
     recipient_name = COALESCE($3, recipient_name), phone = COALESCE($4, phone), address_line = COALESCE($5, address_line),
     province = COALESCE($6, province), is_default = COALESCE($7, is_default),
-    ward = CASE WHEN $8 THEN $9 ELSE ward END, district = CASE WHEN $10 THEN $11 ELSE district END,
+    ward = CASE WHEN $8 = 1 THEN $9 ELSE ward END, district = CASE WHEN $10 = 1 THEN $11 ELSE district END,
     updated_at = NOW() WHERE id = $1 AND user_id = $2 RETURNING *`,
     [addressId, userId, input.recipientName ?? null, input.phone ?? null, input.addressLine ?? null,
-      input.province ?? null, input.isDefault ?? null, Object.hasOwn(input, 'ward'), input.ward ?? null,
-      Object.hasOwn(input, 'district'), input.district ?? null]);
+      input.province ?? null, input.isDefault ?? null, Object.hasOwn(input, 'ward') ? 1 : 0, input.ward ?? null,
+      Object.hasOwn(input, 'district') ? 1 : 0, input.district ?? null]);
   return result.rows[0];
 });
 
@@ -133,13 +154,14 @@ export const deleteAddress = (userId, addressId) => withTransaction(async (clien
   return result.rowCount > 0;
 });
 
-export const checkout = async ({ userId, warehouseId, addressId, channel, customerName, customerPhone, note, orderNumber, idempotencyKey }) => {
+export const checkout = async ({ userId, warehouseId, addressId, channel, paymentMethod, transactionReference, customerName, customerPhone, note, orderNumber, idempotencyKey }) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const operation = 'customer.checkout';
+    const isTransfer = paymentMethod === 'transfer';
     const replay = await startIdempotency(client, { userId, operation, key: idempotencyKey,
-      payload: { warehouseId, addressId: addressId || null, channel, customerName: customerName || null,
+      payload: { warehouseId, addressId: addressId || null, channel, paymentMethod: paymentMethod || 'cod', customerName: customerName || null,
         customerPhone: customerPhone || null, note: note || null } });
     if (replay) { await client.query('COMMIT'); return replay; }
     const warehouse = await client.query('SELECT id FROM warehouses WHERE id = $1 AND is_active = TRUE FOR SHARE', [warehouseId]);
@@ -166,8 +188,8 @@ export const checkout = async ({ userId, warehouseId, addressId, channel, custom
     const order = await client.query(
       `INSERT INTO orders (order_number, channel, status, payment_status, customer_name, customer_phone, total_amount,
        warehouse_id, shipping_address_id, created_by, shipping_address_snapshot, idempotency_key)
-       VALUES ($1, $2, 'pending', 'unpaid', $3, $4, $5, $6, $7, $8, $9::jsonb, $10) RETURNING id`,
-      [orderNumber, channel, customerName || addressSnapshot?.recipient_name || null,
+       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11) RETURNING id`,
+      [orderNumber, channel, isTransfer ? 'paid' : 'unpaid', customerName || addressSnapshot?.recipient_name || null,
         customerPhone || addressSnapshot?.phone || null, 0, warehouseId, addressId || null, userId,
         addressSnapshot ? JSON.stringify(addressSnapshot) : null, idempotencyKey || null]
     );
@@ -182,8 +204,16 @@ export const checkout = async ({ userId, warehouseId, addressId, channel, custom
     }
     await client.query(`UPDATE orders SET total_amount = (
       SELECT COALESCE(SUM(line_total), 0) FROM order_items WHERE order_id = $1) WHERE id = $1`, [order.rows[0].id]);
+    if (isTransfer) {
+      const txRef = transactionReference || `VIETQR-${orderNumber.slice(-8)}-${Date.now().toString().slice(-4)}`;
+      await client.query(
+        `INSERT INTO payments (order_id, method, amount, transaction_reference, received_by)
+         SELECT id, 'transfer', total_amount, $2, $3 FROM orders WHERE id = $1 AND total_amount > 0`,
+        [order.rows[0].id, txRef, userId]
+      );
+    }
     let expiresAt = null;
-    if (Number.isInteger(env.reservationTtlMinutes) && env.reservationTtlMinutes > 0) {
+    if (!isTransfer && Number.isInteger(env.reservationTtlMinutes) && env.reservationTtlMinutes > 0) {
       const expiry = await client.query(`UPDATE orders SET reservation_expires_at = NOW() + ($2 * INTERVAL '1 minute') WHERE id = $1
         RETURNING reservation_expires_at`,
         [order.rows[0].id, env.reservationTtlMinutes]);
@@ -191,7 +221,7 @@ export const checkout = async ({ userId, warehouseId, addressId, channel, custom
     }
     await reserveStock(client, { items: reservationItems, expiresAt });
     await recordInitialOrderState(client, { orderId: order.rows[0].id, status: ORDER_STATUS.PENDING,
-      note: note || 'Đơn hàng mới từ kênh online', changedBy: userId });
+      note: note || (isTransfer ? 'Đơn hàng mới (Đã thanh toán VietQR)' : 'Đơn hàng mới (Thanh toán COD)'), changedBy: userId });
     await client.query('DELETE FROM cart_items WHERE cart_id = $1', [cart.rows[0].id]);
     await client.query('UPDATE carts SET updated_at = NOW() WHERE id = $1', [cart.rows[0].id]);
     await finishIdempotency(client, { userId, operation, key: idempotencyKey, orderId: order.rows[0].id });
@@ -213,8 +243,11 @@ export const listOrders = async (userId, { status, limit, offset }) => {
   const count = await query(`SELECT COUNT(*)::int AS total FROM orders o ${where}`, values);
   values.push(limit, offset);
   const result = await query(
-    `SELECT ${orderSelect}, COUNT(oi.id)::int AS item_lines FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id
-     ${where} GROUP BY o.id ORDER BY o.created_at DESC LIMIT $${values.length - 1} OFFSET $${values.length}`,
+    `SELECT ${orderSelect}, COUNT(oi.id) AS item_lines, COALESCE(SUM(oi.quantity), 0) AS item_count, COALESCE(SUM(oi.quantity), 0) AS total_items
+     FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id
+     ${where}
+     GROUP BY ${orderSelect}
+     ORDER BY o.created_at DESC LIMIT $${values.length - 1} OFFSET $${values.length}`,
     values
   );
   return { rows: result.rows, total: count.rows[0].total };
@@ -223,15 +256,29 @@ export const listOrders = async (userId, { status, limit, offset }) => {
 export const getOrder = async (userId, orderId) => {
   const header = await query(`SELECT ${orderSelect} FROM orders o WHERE o.id = $1 AND o.created_by = $2 AND o.channel IN ('web', 'mobile')`, [orderId, userId]);
   if (!header.rows[0]) return null;
-  const [items, history, shipment] = await Promise.all([
-    query(`SELECT oi.id AS order_item_id, oi.product_id, p.sku, p.barcode, p.name, oi.quantity, oi.unit_price, oi.line_total FROM order_items oi JOIN products p ON p.id = oi.product_id WHERE oi.order_id = $1`, [orderId]),
+  const [items, history, shipment, payments] = await Promise.all([
+    query(`SELECT oi.id AS order_item_id, oi.product_id, p.sku, p.barcode, p.name, p.name AS product_name, p.image_url, p.image_url AS "imageUrl", oi.quantity, oi.unit_price, oi.line_total FROM order_items oi JOIN products p ON p.id = oi.product_id WHERE oi.order_id = $1`, [orderId]),
     query(`SELECT id, from_status, status, note, changed_by, created_at FROM order_status_history WHERE order_id = $1 ORDER BY created_at ASC`, [orderId]),
     query(`SELECT s.tracking_number, s.carrier, s.status, s.picked_up_at, s.delivered_at, s.failed_at,
-      COALESCE((SELECT JSON_AGG(JSON_BUILD_OBJECT('status', h.status, 'note', h.note, 'created_at', h.created_at) ORDER BY h.created_at)
-        FROM shipment_status_history h WHERE h.shipment_id = s.id), '[]'::json) AS status_history
-      FROM shipments s WHERE s.order_id = $1`, [orderId])
+      COALESCE((
+        SELECT h.status, h.note, h.created_at
+        FROM shipment_status_history h
+        WHERE h.shipment_id = s.id
+        ORDER BY h.created_at ASC
+        FOR JSON PATH
+      ), '[]') AS status_history
+      FROM shipments s WHERE s.order_id = $1`, [orderId]),
+    query(`SELECT id, method, amount, status, transaction_reference, paid_at FROM payments WHERE order_id = $1 ORDER BY paid_at`, [orderId])
   ]);
-  return { ...header.rows[0], items: items.rows, status_history: history.rows, shipment: shipment.rows[0] || null };
+  const firstPayment = payments.rows[0] || null;
+  return {
+    ...header.rows[0],
+    payment_method: firstPayment?.method || 'cod',
+    transaction_reference: firstPayment?.transaction_reference || null,
+    items: items.rows,
+    status_history: history.rows,
+    shipment: shipment.rows[0] || null
+  };
 };
 
 export const cancelOrder = (userId, orderId, note) => cancelOnlineOrder({ orderId, userId, note, customerOnly: true });

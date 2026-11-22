@@ -5,7 +5,16 @@ const actor = (request) => ({ ...request.user, ipAddress: request.ip });
 export const login = async (request, response) => {
   response.status(200).json({ data: await authService.login(request.body) });
 };
+export const sendRegisterOtp = async (request, response) => {
+  response.status(200).json({ data: await authService.sendRegisterOtp(request.body) });
+};
 export const register = async (request, response) => response.status(201).json({ data: await authService.register(request.body) });
+export const forgotPassword = async (request, response) => {
+  response.status(200).json({ data: await authService.sendForgotPasswordOtp(request.body) });
+};
+export const resetPassword = async (request, response) => {
+  response.status(200).json({ data: await authService.resetPasswordWithOtp(request.body) });
+};
 
 export const me = async (request, response) => {
   response.status(200).json({ data: authService.getMe(request.user) });

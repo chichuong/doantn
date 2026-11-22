@@ -57,8 +57,9 @@ export const addProduct = async (input) => {
   if (input.categoryId && (!isUuid(input.categoryId) || !(await findCategory(input.categoryId)))) throw new AppError(400, 'categoryId không tồn tại');
   const reorderLevel = Number(input.reorderLevel ?? 0);
   if (!Number.isInteger(reorderLevel) || reorderLevel < 0) throw new AppError(400, 'reorderLevel phải là số nguyên không âm');
+  const imageUrl = (input.imageUrl ?? input.image_url)?.trim() || null;
   try {
-    return await createProduct({ sku: input.sku, barcode: input.barcode?.trim(), name: input.name.trim(), description: input.description?.trim(), categoryId: input.categoryId, costPrice: price(input.costPrice ?? 0, 'costPrice'), salePrice: price(input.salePrice ?? 0, 'salePrice'), reorderLevel });
+    return await createProduct({ sku: input.sku, barcode: input.barcode?.trim(), name: input.name.trim(), description: input.description?.trim(), categoryId: input.categoryId, costPrice: price(input.costPrice ?? 0, 'costPrice'), salePrice: price(input.salePrice ?? 0, 'salePrice'), reorderLevel, imageUrl });
   } catch (error) {
     if (error.code === '23505') throw new AppError(409, 'sku hoặc barcode đã tồn tại');
     throw error;
@@ -77,8 +78,11 @@ export const editProduct = async (productId, input) => {
 };
 
 export const warehouses = () => listWarehouses();
-export const cancelOrder = (id, input, userId) => cancelOnlineOrder({ orderId: assertUuid(id, 'orderId'),
-  userId, customerOnly: false, note: assertText(input.note, 'note', 255) });
+export const cancelOrder = (id, input = {}, userId) => {
+  const noteText = input.note || input.reason || 'Quản lý hủy đơn hàng';
+  return cancelOnlineOrder({ orderId: assertUuid(id, 'orderId'),
+    userId, customerOnly: false, note: assertText(noteText, 'note', 255) });
+};
 
 export const addWarehouse = async (input) => {
   if (!/^[A-Za-z0-9_-]{2,30}$/.test(String(input.code || ''))) throw new AppError(400, 'code kho không hợp lệ');
@@ -98,7 +102,14 @@ export const inventory = async (query) => {
   if (query.warehouseId && !isUuid(query.warehouseId)) throw new AppError(400, 'warehouseId không hợp lệ');
   if (query.productId && !isUuid(query.productId)) throw new AppError(400, 'productId không hợp lệ');
   const { limit, page, offset } = pageParams(query);
-  const result = await listInventory({ warehouseId: query.warehouseId, productId: query.productId, lowStock: query.lowStock === 'true', limit, offset });
+  const result = await listInventory({
+    warehouseId: query.warehouseId,
+    productId: query.productId,
+    search: query.search?.trim(),
+    lowStock: query.lowStock === 'true',
+    limit,
+    offset
+  });
   return resultWithPagination(result, page, limit);
 };
 

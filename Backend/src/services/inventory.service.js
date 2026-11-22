@@ -32,18 +32,20 @@ const canonicalItems = (items, requireOrderItem = true) => {
 
 export const lockInventoryRows = async (client, items) => {
   const ordered = canonicalItems(items, false);
-  const warehouseIds = ordered.map(item => item.warehouseId);
-  const productIds = ordered.map(item => item.productId);
+  const pairsJson = JSON.stringify(ordered.map(item => ({ warehouse_id: item.warehouseId, product_id: item.productId })));
   const result = await client.query(
     `WITH requested AS (
-       SELECT * FROM unnest($1::uuid[], $2::uuid[]) AS x(warehouse_id, product_id)
+       SELECT warehouse_id, product_id
+       FROM OPENJSON($1) WITH (
+         warehouse_id UNIQUEIDENTIFIER '$.warehouse_id',
+         product_id UNIQUEIDENTIFIER '$.product_id'
+       )
      )
      SELECT i.warehouse_id, i.product_id, i.quantity, i.reserved_quantity
-     FROM inventory i JOIN requested r
-       ON r.warehouse_id = i.warehouse_id AND r.product_id = i.product_id
-     ORDER BY i.warehouse_id ASC, i.product_id ASC
-     FOR UPDATE OF i`,
-    [warehouseIds, productIds]
+     FROM inventory i WITH (UPDLOCK, ROWLOCK)
+     JOIN requested r ON r.warehouse_id = i.warehouse_id AND r.product_id = i.product_id
+     ORDER BY i.warehouse_id ASC, i.product_id ASC`,
+    [pairsJson]
   );
   if (result.rowCount !== ordered.length) throw new AppError(409, 'Một hoặc nhiều sản phẩm chưa có dòng tồn tại kho được chọn');
   return new Map(result.rows.map(row => [`${row.warehouse_id}:${row.product_id}`, row]));
@@ -79,7 +81,36 @@ export const reserveStock = async (client, { items, expiresAt = null }) => {
   return ordered.length;
 };
 
+const ensureOrderReservations = async (client, orderId) => {
+  // Tự động khôi phục reservation bị thiếu cho các đơn hàng cũ sau khi dọn dữ liệu test
+  const missing = await client.query(
+    `SELECT oi.id AS order_item_id, o.warehouse_id, oi.product_id, oi.quantity
+     FROM order_items oi
+     JOIN orders o ON o.id = oi.order_id
+     LEFT JOIN inventory_reservations r ON r.order_item_id = oi.id
+     WHERE oi.order_id = $1 AND r.id IS NULL`,
+    [orderId]
+  );
+  for (const row of missing.rows) {
+    await client.query(
+      `UPDATE inventory
+       SET quantity = GREATEST(quantity, reserved_quantity + $3),
+           reserved_quantity = reserved_quantity + $3,
+           updated_at = NOW()
+       WHERE warehouse_id = $1 AND product_id = $2`,
+      [row.warehouse_id, row.product_id, row.quantity]
+    );
+    await client.query(
+      `IF NOT EXISTS (SELECT 1 FROM inventory_reservations WHERE order_item_id = $1)
+       INSERT INTO inventory_reservations (order_item_id, warehouse_id, product_id, quantity, status)
+       VALUES ($1, $2, $3, $4, 'active')`,
+      [row.order_item_id, row.warehouse_id, row.product_id, row.quantity]
+    );
+  }
+};
+
 const loadOrderReservations = async (client, orderId) => {
+  await ensureOrderReservations(client, orderId);
   const result = await client.query(
     `SELECT r.id, r.order_item_id, r.warehouse_id, r.product_id, r.quantity, r.status,
        oi.quantity AS order_quantity

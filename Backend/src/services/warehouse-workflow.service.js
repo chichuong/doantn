@@ -14,21 +14,25 @@ export const receipt = async (id) => {
   if (!result) throw new AppError(404, 'Chưa có phiếu nhận hàng hoàn');
   return result;
 };
-export const receiveReturn = async (id, input, userId) => {
+export const receiveReturn = async (id, input = {}, userId) => {
   const orderId = assertUuid(id, 'orderId');
-  if (!Array.isArray(input.items) || !input.items.length) throw new AppError(400, 'items phải là mảng không rỗng');
-  const ids = new Set();
-  const items = input.items.map(item => {
-    if (!item || typeof item !== 'object' || Array.isArray(item)) throw new AppError(400, 'Mỗi item phải là object');
-    const orderItemId = assertUuid(item.orderItemId, 'orderItemId');
-    if (ids.has(orderItemId)) throw new AppError(400, 'orderItemId bị trùng');
-    ids.add(orderItemId);
-    const receivedQuantity = assertInteger(item.receivedQuantity, 'receivedQuantity', 1);
-    const restockQuantity = assertInteger(item.restockQuantity, 'restockQuantity');
-    if (restockQuantity > receivedQuantity) throw new AppError(400, 'restockQuantity không được vượt receivedQuantity');
-    return { orderItemId, receivedQuantity, restockQuantity };
-  });
-  if (input.note !== undefined && (typeof input.note !== 'string' || input.note.length > 255)) throw new AppError(400, 'note tối đa 255 ký tự');
-  await model.receiveOrderReturn({ orderId, items, note: input.note, userId });
+  let items = null;
+  if (input.items !== undefined) {
+    if (!Array.isArray(input.items) || !input.items.length) throw new AppError(400, 'items phải là mảng không rỗng');
+    const ids = new Set();
+    items = input.items.map(item => {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) throw new AppError(400, 'Mỗi item phải là object');
+      const orderItemId = assertUuid(item.orderItemId, 'orderItemId');
+      if (ids.has(orderItemId)) throw new AppError(400, 'orderItemId bị trùng');
+      ids.add(orderItemId);
+      const receivedQuantity = assertInteger(item.receivedQuantity, 'receivedQuantity', 1);
+      const restockQuantity = assertInteger(item.restockQuantity, 'restockQuantity');
+      if (restockQuantity > receivedQuantity) throw new AppError(400, 'restockQuantity không được vượt receivedQuantity');
+      return { orderItemId, receivedQuantity, restockQuantity };
+    });
+  }
+  const noteText = input.note || input.reason;
+  if (noteText !== undefined && (typeof noteText !== 'string' || noteText.length > 255)) throw new AppError(400, 'note tối đa 255 ký tự');
+  await model.receiveOrderReturn({ orderId, items, note: noteText, userId });
   return model.getReturnReceipt(orderId);
 };

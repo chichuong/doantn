@@ -15,8 +15,8 @@ export const getHistoricalDemand = async ({ productId, warehouseId, fromDate, to
   const conditions = [
     "o.status = 'delivered'",
     "o.channel IN ('pos', 'web', 'mobile')",
-    "o.created_at >= ($1::date::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh')",
-    "o.created_at < (($2::date + 1)::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh')",
+    "o.created_at >= CAST($1 AS DATE)",
+    "o.created_at < DATEADD(day, 1, CAST($2 AS DATE))",
     'oi.product_id = $3'
   ];
   values.push(productId);
@@ -25,10 +25,10 @@ export const getHistoricalDemand = async ({ productId, warehouseId, fromDate, to
     conditions.push(`o.warehouse_id = $${values.length}`);
   }
   const result = await query(
-    `SELECT TO_CHAR(o.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') AS demand_date, SUM(oi.quantity)::bigint AS quantity
+    `SELECT CONVERT(VARCHAR(10), o.created_at AT TIME ZONE 'SE Asia Standard Time', 23) AS demand_date, SUM(oi.quantity) AS quantity
      FROM orders o JOIN order_items oi ON oi.order_id = o.id
      WHERE ${conditions.join(' AND ')}
-     GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') ORDER BY demand_date ASC`,
+     GROUP BY CONVERT(VARCHAR(10), o.created_at AT TIME ZONE 'SE Asia Standard Time', 23) ORDER BY demand_date ASC`,
     values
   );
   return result.rows;

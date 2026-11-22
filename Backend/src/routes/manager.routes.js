@@ -4,6 +4,8 @@ import * as categoryController from '../controllers/category.controller.js';
 import { asyncHandler } from '../middlewares/async-handler.js';
 import { authenticate, requirePermission, requireRole } from '../middlewares/auth.middleware.js';
 
+import * as warehouseController from '../controllers/warehouse.controller.js';
+
 const router = Router();
 router.use(authenticate, requireRole('admin', 'manager'));
 
@@ -22,6 +24,15 @@ router.get('/inventory/discrepancies', requirePermission('manager.inventory.read
 router.get('/inventory/transactions', requirePermission('manager.inventory.read'), asyncHandler(managerController.listInventoryTransactions));
 router.get('/inventory/:warehouseId/:productId/reservations', requirePermission('manager.inventory.read'), asyncHandler(managerController.listInventoryReservations));
 router.post('/inventory/adjustments', requirePermission('manager.inventory.adjust'), asyncHandler(managerController.adjustInventory));
+router.get('/iot/status', requirePermission('manager.documents.read'), asyncHandler(warehouseController.getIotStatus));
+router.post('/iot/sync-pc-wifi', requirePermission('manager.documents.read'), asyncHandler(warehouseController.syncPcWifiToIot));
+router.get('/documents', requirePermission('manager.documents.read'), asyncHandler(warehouseController.listDocuments));
+router.post('/documents', requirePermission('manager.documents.read'), asyncHandler(warehouseController.createDocument));
+router.get('/documents/lookup', requirePermission('manager.documents.read'), asyncHandler(warehouseController.lookupByQr));
+router.get('/documents/lookup/:identifier', requirePermission('manager.documents.read'), asyncHandler(warehouseController.lookupByQr));
+router.get('/documents/:documentId', requirePermission('manager.documents.read'), asyncHandler(warehouseController.getDocument));
+router.post('/documents/:documentId/approve', requirePermission('warehouse.documents.approve'), asyncHandler(warehouseController.approveDocument));
+router.post('/documents/:documentId/reject', requirePermission('warehouse.documents.approve'), asyncHandler(warehouseController.rejectDocument));
 router.get('/orders', requirePermission('manager.orders.read'), asyncHandler(managerController.listOrders));
 router.post('/orders/:orderId/cancel', requirePermission('manager.orders.cancel'), asyncHandler(managerController.cancelOrder));
 router.get('/reports/sales', requirePermission('manager.reports.read'), asyncHandler(managerController.salesReport));

@@ -1,17 +1,34 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
-import { findUserAuthorization } from '../models/auth.model.js';
+import { findUserAuthorization, findUserByEmail } from '../models/auth.model.js';
 import { AppError } from '../utils/app-error.js';
 
 export const authenticate = async (request, response, next) => {
   try {
+    const deviceToken = request.headers['x-device-token'];
+    if (deviceToken) {
+      if (!env.iotDeviceToken || deviceToken !== env.iotDeviceToken) {
+        throw new AppError(401, 'Device token không hợp lệ');
+      }
+      const defaultWhUser = await findUserByEmail('warehouse@example.com');
+      if (defaultWhUser) {
+        const authUser = await findUserAuthorization(defaultWhUser.id);
+        if (authUser && authUser.status === 'active') {
+          request.user = authUser;
+          request.isIotDevice = true;
+          return next();
+        }
+      }
+      throw new AppError(500, 'Tài khoản kho mặc định cho IoT chưa được kích hoạt');
+    }
+
     if (!env.jwtSecret) {
       throw new AppError(500, 'JWT_SECRET chưa được cấu hình trong file .env');
     }
 
     const header = request.headers.authorization;
     if (!header || !header.startsWith('Bearer ')) {
-      throw new AppError(401, 'Yêu cầu gửi Authorization Bearer token');
+      throw new AppError(401, 'Yêu cầu gửi Authorization Bearer token hoặc X-Device-Token');
     }
 
     const token = header.slice(7).trim();

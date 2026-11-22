@@ -43,8 +43,8 @@ export const reviewTransfer = (input) => withTransaction(async (client) => {
   const reference = await client.query('SELECT order_id FROM bank_transfer_requests WHERE id = $1', [requestId]);
   if (!reference.rowCount) throw new AppError(404, 'Không tìm thấy yêu cầu chuyển khoản');
   const orderId = reference.rows[0].order_id;
-  const order = await client.query(`SELECT *, reservation_expires_at <= NOW() AND status = 'pending'
-    AND payment_status = 'unpaid' AS reservation_expired FROM orders WHERE id = $1 FOR UPDATE`, [orderId]);
+  const order = await client.query(`SELECT *, CASE WHEN reservation_expires_at <= NOW() AND status = 'pending'
+    AND payment_status = 'unpaid' THEN 1 ELSE 0 END AS reservation_expired FROM orders WHERE id = $1 FOR UPDATE`, [orderId]);
   const request = await client.query('SELECT * FROM bank_transfer_requests WHERE id = $1 FOR UPDATE', [requestId]);
   const header = order.rows[0];
   if (request.rows[0].status === decision) {
@@ -57,7 +57,7 @@ export const reviewTransfer = (input) => withTransaction(async (client) => {
     if (header.reservation_expired) throw new AppError(409, 'Reservation đã hết hạn; cần đối soát giao dịch nhận tiền riêng trước khi xử lý');
     if (['cancelled','returned'].includes(header.status) || header.payment_status !== 'unpaid') throw new AppError(409, 'Đơn không còn đủ điều kiện xác nhận thanh toán');
     if (Number(header.total_amount) <= 0) throw new AppError(409, 'Đơn không có số tiền cần thanh toán');
-    const matched = await client.query('SELECT total_amount = $2::numeric AS matched FROM orders WHERE id = $1', [orderId, receivedAmount]);
+    const matched = await client.query('SELECT CASE WHEN total_amount = CAST($2 AS DECIMAL(14,2)) THEN 1 ELSE 0 END AS matched FROM orders WHERE id = $1', [orderId, receivedAmount]);
     if (!matched.rows[0].matched) throw new AppError(409, 'Số tiền thực nhận chưa khớp tổng tiền đơn; cần đối soát bổ sung');
     const payment = await client.query('SELECT id FROM payments WHERE order_id = $1 AND status = $2', [orderId, 'paid']);
     if (payment.rowCount) throw new AppError(409, 'Đơn đã có giao dịch thanh toán');

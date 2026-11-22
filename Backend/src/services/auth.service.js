@@ -1,8 +1,10 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/app-error.js';
 import { assertText } from '../utils/validation.js';
+import { sendOtpEmail } from '../utils/email.js';
 import {
   createRole,
   createUser,
@@ -18,9 +20,53 @@ import {
   replaceRolePermissions,
   updateRole,
   updateUser,
+  updateUserPassword,
   updateLastLogin,
   writeAuditLog
 } from '../models/auth.model.js';
+
+// Lưu trữ mã OTP tạm thời (in-memory, TTL 5 phút)
+const otpStore = new Map();
+const OTP_TTL_MS = 5 * 60 * 1000;
+const OTP_MAX_ATTEMPTS = 5;
+
+const generateOtpCode = () => String(crypto.randomInt(100000, 1000000));
+const getOtpKey = (purpose, email) => `${purpose}:${email}`;
+
+const createAndSaveOtp = (purpose, email, payload = {}) => {
+  const otp = generateOtpCode();
+  const key = getOtpKey(purpose, email);
+  otpStore.set(key, {
+    otp,
+    expiresAt: Date.now() + OTP_TTL_MS,
+    attempts: 0,
+    payload,
+  });
+  return otp;
+};
+
+const verifySavedOtp = (purpose, email, inputOtp) => {
+  const key = getOtpKey(purpose, email);
+  const record = otpStore.get(key);
+  if (!record) {
+    throw new AppError(400, 'Mã OTP không tồn tại hoặc đã hết hạn. Vui lòng yêu cầu gửi lại mã mới.');
+  }
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(key);
+    throw new AppError(400, 'Mã OTP đã hết hạn (quá 5 phút). Vui lòng yêu cầu gửi lại mã mới.');
+  }
+  const cleanOtp = String(inputOtp || '').trim();
+  if (!cleanOtp || cleanOtp !== record.otp) {
+    record.attempts += 1;
+    if (record.attempts >= OTP_MAX_ATTEMPTS) {
+      otpStore.delete(key);
+      throw new AppError(400, 'Bạn đã nhập sai OTP quá số lần quy định. Vui lòng yêu cầu gửi lại mã mới.');
+    }
+    throw new AppError(400, `Mã OTP không chính xác (còn ${OTP_MAX_ATTEMPTS - record.attempts} lần thử).`);
+  }
+  otpStore.delete(key);
+  return record;
+};
 
 const publicUser = (user) => {
   if (!user) return null;
@@ -66,6 +112,29 @@ export const login = async ({ email, password }) => {
 
 export const getMe = (user) => publicUser(user);
 
+export const sendRegisterOtp = async (input) => {
+  const email = normalizeEmail(input.email);
+  if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 255) {
+    throw new AppError(400, 'Email không hợp lệ');
+  }
+  const existing = await findUserByEmail(email);
+  if (existing) {
+    throw new AppError(409, 'Email này đã được đăng ký tài khoản');
+  }
+  const otp = createAndSaveOtp('register', email);
+  const mailResult = await sendOtpEmail({ email, otp, purpose: 'register' });
+  return {
+    email,
+    expiresInSeconds: OTP_TTL_MS / 1000,
+    sentViaSmtp: mailResult.sentViaSmtp,
+    previewUrl: mailResult.previewUrl,
+    devOtp: mailResult.devOtp,
+    message: mailResult.sentViaSmtp
+      ? `Mã xác thực OTP đã được gửi tới email ${email}`
+      : `Mã OTP đã được tạo cho ${email} (Chế độ Dev: xem mã OTP bên dưới hoặc trong console Backend)`,
+  };
+};
+
 export const register = async (input) => {
   const email = normalizeEmail(input.email);
   if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 255) throw new AppError(400, 'email không hợp lệ');
@@ -73,6 +142,11 @@ export const register = async (input) => {
     throw new AppError(400, 'password phải có ít nhất 8 ký tự và tối đa 72 byte UTF-8');
   }
   if (input.roleId !== undefined || input.role !== undefined || input.status !== undefined) throw new AppError(400, 'Đăng ký chỉ tạo tài khoản khách hàng; không được chỉ định vai trò/trạng thái');
+  if (!input.otp) {
+    throw new AppError(400, 'Vui lòng nhập mã OTP xác thực email');
+  }
+  verifySavedOtp('register', email, input.otp);
+
   const fullName = assertText(input.fullName, 'fullName', 150);
   const phone = input.phone === undefined ? null : assertText(input.phone, 'phone', 30);
   const role = await findRoleByCode('customer');
@@ -80,6 +154,68 @@ export const register = async (input) => {
   try { return await createCustomer({ email, fullName, phone, roleId: role.id,
     passwordHash: await bcrypt.hash(input.password, env.bcryptSaltRounds) }); }
   catch (error) { if (error.code === '23505') throw new AppError(409, 'Email đã được đăng ký'); throw error; }
+};
+
+export const sendForgotPasswordOtp = async (input) => {
+  const email = normalizeEmail(input?.email);
+  if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 255) {
+    throw new AppError(400, 'Vui lòng nhập địa chỉ email hợp lệ');
+  }
+  const user = await findUserByEmail(email);
+  if (!user) {
+    throw new AppError(404, 'Không tìm thấy tài khoản nào đăng ký với địa chỉ email này');
+  }
+  if (user.status !== 'active') {
+    throw new AppError(403, 'Tài khoản này đang bị khóa hoặc ngừng hoạt động');
+  }
+  const otp = createAndSaveOtp('reset_password', email, { userId: user.id });
+  const mailResult = await sendOtpEmail({ email, otp, purpose: 'reset_password' });
+  return {
+    email,
+    expiresInSeconds: OTP_TTL_MS / 1000,
+    sentViaSmtp: mailResult.sentViaSmtp,
+    previewUrl: mailResult.previewUrl,
+    devOtp: mailResult.devOtp,
+    message: mailResult.sentViaSmtp
+      ? `Mã OTP đặt lại mật khẩu đã được gửi tới email ${email}`
+      : `Mã OTP đặt lại mật khẩu đã được tạo cho ${email} (Chế độ Dev: xem mã OTP bên dưới hoặc trong console Backend)`,
+  };
+};
+
+export const resetPasswordWithOtp = async (input) => {
+  const email = normalizeEmail(input?.email);
+  const otp = input?.otp;
+  const newPassword = input?.newPassword;
+
+  if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 255) {
+    throw new AppError(400, 'Email không hợp lệ');
+  }
+  if (!otp) {
+    throw new AppError(400, 'Vui lòng nhập mã OTP');
+  }
+  if (typeof newPassword !== 'string' || newPassword.length < 8 || Buffer.byteLength(newPassword, 'utf8') > 72) {
+    throw new AppError(400, 'Mật khẩu mới phải có ít nhất 8 ký tự và tối đa 72 byte');
+  }
+
+  const user = await findUserByEmail(email);
+  if (!user) {
+    throw new AppError(404, 'Không tìm thấy tài khoản');
+  }
+
+  verifySavedOtp('reset_password', email, otp);
+
+  const passwordHash = await bcrypt.hash(newPassword, env.bcryptSaltRounds);
+  await updateUserPassword(user.id, passwordHash);
+  await writeAuditLog({
+    actorUserId: user.id,
+    action: 'reset_password',
+    entityType: 'user',
+    entityId: user.id,
+    metadata: { email: user.email },
+    ipAddress: null,
+  });
+
+  return { message: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.' };
 };
 
 export const getUsers = async (params) => {

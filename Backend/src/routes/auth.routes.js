@@ -9,7 +9,10 @@ const router = Router();
 
 const authenticationLimit = loginRateLimit();
 router.post('/login', authenticationLimit, asyncHandler(authController.login));
+router.post('/register/send-otp', authenticationLimit, asyncHandler(authController.sendRegisterOtp));
 router.post('/register', authenticationLimit, asyncHandler(authController.register));
+router.post('/forgot-password', authenticationLimit, asyncHandler(authController.forgotPassword));
+router.post('/reset-password', authenticationLimit, asyncHandler(authController.resetPassword));
 router.use(authenticate);
 router.get('/me', asyncHandler(authController.me));
 

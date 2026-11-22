@@ -13,11 +13,14 @@ import {
   voidSale
 } from '../models/pos.model.js';
 
+import { listInventory } from '../models/manager.model.js';
+import { getCentralWarehouseId } from './central-warehouse.service.js';
+
 const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
 const pageParams = paging;
 const datePeriod = (from, to) => {
   const today = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const start = from === undefined ? today : assertDate(from, 'from');
+  const start = from === undefined ? '2020-01-01' : assertDate(from, 'from');
   const end = to === undefined ? today : assertDate(to, 'to');
   if (start > end) throw new AppError(400, 'from không được lớn hơn to');
   return { from: start, to: end };
@@ -26,10 +29,13 @@ const datePeriod = (from, to) => {
 export const currentSession = (userId) => getCurrentSession(userId);
 
 export const open = async (input, userId) => {
-  if (!isUuid(input.warehouseId)) throw new AppError(400, 'warehouseId không hợp lệ');
+  let warehouseId = input.warehouseId;
+  if (!warehouseId || !isUuid(warehouseId)) {
+    warehouseId = await getCentralWarehouseId();
+  }
   const openingCash = Number(input.openingCash ?? 0);
   if (!Number.isFinite(openingCash) || openingCash < 0) throw new AppError(400, 'openingCash phải là số không âm');
-  try { return await openSession({ warehouseId: input.warehouseId, userId, openingCash }); }
+  try { return await openSession({ warehouseId, userId, openingCash }); }
   catch (error) {
     if (error.code === '23505') throw new AppError(409, 'Nhân viên đang có một ca POS mở');
     if (error.code === '23503') throw new AppError(400, 'warehouseId không tồn tại');
@@ -50,10 +56,31 @@ export const close = async (sessionId, input, userId) => {
   }
 };
 
+export const listProducts = async (query) => {
+  let whId = query.warehouseId;
+  if (!whId || !isUuid(whId)) {
+    whId = await getCentralWarehouseId();
+  }
+  const { limit, page, offset } = pageParams(query);
+  const result = await listInventory({
+    warehouseId: whId,
+    search: query.search?.trim(),
+    limit,
+    offset
+  });
+  return {
+    data: result.rows,
+    pagination: { page, limit, total: result.total, totalPages: Math.ceil(result.total / limit) }
+  };
+};
+
 export const lookupProduct = async (identifier, warehouseId) => {
-  if (!isUuid(warehouseId)) throw new AppError(400, 'warehouseId không hợp lệ');
+  let whId = warehouseId;
+  if (!whId || !isUuid(whId)) {
+    whId = await getCentralWarehouseId();
+  }
   if (!String(identifier || '').trim()) throw new AppError(400, 'identifier là bắt buộc');
-  const product = await findSaleProduct(identifier.trim(), warehouseId);
+  const product = await findSaleProduct(identifier.trim(), whId);
   if (!product) throw new AppError(404, 'Không tìm thấy sản phẩm hoặc sản phẩm không có tồn tại kho');
   return product;
 };

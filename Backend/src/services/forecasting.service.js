@@ -99,35 +99,34 @@ export const run = async (input, userId) => {
   }
   let modelName = 'baseline_moving_average_7d';
   if (input.model === 'python') {
-    const result = await forecastWithPython({ series: histories, cutoffDate: params.toDate, horizonDays: params.horizonDays });
-    values.length = 0; metrics.length = 0;
-    const ids = new Map(products.map(product => [product.sku, product.id]));
-    for (const product of result.results) {
-
-      const metric =
-        product.evaluation?.comparisons?.[product.model_name]?.test;
-
-      if (metric) {
-        metrics.push(metric);
-      }
-
-
-      product.quantities.forEach((quantity, index) => {
-        const predictedQuantity = Number(quantity.toFixed(6));
-
-        values.push({
-          productId: ids.get(product.sku),
-          warehouseId: params.warehouseId,
-          forecastDate: addDays(params.toDate, index + 1),
-          predictedQuantity,
-          lowerBound: predictedQuantity,
-          upperBound: predictedQuantity
+    try {
+      const result = await forecastWithPython({ series: histories, cutoffDate: params.toDate, horizonDays: params.horizonDays });
+      values.length = 0; metrics.length = 0;
+      const ids = new Map(products.map(product => [product.sku, product.id]));
+      for (const product of result.results) {
+        const metric =
+          product.evaluation?.comparisons?.[product.model_name]?.test;
+        if (metric) {
+          metrics.push(metric);
+        }
+        product.quantities.forEach((quantity, index) => {
+          const predictedQuantity = Number(quantity.toFixed(6));
+          values.push({
+            productId: ids.get(product.sku),
+            warehouseId: params.warehouseId,
+            forecastDate: addDays(params.toDate, index + 1),
+            predictedQuantity,
+            lowerBound: predictedQuantity,
+            upperBound: predictedQuantity
+          });
         });
-      });
-
+      }
+      Object.assign(metadata, result.metadata, { evaluations: result.results.map(({ quantities, ...rest }) => rest) });
+      modelName = 'python_selected_model';
+    } catch {
+      metadata.fallback = 'python_unavailable_used_baseline';
+      modelName = 'baseline_moving_average_7d';
     }
-    Object.assign(metadata, result.metadata, { evaluations: result.results.map(({ quantities, ...rest }) => rest) });
-    modelName = 'python_selected_model';
   }
   const count = metrics.reduce((sum, metric) => sum + metric.n, 0);
   return createForecastRun({

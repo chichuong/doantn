@@ -5,7 +5,7 @@ import { ORDER_STATUS, transitionOrder } from '../domain/order-state-machine.js'
 
 export const cancelOnlineOrder = ({ orderId, userId, customerOnly, note }) => withTransaction(async (client) => {
   const order = await client.query(`SELECT id, warehouse_id, status, payment_status, created_by FROM orders
-    WHERE id = $1 AND channel IN ('web','mobile') AND (NOT $2::boolean OR created_by = $3) FOR UPDATE`, [orderId, customerOnly, userId]);
+    WHERE id = $1 AND channel IN ('web','mobile') AND ($2 = 0 OR created_by = $3) FOR UPDATE`, [orderId, customerOnly ? 1 : 0, userId]);
   if (!order.rowCount) throw new AppError(404, 'Không tìm thấy đơn online được phép hủy');
   const header = order.rows[0];
   if (header.status === 'cancelled') return header;

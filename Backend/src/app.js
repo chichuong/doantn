@@ -1,4 +1,7 @@
 import express from 'express';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import healthRoutes from './routes/health.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import managerRoutes from './routes/manager.routes.js';
@@ -16,8 +19,13 @@ import { httpSecurity } from './middlewares/http-security.middleware.js';
 import { randomUUID } from 'node:crypto';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const frontendDistPath = path.resolve(__dirname, '../../Frontend_Web/dist');
+const frontendIndexHtml = path.join(frontendDistPath, 'index.html');
+
 const app = express();
 
+app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(httpSecurity);
 app.use((request, response, next) => {
@@ -40,6 +48,18 @@ app.use('/api/v1/data-exchange', dataExchangeRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
 app.use(documentationRoutes);
+
+// Phục vụ tĩnh Frontend Web (Production Build) nếu đã build
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get(/^\/(?!api\/|docs).*/, (request, response, next) => {
+    if (fs.existsSync(frontendIndexHtml)) {
+      return response.sendFile(frontendIndexHtml);
+    }
+    next();
+  });
+}
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 

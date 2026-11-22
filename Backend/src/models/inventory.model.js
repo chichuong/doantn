@@ -3,8 +3,11 @@ import { AppError } from '../utils/app-error.js';
 // Caller owns BEGIN/COMMIT and locks the order before touching its inventory.
 export const lockInventory = async (client, warehouseId, productId, { create = false } = {}) => {
   if (create) {
-    await client.query(`INSERT INTO inventory (warehouse_id, product_id, quantity, reserved_quantity)
-      VALUES ($1, $2, 0, 0) ON CONFLICT (warehouse_id, product_id) DO NOTHING`, [warehouseId, productId]);
+    await client.query(
+      `IF NOT EXISTS (SELECT 1 FROM inventory WHERE warehouse_id = $1 AND product_id = $2)
+       INSERT INTO inventory (warehouse_id, product_id, quantity, reserved_quantity) VALUES ($1, $2, 0, 0)`,
+      [warehouseId, productId]
+    );
   }
   const result = await client.query(`SELECT quantity, reserved_quantity FROM inventory
     WHERE warehouse_id = $1 AND product_id = $2 FOR UPDATE`, [warehouseId, productId]);

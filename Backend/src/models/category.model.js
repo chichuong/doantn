@@ -15,8 +15,8 @@ export const createCategory = async ({ name, description, isActive }) => {
 };
 export const updateCategory = async (id, input) => {
   const result = await query(`UPDATE categories SET name = COALESCE($2, name),
-    description = CASE WHEN $3 THEN $4 ELSE description END,
+    description = CASE WHEN $3 = 1 THEN $4 ELSE description END,
     is_active = COALESCE($5, is_active), updated_at = NOW() WHERE id = $1 RETURNING *`,
-    [id, input.name ?? null, Object.hasOwn(input, 'description'), input.description ?? null, input.isActive ?? null]);
+    [id, input.name ?? null, Object.hasOwn(input, 'description') ? 1 : 0, input.description ?? null, input.isActive ?? null]);
   return result.rows[0] || null;
 };

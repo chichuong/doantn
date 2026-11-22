@@ -14,7 +14,19 @@ export const requireWarehouseAccess = (source) => async (request, response, next
     if (['admin', 'manager'].includes(request.user?.role_code)) return next();
     let warehouseId;
     if (source === 'body' || source === 'query') {
-      warehouseId = assertUuid(request[source]?.warehouseId, 'warehouseId');
+      let rawId = request[source]?.warehouseId;
+      if (!rawId && request.user?.warehouse_ids?.length) {
+        rawId = request.user.warehouse_ids[0];
+        if (!request[source]) request[source] = {};
+        request[source].warehouseId = rawId;
+      }
+      if (!rawId) {
+        const { getCentralWarehouseId } = await import('../services/central-warehouse.service.js');
+        rawId = await getCentralWarehouseId();
+        if (!request[source]) request[source] = {};
+        request[source].warehouseId = rawId;
+      }
+      warehouseId = assertUuid(rawId, 'warehouseId');
     } else {
       const [sql, field] = lookups[source];
       const id = assertUuid(request.params[field] || request.body?.[field], field);
@@ -22,6 +34,11 @@ export const requireWarehouseAccess = (source) => async (request, response, next
       if (!result.rowCount) throw new AppError(404, 'Không tìm thấy dữ liệu nghiệp vụ');
       warehouseId = result.rows[0].warehouse_id;
       if (!warehouseId) throw new AppError(409, 'Dữ liệu cũ chưa xác định được kho');
+    }
+    const { getCentralWarehouseId } = await import('../services/central-warehouse.service.js');
+    const centralWhId = await getCentralWarehouseId();
+    if (warehouseId === centralWhId && ['warehouse', 'pos', 'sales', 'order_processor'].includes(request.user?.role_code)) {
+      return next();
     }
     if (!request.user.warehouse_ids?.includes(warehouseId)) throw new AppError(403, 'Bạn chưa được phân công làm việc tại kho này');
     next();

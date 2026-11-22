@@ -50,7 +50,7 @@ export const importProducts = async ({ rows, job }) => {
     for (const row of rows) {
       try {
       const category = await client.query('SELECT id FROM categories WHERE LOWER(name) = LOWER($1) AND is_active = TRUE', [row.category]);
-    if (!category.rowCount) throw new Error('Danh mục không tồn tại hoặc đã ngừng hoạt động');
+    if (!category.rowCount) throw new Error('Danh má»¥c khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ ngá»«ng hoáº¡t Ä‘á»™ng');
       await client.query(
         `INSERT INTO products (sku, barcode, name, description, category_id, cost_price, sale_price, reorder_level, is_active)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
@@ -78,20 +78,22 @@ export const importInventory = async ({ rows, warehouseId, job, userId }) => {
       try {
       const current = await lockInventory(client, warehouseId, row.productId, { create: true });
       if (row.quantity < Number(current.reserved_quantity)) {
-        const error = new Error(`Số lượng ${row.quantity} nhỏ hơn lượng đã giữ ${current.reserved_quantity}`);
+        const error = new Error(`Sá»‘ lÆ°á»£ng ${row.quantity} nhá» hÆ¡n lÆ°á»£ng Ä‘Ã£ giá»¯ ${current.reserved_quantity}`);
         error.code = 'RESERVED_QUANTITY_CONFLICT';
         error.rowNumber = row.rowNumber;
         throw error;
       }
       await client.query(
-        `INSERT INTO inventory (warehouse_id, product_id, quantity, reserved_quantity)
-         VALUES ($1, $2, $3, 0)
-         ON CONFLICT (warehouse_id, product_id) DO UPDATE SET quantity = $3, updated_at = NOW()`,
+        `MERGE INTO inventory AS target
+         USING (SELECT $1 AS warehouse_id, $2 AS product_id, $3 AS quantity) AS source
+         ON target.warehouse_id = source.warehouse_id AND target.product_id = source.product_id
+         WHEN MATCHED THEN UPDATE SET quantity = target.quantity + source.quantity, updated_at = NOW()
+         WHEN NOT MATCHED THEN INSERT (warehouse_id, product_id, quantity, reserved_quantity) VALUES (source.warehouse_id, source.product_id, source.quantity, 0);`,
         [warehouseId, row.productId, row.quantity]
       );
       await recordMovement(client, { warehouseId, productId: row.productId,
-        delta: row.quantity - Number(current.quantity), before: Number(current.quantity), after: row.quantity,
-        type: 'adjustment', referenceCode: `IMPORT-${job.id}`, note: 'Đặt tồn theo file kiểm kê', userId,
+        delta: row.quantity, before: Number(current.quantity), after: Number(current.quantity) + row.quantity,
+        type: 'adjustment', referenceCode: `IMPORT-${job.id}`, note: 'Nhap ton kho tu file (cong don)', userId,
         operationKey: `inventory-import:${job.id}:${row.productId}` });
       } catch (error) { error.rowNumber = row.rowNumber; throw error; }
     }
@@ -157,10 +159,13 @@ export const exportOrders = async ({ from, to, status }) => {
   if (status) { values.push(status); conditions.push(`o.status = $${values.length}`); }
   const result = await query(
     `SELECT o.order_number, o.channel, o.status, o.payment_status, o.customer_name, o.customer_phone,
-       o.total_amount, o.created_at, COUNT(oi.id)::int AS item_lines
+       o.total_amount, o.created_at, COUNT(oi.id) AS item_lines
      FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id
-     WHERE ${conditions.join(' AND ')} GROUP BY o.id ORDER BY o.created_at DESC`,
+     WHERE ${conditions.join(' AND ')}
+     GROUP BY o.id, o.order_number, o.channel, o.status, o.payment_status, o.customer_name, o.customer_phone, o.total_amount, o.created_at
+     ORDER BY o.created_at DESC`,
     values
   );
   return result.rows;
 };
+

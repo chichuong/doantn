@@ -13,15 +13,18 @@ export const validateIdempotencyKey = (key) => {
 export const startIdempotency = async (client, { userId, operation, key, payload }) => {
   if (!key) return null;
   const hash = createHash('sha256').update(JSON.stringify(payload)).digest('hex');
-  await client.query(`INSERT INTO api_idempotency_keys (user_id, operation, key, request_hash)
-    VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING`, [userId, operation, key, hash]);
+  await client.query(
+    `IF NOT EXISTS (SELECT 1 FROM api_idempotency_keys WHERE user_id = $1 AND operation = $2 AND [key] = $3)
+     INSERT INTO api_idempotency_keys (user_id, operation, [key], request_hash) VALUES ($1, $2, $3, $4)`,
+    [userId, operation, key, hash]
+  );
   const result = await client.query(`SELECT request_hash, order_id FROM api_idempotency_keys
-    WHERE user_id = $1 AND operation = $2 AND key = $3 FOR UPDATE`, [userId, operation, key]);
+    WHERE user_id = $1 AND operation = $2 AND [key] = $3 FOR UPDATE`, [userId, operation, key]);
   if (result.rows[0].request_hash !== hash) throw new AppError(409, 'Idempotency-Key đã được dùng với nội dung khác');
   return result.rows[0].order_id;
 };
 
 export const finishIdempotency = async (client, { userId, operation, key, orderId }) => {
   if (key) await client.query(`UPDATE api_idempotency_keys SET order_id = $4
-    WHERE user_id = $1 AND operation = $2 AND key = $3`, [userId, operation, key, orderId]);
+    WHERE user_id = $1 AND operation = $2 AND [key] = $3`, [userId, operation, key, orderId]);
 };

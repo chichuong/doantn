@@ -26,28 +26,23 @@ const errorsFor = (rows) => rows.map((error) => `Dòng ${error.rowNumber}: ${err
 const validateProductRows = async (rows) => {
   const errors = [];
   const skuSet = new Set();
-  const barcodeSet = new Set();
   for (const row of rows) {
     if (!row.sku) errors.push({ rowNumber: row.rowNumber, message: 'SKU không được để trống' });
     if (row.sku && !/^[A-Za-z0-9_-]{2,60}$/.test(row.sku)) errors.push({ rowNumber: row.rowNumber, message: 'SKU phải dài 2–60 ký tự chữ/số/_/-' });
     if (!row.name) errors.push({ rowNumber: row.rowNumber, message: 'Tên sản phẩm không được để trống' });
-    if (row.name?.length > 180 || row.barcode?.length > 100) errors.push({ rowNumber: row.rowNumber, message: 'Tên tối đa 180 ký tự, barcode tối đa 100 ký tự' });
+    if (row.name?.length > 180) errors.push({ rowNumber: row.rowNumber, message: 'Tên sản phẩm tối đa 180 ký tự' });
     if (row.sku && skuSet.has(row.sku)) errors.push({ rowNumber: row.rowNumber, message: `SKU ${row.sku} bị trùng trong file` });
-    if (row.barcode && barcodeSet.has(row.barcode)) errors.push({ rowNumber: row.rowNumber, message: `Barcode ${row.barcode} bị trùng trong file` });
     if (row.sku) skuSet.add(row.sku);
-    if (row.barcode) barcodeSet.add(row.barcode);
     if (!row.category) errors.push({ rowNumber: row.rowNumber, message: 'Category không được để trống' });
     if (!money(row.cost_price)) errors.push({ rowNumber: row.rowNumber, message: 'Giá vốn không hợp lệ' });
     if (!money(row.sale_price)) errors.push({ rowNumber: row.rowNumber, message: 'Giá bán không hợp lệ' });
     if (!integer(row.reorder_level)) errors.push({ rowNumber: row.rowNumber, message: 'reorder_level phải là số nguyên không âm' });
     if (row.is_active !== undefined && !bool(row.is_active)) errors.push({ rowNumber: row.rowNumber, message: 'is_active phải là true/false hoặc 1/0' });
   }
-  const existing = await findExistingProductKeys([...skuSet], [...barcodeSet]);
+  const existing = await findExistingProductKeys([...skuSet], []);
   const existingSku = new Set(existing.map((row) => row.sku));
-  const existingBarcode = new Set(existing.filter((row) => row.barcode).map((row) => row.barcode));
   rows.forEach((row) => {
     if (existingSku.has(row.sku)) errors.push({ rowNumber: row.rowNumber, message: `SKU ${row.sku} đã tồn tại` });
-    if (row.barcode && existingBarcode.has(row.barcode)) errors.push({ rowNumber: row.rowNumber, message: `Barcode ${row.barcode} đã tồn tại` });
   });
   const categories = await findCategoriesByNames([...new Set(rows.map((row) => String(row.category || '').toLowerCase()))]);
   const categoryNames = new Set(categories.map((row) => row.name.toLowerCase()));
@@ -99,9 +94,9 @@ export const importFile = async ({ file, dataType, warehouseId, userId }) => {
   try { parsed = await parseSpreadsheet(file); }
   catch (error) { throw new AppError(400, `Không đọc được file: ${error.message}`); }
   const required = dataType === 'products'
-    ? ['sku', 'barcode', 'name', 'category', 'cost_price', 'sale_price', 'reorder_level']
+    ? ['sku', 'name', 'category', 'cost_price', 'sale_price', 'reorder_level']
     : dataType === 'categories' ? ['name'] : ['sku', 'quantity'];
-  const headerErrors = assertHeaders(parsed.headers, required, dataType === 'inventory' ? [] : ['description', 'is_active']);
+  const headerErrors = assertHeaders(parsed.headers, required, dataType === 'inventory' ? [] : dataType === 'products' ? ['description', 'is_active', 'barcode'] : ['description', 'is_active']);
   const errors = headerErrors.map((message) => ({ rowNumber: 1, message }));
   if (!parsed.rows.length) errors.push({ rowNumber: 0, message: 'File không có dòng dữ liệu' });
   if (!headerErrors.length && parsed.rows.length) errors.push(...(dataType === 'products' ? await validateProductRows(parsed.rows)
