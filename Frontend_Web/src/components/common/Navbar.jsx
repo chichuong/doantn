@@ -51,7 +51,7 @@ export const Navbar = ({ onOpenShiftClick, onCloseShiftClick, onMenuClick }) => 
               KARAT RETAIL
             </h1>
             <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-              OMNICHANNEL
+              ĐA KÊNH
             </span>
           </div>
           <p className="text-[11px] text-slate-500 hidden sm:block">

@@ -85,7 +85,7 @@ export const ForecastingPage = () => {
       }
     } catch (err) {
       if (err.status === 403) {
-        setError('Tài khoản không có quyền xem dự báo (yêu cầu forecasting.read).');
+        setError('Tài khoản hiện tại chưa được cấp quyền xem dự báo nhu cầu bán hàng.');
       } else {
         setError(err.message || 'Không thể tải danh sách đợt dự báo.');
       }

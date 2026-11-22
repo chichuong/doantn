@@ -110,8 +110,8 @@ export const ForecastDetailModal = ({ isOpen, onClose, product, selectedRun }) =
               <div className="text-lg font-bold text-slate-900 mt-0.5">
                 {forecastText}
               </div>
-              <span className="text-[11px] text-slate-500 block font-mono mt-0.5">
-                Chính xác: {pred.toFixed(6)}
+              <span className="text-[11px] text-slate-500 block mt-0.5">
+                Chi tiết: {pred < 0.01 && pred > 0 ? '< 0.01' : pred.toFixed(2)} sản phẩm
               </span>
             </div>
 
@@ -157,7 +157,7 @@ export const ForecastDetailModal = ({ isOpen, onClose, product, selectedRun }) =
                 <span>Tự động lập Phiếu Nhập Kho từ gợi ý AI</span>
               </div>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                Closed-Loop ERP
+                Đề xuất tự động
               </span>
             </div>
 
@@ -262,9 +262,8 @@ export const ForecastDetailModal = ({ isOpen, onClose, product, selectedRun }) =
               <table className="w-full min-w-[520px] text-left">
                 <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-medium">
                   <tr>
-                    <th className="py-2 px-3">Ngày</th>
-                    <th className="py-2 px-3 text-right">Dự kiến</th>
-                    <th className="py-2 px-3 text-right">Giá trị gốc (6 số thập phân)</th>
+                    <th className="py-2 px-3">Ngày dự báo</th>
+                    <th className="py-2 px-3 text-right">Số lượng dự kiến bán</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -274,10 +273,7 @@ export const ForecastDetailModal = ({ isOpen, onClose, product, selectedRun }) =
                       <tr key={day.date} className="hover:bg-slate-50">
                         <td className="py-1.5 px-3 font-mono text-slate-600">{day.date}</td>
                         <td className="py-1.5 px-3 text-right font-medium text-slate-900">
-                          {q < 0.01 ? '< 0.01' : q.toFixed(2)}
-                        </td>
-                        <td className="py-1.5 px-3 text-right font-mono text-slate-500 text-[11px]">
-                          {q.toFixed(6)}
+                          {q < 0.01 ? 'Dưới 1 sản phẩm' : `${q.toFixed(1)} sản phẩm`}
                         </td>
                       </tr>
                     );

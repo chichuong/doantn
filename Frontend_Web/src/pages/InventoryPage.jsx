@@ -70,7 +70,7 @@ export const InventoryPage = () => {
     } catch (err) {
       if (err.status === 403) {
         setError(
-          'Tài khoản hiện tại không có quyền Quản lý tồn kho (yêu cầu quyền manager.inventory.read). Vui lòng đăng nhập tài khoản Quản lý (manager@example.com).'
+          'Tài khoản hiện tại chưa được cấp quyền xem dữ liệu tồn kho. Vui lòng liên hệ Quản lý cửa hàng hoặc Quản trị viên.'
         );
       } else {
         setError(err.message || 'Không thể tải dữ liệu tồn kho');
@@ -124,10 +124,10 @@ export const InventoryPage = () => {
         <div>
           <h1 className="app-page-title flex items-center gap-2">
             <Boxes className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>Quản lý Tồn kho Đa kênh (3 Trạng thái)</span>
+            <span>Quản lý Tồn kho Hàng hóa</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Theo dõi thời gian thực giữa Tồn thực tế (On-hand), Đang giữ chỗ (Reserved) và Tồn khả dụng (Available)
+            Theo dõi số lượng hàng thực tế trong kho, số lượng đang giữ cho đơn chờ giao và số lượng sẵn sàng mở bán
           </p>
         </div>
 
@@ -169,7 +169,7 @@ export const InventoryPage = () => {
           {/* On-hand Stock */}
           <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Tồn thực tế (On-hand)</span>
+              <span className="text-xs font-semibold text-slate-500">Tổng tồn trong kho</span>
               <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
                 <Boxes className="w-4 h-4" />
               </div>
@@ -178,14 +178,14 @@ export const InventoryPage = () => {
               {formatNumber(totalQuantity)}
             </div>
             <p className="mt-1 text-[11px] text-slate-500">
-              Tổng số lượng vật lý tại kho
+              Tổng số lượng hàng hiện có tại kho
             </p>
           </div>
 
           {/* Reserved Stock */}
           <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Đang giữ (Reserved)</span>
+              <span className="text-xs font-semibold text-slate-500">Đang giữ cho đơn hàng</span>
               <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/70 text-amber-600 flex items-center justify-center">
                 <Clock className="w-4 h-4" />
               </div>
@@ -194,14 +194,14 @@ export const InventoryPage = () => {
               {formatNumber(totalReserved)}
             </div>
             <p className="mt-1 text-[11px] text-slate-500">
-              Khóa tạm cho đơn hàng đang xử lý
+              Hàng đã có khách đặt, đang chờ đóng gói
             </p>
           </div>
 
           {/* Available Stock */}
           <div className="p-4 rounded-xl bg-blue-50/40 border border-blue-200 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-blue-700">Khả dụng (Available)</span>
+              <span className="text-xs font-semibold text-blue-700">Có thể bán ngay</span>
               <div className="w-8 h-8 rounded-lg bg-blue-100/80 text-blue-700 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
@@ -210,7 +210,7 @@ export const InventoryPage = () => {
               {formatNumber(totalAvailable)}
             </div>
             <p className="mt-1 text-[11px] text-slate-600">
-              Số lượng sẵn sàng mở bán ngay
+              Số lượng thực tế khách có thể đặt mua
             </p>
           </div>
 

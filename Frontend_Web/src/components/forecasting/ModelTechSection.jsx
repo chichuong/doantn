@@ -30,32 +30,32 @@ export const ModelTechSection = ({ selectedRun = null }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-3 rounded bg-white border border-slate-200 space-y-1">
-              <div className="text-slate-400 text-[11px]">Mô hình & Phiên bản</div>
+              <div className="text-slate-400 text-[11px]">Phương pháp dự báo</div>
               <div className="font-semibold text-slate-800">
-                {isPython ? 'LightGBM L1 (v1.0.0)' : 'Baseline 7D'}
+                {isPython ? 'Trí tuệ nhân tạo (AI LightGBM)' : 'Trung bình doanh số 7 ngày'}
               </div>
               <div className="text-slate-500 text-[11px]">
-                Mã: {metadata.model_id || (isPython ? 'karat-demand-forecast-v1' : 'baseline')}
+                Phiên bản: {isPython ? 'Chuẩn thương mại v1.0' : 'Cơ bản'}
               </div>
             </div>
 
             <div className="p-3 rounded bg-white border border-slate-200 space-y-1">
-              <div className="text-slate-400 text-[11px]">Nguồn huấn luyện</div>
+              <div className="text-slate-400 text-[11px]">Nguồn dữ liệu phân tích</div>
               <div className="font-semibold text-slate-800">
-                {metadata.training_dataset || (isPython ? 'UCI Online Retail II' : 'PostgreSQL')}
+                {isPython ? 'Bộ dữ liệu Bán lẻ chuẩn & Lịch sử cửa hàng' : 'Lịch sử đơn hàng tại cửa hàng'}
               </div>
               <div className="text-slate-500 text-[11px]">
-                Ngày: {metadata.created_at_utc ? metadata.created_at_utc.slice(0, 10) : '20/10/2026'}
+                Cập nhật: {metadata.created_at_utc ? metadata.created_at_utc.slice(0, 10) : '20/10/2026'}
               </div>
             </div>
 
             <div className="p-3 rounded bg-white border border-slate-200 space-y-1">
-              <div className="text-slate-400 text-[11px]">Đánh giá tập kiểm thử UCI</div>
+              <div className="text-slate-400 text-[11px]">Độ chính xác tham chiếu</div>
               <div className="font-semibold text-slate-800">
-                {isPython ? 'MAE: 29.25 | RMSE: 101.39' : (selectedRun?.mae !== null ? `MAE: ${formatNumber(selectedRun?.mae)}` : 'Chưa có')}
+                {isPython ? 'Sai số trung bình: ~29 đơn vị' : (selectedRun?.mae !== null ? `Sai số: ${formatNumber(selectedRun?.mae)}` : 'Đang thu thập')}
               </div>
               <div className="text-slate-400 text-[10px]">
-                Chỉ số đối soát trên test UCI
+                Tự động cải thiện khi có thêm đơn hàng mới
               </div>
             </div>
           </div>

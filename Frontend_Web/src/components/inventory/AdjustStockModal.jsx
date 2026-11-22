@@ -97,8 +97,8 @@ export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = 
               type="text"
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
-              placeholder="Dán mã UUID sản phẩm..."
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 font-mono"
+              placeholder="Nhập mã sản phẩm..."
+              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
               required
             />
           )}

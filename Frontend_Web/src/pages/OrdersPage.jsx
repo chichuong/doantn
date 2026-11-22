@@ -75,7 +75,7 @@ export const OrdersPage = () => {
     } catch (err) {
       if (err.status === 403) {
         setError(
-          'Tài khoản hiện tại (Thu ngân) không có quyền Quản lý đơn hàng đa kênh. Vui lòng đăng nhập tài khoản Quản lý (manager@example.com) để thao tác toàn bộ kênh.'
+          'Tài khoản hiện tại không có quyền xem đơn hàng toàn hệ thống. Vui lòng liên hệ Quản lý cửa hàng hoặc Quản trị viên để được cấp quyền.'
         );
       } else {
         setError(err.message || 'Không thể tải danh sách đơn hàng');
@@ -127,12 +127,12 @@ export const OrdersPage = () => {
         <div>
           <h1 className="app-page-title flex items-center gap-2">
             <ClipboardList className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>{isSalesOnly ? 'Lịch sử đơn hàng POS' : 'Quản lý Đơn hàng Đa kênh'}</span>
+            <span>{isSalesOnly ? 'Lịch sử hóa đơn tại quầy' : 'Quản lý Đơn hàng'}</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             {isSalesOnly
               ? 'Tra cứu lịch sử giao dịch bán lẻ tại quầy trong ca làm việc'
-              : 'Theo dõi và xử lý trạng thái đơn hàng từ POS, Website và Ứng dụng Flutter Mobile'}
+              : 'Theo dõi và xử lý đơn đặt hàng từ quầy thu ngân, website và ứng dụng di động'}
           </p>
         </div>
 

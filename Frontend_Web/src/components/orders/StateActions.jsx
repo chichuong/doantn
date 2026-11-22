@@ -114,7 +114,7 @@ export const StateActions = ({ order, onRefresh }) => {
       <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
         <Lock className="w-3.5 h-3.5 text-slate-400" />
         <span>
-          Đơn hàng đang ở trạng thái cuối (<strong>{currentStatus}</strong>). Không có thao tác chuyển trạng thái tiếp theo.
+          Đơn hàng đã hoàn tất quy trình xử lý hoặc tài khoản hiện tại không có thao tác chuyển bước tiếp theo.
         </span>
       </div>
     );
@@ -185,7 +185,7 @@ export const StateActions = ({ order, onRefresh }) => {
             {modalAction.requiresTracking && (
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Mã vận đơn (Tracking Number)
+                  Mã vận đơn giao hàng
                 </label>
                 <input
                   type="text"

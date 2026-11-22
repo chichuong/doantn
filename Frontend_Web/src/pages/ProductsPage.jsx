@@ -582,7 +582,7 @@ export const ProductsPage = () => {
               </select>
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Ngưỡng cảnh báo tồn (Reorder Level)</label>
+              <label className="block font-semibold text-slate-700 mb-1">Mức tồn kho tối thiểu (Cảnh báo sắp hết hàng)</label>
               <input
                 type="number"
                 min="0"

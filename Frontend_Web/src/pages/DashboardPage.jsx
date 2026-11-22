@@ -19,9 +19,9 @@ import { formatCurrency, formatNumber } from '../utils/formatters';
 import { useAuth } from '../context/AuthContext';
 
 const CHANNEL_META = {
-  pos: { label: 'Bán tại quầy (POS)', icon: Store, color: 'bg-blue-600', badge: 'bg-blue-50 text-blue-700 border-blue-200' },
-  web: { label: 'Kênh Web trực tuyến', icon: Globe, color: 'bg-emerald-600', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  mobile: { label: 'Ứng dụng Flutter Mobile', icon: Smartphone, color: 'bg-indigo-600', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+  pos: { label: 'Bán trực tiếp tại quầy', icon: Store, color: 'bg-blue-600', badge: 'bg-blue-50 text-blue-700 border-blue-200' },
+  web: { label: 'Website trực tuyến', icon: Globe, color: 'bg-emerald-600', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  mobile: { label: 'Ứng dụng di động', icon: Smartphone, color: 'bg-indigo-600', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
 };
 
 export const DashboardPage = () => {
@@ -126,10 +126,10 @@ export const DashboardPage = () => {
         <div>
           <h1 className="app-page-title flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>Tổng quan & Báo cáo Kinh doanh Đa kênh</span>
+            <span>Tổng quan & Báo cáo Kinh doanh</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Tổng hợp doanh thu, đơn hàng, tồn kho và hiệu suất giữa các kênh POS, Web và Flutter Mobile
+            Tổng hợp doanh thu, đơn hàng, tồn kho và hiệu quả kinh doanh tại quầy, website và ứng dụng di động
           </p>
         </div>
 

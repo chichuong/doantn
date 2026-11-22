@@ -264,9 +264,9 @@ export const WarehouseApprovalsPage = () => {
                 aria-label="Lọc theo loại phiếu kho"
                 className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800"
               >
-                <option value="">Tất cả loại</option>
-                <option value="receipt">Nhập kho (Receipt)</option>
-                <option value="issue">Xuất kho (Issue)</option>
+                <option value="">Tất cả loại phiếu</option>
+                <option value="receipt">Phiếu nhập kho</option>
+                <option value="issue">Phiếu xuất kho</option>
               </select>
             </div>
 
@@ -688,7 +688,7 @@ export const WarehouseApprovalsPage = () => {
               )}
             </div>
             <div className="text-xs text-slate-600 font-mono bg-slate-100 py-1.5 px-3 rounded-lg">
-              Token: {qrModalDoc.qr_code || qrModalDoc.document_number}
+              Mã định danh phiếu: {qrModalDoc.qr_code || qrModalDoc.document_number}
             </div>
             <p className="text-[11px] text-slate-400">
               Nhân viên kho dùng camera app hoặc thiết bị ESP32-CAM quét mã này để xác định phiếu và đối soát hàng.
