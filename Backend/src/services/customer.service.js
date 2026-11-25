@@ -82,7 +82,9 @@ export const createOrder = async (userId, input, key) => {
     warehouseId = await getCentralWarehouseId();
   }
   if (!isUuid(warehouseId)) throw new AppError(400, 'Không xác định được kho xử lý');
-  if (input.addressId && !isUuid(input.addressId)) throw new AppError(400, 'addressId không hợp lệ');
+  if (!input.addressId || !isUuid(input.addressId)) {
+    throw new AppError(400, 'Vui lòng thêm và chọn địa chỉ nhận hàng trước khi đặt hàng');
+  }
   if (input.channel && !['web', 'mobile'].includes(input.channel)) throw new AppError(400, 'channel phải là web hoặc mobile');
   for (const [field, max] of [['customerName',150],['customerPhone',30],['note',255]]) {
     if (input[field] !== undefined) assertText(input[field], field, max);

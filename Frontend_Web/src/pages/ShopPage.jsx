@@ -210,6 +210,11 @@ export const ShopPage = () => {
 
   const handlePlaceOrder = async () => {
     if (cartItems.length === 0 || placingOrder) return;
+    if (!selectedAddressId || addresses.length === 0) {
+      showToast('Vui lòng thêm và chọn địa chỉ nhận hàng trước khi đặt hàng.', true);
+      setIsAddressModalOpen(true);
+      return;
+    }
     setPlacingOrder(true);
     try {
       const idempotencyKey = `WEB-CHK-${Date.now()}-${Math.floor(Math.random() * 999999)}`;
@@ -670,10 +675,17 @@ export const ShopPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-700">Địa chỉ giao hàng</label>
+                <label className="block text-xs font-semibold text-slate-700">Địa chỉ giao hàng *</label>
                 {addresses.length === 0 ? (
-                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
-                    Bạn chưa có địa chỉ giao hàng. Nhấn &ldquo;+ Thêm địa chỉ&rdquo; để lưu địa chỉ nhận hàng.
+                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs space-y-2">
+                    <p>Bạn chưa có địa chỉ giao hàng. Vui lòng thêm địa chỉ nhận hàng để tiếp tục đặt hàng.</p>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddressModalOpen(true)}
+                      className="w-full py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition"
+                    >
+                      + Thêm địa chỉ nhận hàng ngay
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -769,11 +781,15 @@ export const ShopPage = () => {
 
               <button
                 type="button"
-                disabled={cartItems.length === 0 || placingOrder}
+                disabled={cartItems.length === 0 || placingOrder || !selectedAddressId}
                 onClick={handlePlaceOrder}
                 className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition disabled:opacity-50"
               >
-                {placingOrder ? 'Đang xử lý đặt hàng...' : 'Đặt hàng ngay'}
+                {placingOrder
+                  ? 'Đang xử lý đặt hàng...'
+                  : !selectedAddressId
+                  ? 'Vui lòng thêm địa chỉ giao hàng'
+                  : 'Đặt hàng ngay'}
               </button>
             </div>
           </div>
