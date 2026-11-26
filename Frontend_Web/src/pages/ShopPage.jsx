@@ -16,6 +16,7 @@ import { customerApi } from '../api/customerApi';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { Modal } from '../components/common/Modal';
 import { OrderTimeline } from '../components/orders/OrderTimeline';
+import { ProductDetailView } from '../components/shop/ProductDetailView';
 import { useAuth } from '../context/AuthContext';
 
 const ORDER_TABS = [
@@ -44,6 +45,7 @@ export const ShopPage = () => {
 
   // 4 phân mục đồng bộ với ứng dụng Flutter Mobile: 'catalog' | 'cart' | 'orders' | 'profile'
   const [activeTab, setActiveTab] = useState('catalog');
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Catalog state
   const [products, setProducts] = useState([]);
@@ -337,23 +339,28 @@ export const ShopPage = () => {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
       {/* Top Navigation Bar (Đồng bộ 4 tab như BottomNavigationBar trên Mobile) */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 shrink-0">
+      <div className="bg-white border-b border-neutral-200 px-4 sm:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
         <div>
-          <h1 className="app-page-title flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-blue-600" />
-            <span>Karat Retail — Mua sắm Trực tuyến</span>
+          <h1 className="text-lg font-semibold tracking-tight text-neutral-900 flex items-center gap-2.5">
+            <ShoppingBag className="w-5 h-5 text-neutral-900 stroke-[1.75]" />
+            <span>Karat Retail — Cửa hàng Trực tuyến</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Đồng bộ giỏ hàng, tồn kho và trạng thái vận đơn thời gian thực giữa Web & Ứng dụng Mobile
+          <p className="text-xs text-neutral-500 mt-0.5">
+            Sản phẩm chính hãng • Đồng bộ giỏ hàng &amp; tồn kho thời gian thực
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium w-full md:w-auto">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1 bg-neutral-100 p-1 rounded-lg text-xs font-medium w-full md:w-auto border border-neutral-200/80">
           <button
             type="button"
-            onClick={() => setActiveTab('catalog')}
-            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
-              activeTab === 'catalog' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
+            onClick={() => {
+              setActiveTab('catalog');
+              setSelectedProduct(null);
+            }}
+            className={`justify-center px-3.5 py-2 rounded-md flex items-center gap-1.5 transition-colors ${
+              activeTab === 'catalog'
+                ? 'bg-white text-neutral-900 border border-neutral-200/80 font-semibold'
+                : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
             <Package className="w-4 h-4 shrink-0" />
@@ -362,15 +369,20 @@ export const ShopPage = () => {
 
           <button
             type="button"
-            onClick={() => setActiveTab('cart')}
-            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
-              activeTab === 'cart' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
+            onClick={() => {
+              setActiveTab('cart');
+              setSelectedProduct(null);
+            }}
+            className={`justify-center px-3.5 py-2 rounded-md flex items-center gap-1.5 transition-colors ${
+              activeTab === 'cart'
+                ? 'bg-white text-neutral-900 border border-neutral-200/80 font-semibold'
+                : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
             <ShoppingCart className="w-4 h-4 shrink-0" />
             <span className="truncate">Giỏ hàng</span>
             {totalCartItems > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold tabular-nums">
+              <span className="px-1.5 py-0.5 rounded-full bg-neutral-900 text-white text-[10px] font-semibold tabular-nums">
                 {totalCartItems}
               </span>
             )}
@@ -378,9 +390,14 @@ export const ShopPage = () => {
 
           <button
             type="button"
-            onClick={() => setActiveTab('orders')}
-            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
-              activeTab === 'orders' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
+            onClick={() => {
+              setActiveTab('orders');
+              setSelectedProduct(null);
+            }}
+            className={`justify-center px-3.5 py-2 rounded-md flex items-center gap-1.5 transition-colors ${
+              activeTab === 'orders'
+                ? 'bg-white text-neutral-900 border border-neutral-200/80 font-semibold'
+                : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
             <ClipboardList className="w-4 h-4 shrink-0" />
@@ -389,9 +406,14 @@ export const ShopPage = () => {
 
           <button
             type="button"
-            onClick={() => setActiveTab('profile')}
-            className={`justify-center px-3 py-2 rounded-lg flex items-center gap-1.5 transition ${
-              activeTab === 'profile' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
+            onClick={() => {
+              setActiveTab('profile');
+              setSelectedProduct(null);
+            }}
+            className={`justify-center px-3.5 py-2 rounded-md flex items-center gap-1.5 transition-colors ${
+              activeTab === 'profile'
+                ? 'bg-white text-neutral-900 border border-neutral-200/80 font-semibold'
+                : 'text-neutral-600 hover:text-neutral-900'
             }`}
           >
             <MapPin className="w-4 h-4 shrink-0" />
@@ -401,192 +423,232 @@ export const ShopPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto bg-white p-4 sm:p-8 space-y-6">
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+          <div className="max-w-7xl mx-auto p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
             {error}
           </div>
         )}
         {success && (
-          <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs">
+          <div className="max-w-7xl mx-auto p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs">
             {success}
           </div>
         )}
 
-        {/* TAB 1: KHÁM PHÁ SẢN PHẨM */}
+        {/* TAB 1: KHÁM PHÁ SẢN PHẨM & CHI TIẾT SẢN PHẨM */}
         {activeTab === 'catalog' && (
-          <div className="space-y-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3">
-              <div className="relative flex-1 min-w-[220px]">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Tìm kiếm sản phẩm theo tên hoặc mã SKU..."
-                  className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-blue-600"
-                />
-              </div>
+          selectedProduct ? (
+            <ProductDetailView
+              product={selectedProduct}
+              relatedProducts={products
+                .filter(
+                  (item) =>
+                    item.id !== selectedProduct.id &&
+                    (!selectedProduct.category_id || item.category_id === selectedProduct.category_id)
+                )
+                .slice(0, 4)}
+              cartQty={getCartQty(selectedProduct.id)}
+              onBack={() => setSelectedProduct(null)}
+              onAddToCart={handleUpdateCartQty}
+              onSelectProduct={(prod) => setSelectedProduct(prod)}
+              onGoToCart={() => {
+                setSelectedProduct(null);
+                setActiveTab('cart');
+              }}
+            />
+          ) : (
+            <div className="max-w-7xl mx-auto space-y-6">
+              {/* Search & Category Filter Bar */}
+              <div className="space-y-4 border-b border-neutral-200 pb-5">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative flex-1 min-w-[240px]">
+                    <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Tìm kiếm sản phẩm theo tên hoặc mã SKU..."
+                      className="w-full pl-10 pr-4 py-2.5 text-xs bg-neutral-50 border border-neutral-200 rounded-lg text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:bg-white focus:border-neutral-900 transition-colors"
+                    />
+                  </div>
 
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="text-xs border border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-700"
-              >
-                <option value="">Tất cả danh mục</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                  <select
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    className="text-xs border border-neutral-200 rounded-lg px-3.5 py-2.5 bg-white text-neutral-700 focus:outline-none focus:border-neutral-900"
+                  >
+                    <option value="">Tất cả danh mục</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
 
-              <button
-                type="button"
-                onClick={loadCatalog}
-                className="p-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-600"
-              >
-                <RefreshCw className={`w-4 h-4 ${loadingCatalog ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    onClick={loadCatalog}
+                    title="Làm mới danh sách"
+                    className="p-2.5 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-600 transition-colors"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${loadingCatalog ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
 
-            {loadingCatalog ? (
-              <div className="py-16 text-center text-xs text-slate-400">Đang tải sản phẩm...</div>
-            ) : products.length === 0 ? (
-              <div className="py-16 text-center text-xs text-slate-400 bg-white rounded-xl border border-slate-200">
-                Không tìm thấy sản phẩm phù hợp.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                {products.map((p) => {
-                  const stock = Number(p.available_quantity ?? p.available_stock ?? 0);
-                  const inCart = getCartQty(p.id);
-                  const price = Number(p.sale_price ?? 0);
-                  const imgUrl = p.image_url || p.imageUrl;
-
-                  return (
-                    <div
-                      key={p.id}
-                      className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col justify-between shadow-2xs hover:border-blue-300 transition"
+                {categories.length > 0 && (
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    <button
+                      type="button"
+                      onClick={() => setCategoryId('')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap border transition-colors ${
+                        categoryId === ''
+                          ? 'bg-neutral-900 text-white border-neutral-900'
+                          : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+                      }`}
                     >
-                      <div>
-                        <div className="w-full h-40 mb-3 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center">
-                          {imgUrl ? (
-                            <img
-                              src={imgUrl}
-                              alt={p.name}
-                              className="w-full h-full object-contain p-2"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <Package className="w-10 h-10 text-slate-300" />
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-1">
-                          <span>{p.sku}</span>
-                          <span
-                            className={`px-2 py-0.5 rounded-full font-sans font-medium ${
-                              stock > 0
-                                ? 'bg-emerald-50 text-emerald-700'
-                                : 'bg-red-50 text-red-600'
-                            }`}
-                          >
-                            {stock > 0 ? `Còn ${stock}` : 'Hết hàng'}
-                          </span>
-                        </div>
-                        <h3 className="text-sm font-bold text-slate-900 line-clamp-2">{p.name}</h3>
-                        {p.category_name && (
-                          <span className="inline-block mt-1 text-[11px] text-slate-500">
-                            {p.category_name}
-                          </span>
-                        )}
-                      </div>
+                      Tất cả
+                    </button>
+                    {categories.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => setCategoryId(c.id)}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap border transition-colors ${
+                          categoryId === c.id
+                            ? 'bg-neutral-900 text-white border-neutral-900'
+                            : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+                        }`}
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                        <div className="text-sm font-bold text-blue-600 tabular-nums">{formatCurrency(price)}</div>
+              {loadingCatalog ? (
+                <div className="py-20 text-center text-xs text-neutral-400">Đang tải sản phẩm...</div>
+              ) : products.length === 0 ? (
+                <div className="py-20 text-center text-xs text-neutral-500 bg-neutral-50 rounded-xl border border-neutral-200">
+                  Không tìm thấy sản phẩm phù hợp.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {products.map((p) => {
+                    const stock = Number(p.available_quantity ?? p.available_stock ?? 0);
+                    const inCart = getCartQty(p.id);
+                    const price = Number(p.sale_price ?? 0);
+                    const imgUrl = p.image_url || p.imageUrl;
 
-                        {inCart > 0 ? (
-                          <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-lg px-1.5 py-1">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateCartQty(p.id, inCart - 1)}
-                              className="p-1 rounded hover:bg-white text-blue-700"
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => setSelectedProduct(p)}
+                        className="group cursor-pointer bg-white rounded-xl border border-neutral-200 hover:border-neutral-400 transition-colors flex flex-col justify-between overflow-hidden"
+                      >
+                        <div>
+                          <div className="relative w-full aspect-[4/3] bg-neutral-50 border-b border-neutral-100 overflow-hidden flex items-center justify-center p-4">
+                            {imgUrl ? (
+                              <img
+                                src={imgUrl}
+                                alt={p.name}
+                                className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-300"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <Package className="w-10 h-10 text-neutral-300" />
+                            )}
+                            <span
+                              className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded text-[10px] font-medium border ${
+                                stock > 0
+                                  ? 'bg-white text-neutral-700 border-neutral-200'
+                                  : 'bg-red-50 text-red-700 border-red-200'
+                              }`}
                             >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="text-xs font-bold text-blue-800 px-1.5 tabular-nums">{inCart}</span>
+                              {stock > 0 ? `Còn ${stock}` : 'Hết hàng'}
+                            </span>
+                          </div>
+
+                          <div className="p-4 pb-2 space-y-1">
+                            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-neutral-400">
+                              <span className="truncate">{p.category_name || 'Sản phẩm'}</span>
+                              <span className="font-mono shrink-0 ml-2">{p.sku}</span>
+                            </div>
+                            <h3 className="text-sm font-medium text-neutral-900 line-clamp-2 group-hover:underline">
+                              {p.name}
+                            </h3>
+                          </div>
+                        </div>
+
+                        <div
+                          className="px-4 pb-4 pt-2 flex items-center justify-between gap-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="text-sm font-semibold text-neutral-900 tabular-nums">
+                            {formatCurrency(price)}
+                          </div>
+
+                          {inCart > 0 ? (
+                            <div className="flex items-center gap-1 bg-neutral-100 border border-neutral-200 rounded-lg px-1.5 py-1">
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateCartQty(p.id, inCart - 1)}
+                                className="p-1 rounded hover:bg-white text-neutral-700"
+                              >
+                                <Minus className="w-3.5 h-3.5" />
+                              </button>
+                              <span className="text-xs font-semibold text-neutral-900 px-1.5 tabular-nums">
+                                {inCart}
+                              </span>
+                              <button
+                                type="button"
+                                disabled={inCart >= stock}
+                                onClick={() => handleUpdateCartQty(p.id, inCart + 1)}
+                                className="p-1 rounded hover:bg-white text-neutral-700 disabled:opacity-40"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ) : (
                             <button
                               type="button"
-                              disabled={inCart >= stock}
-                              onClick={() => handleUpdateCartQty(p.id, inCart + 1)}
-                              className="p-1 rounded hover:bg-white text-blue-700 disabled:opacity-40"
+                              disabled={stock <= 0}
+                              onClick={() => handleUpdateCartQty(p.id, 1)}
+                              className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-medium flex items-center gap-1 transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
                             >
                               <Plus className="w-3.5 h-3.5" />
+                              <span>Thêm</span>
                             </button>
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={stock <= 0}
-                            onClick={() => handleUpdateCartQty(p.id, 1)}
-                            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium flex items-center gap-1 transition disabled:opacity-40"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Thêm</span>
-                          </button>
-                        )}
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {totalCartItems > 0 && (
-              <div className="sticky bottom-3 z-10 bg-slate-900 text-white rounded-xl px-4 py-3 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3 text-xs">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-                    <ShoppingCart className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-slate-300">Đã chọn </span>
-                    <strong className="font-bold text-white tabular-nums">{totalCartItems} sản phẩm</strong>
-                    <span className="mx-2 text-slate-500">•</span>
-                    <span className="text-slate-300">Tạm tính: </span>
-                    <strong className="font-bold text-emerald-400 tabular-nums">{formatCurrency(cartSubtotal)}</strong>
-                  </div>
+                    );
+                  })}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('cart')}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition shrink-0"
-                >
-                  Xem giỏ hàng & Đặt hàng →
-                </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )
         )}
 
         {/* TAB 2: GIỎ HÀNG & ĐẶT HÀNG (Giống CartScreen + CheckoutScreen trên Mobile) */}
         {activeTab === 'cart' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-              <h2 className="text-sm font-bold text-slate-900">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 bg-white rounded-xl border border-neutral-200 p-5 space-y-4">
+              <h2 className="text-sm font-semibold text-neutral-900">
                 Sản phẩm trong giỏ ({totalCartItems})
               </h2>
 
               {loadingCart ? (
-                <div className="py-12 text-center text-xs text-slate-400">Đang tải giỏ hàng...</div>
+                <div className="py-12 text-center text-xs text-neutral-400">Đang tải giỏ hàng...</div>
               ) : cartItems.length === 0 ? (
                 <div className="py-12 text-center space-y-3">
-                  <p className="text-xs text-slate-400">Giỏ hàng của bạn đang trống.</p>
+                  <p className="text-xs text-neutral-400">Giỏ hàng của bạn đang trống.</p>
                   <button
                     type="button"
                     onClick={() => setActiveTab('catalog')}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-medium"
+                    className="px-4 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-medium transition-colors"
                   >
                     Khám phá sản phẩm ngay
                   </button>
@@ -774,16 +836,16 @@ export const ShopPage = () => {
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-600">Tổng thanh toán:</span>
-                <span className="text-lg font-bold text-blue-600">{formatCurrency(cartSubtotal)}</span>
+              <div className="pt-3 border-t border-neutral-200 flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-600">Tổng thanh toán:</span>
+                <span className="text-lg font-bold text-neutral-900 tabular-nums">{formatCurrency(cartSubtotal)}</span>
               </div>
 
               <button
                 type="button"
                 disabled={cartItems.length === 0 || placingOrder || !selectedAddressId}
                 onClick={handlePlaceOrder}
-                className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition disabled:opacity-50"
+                className="w-full py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition-colors disabled:opacity-40"
               >
                 {placingOrder
                   ? 'Đang xử lý đặt hàng...'
@@ -797,18 +859,18 @@ export const ShopPage = () => {
 
         {/* TAB 3: ĐƠN HÀNG CỦA TÔI (Giống OrdersScreen + OrderDetailScreen trên Mobile) */}
         {activeTab === 'orders' && (
-          <div className="space-y-4">
-            <div className="bg-white p-2 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div className="max-w-7xl mx-auto space-y-4">
+            <div className="bg-white p-2 rounded-xl border border-neutral-200 flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-1">
                 {ORDER_TABS.map((t) => (
                   <button
                     key={t.label}
                     type="button"
                     onClick={() => setOrderStatusFilter(t.status)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       orderStatusFilter === t.status
-                        ? 'bg-blue-600 text-white font-semibold'
-                        : 'text-slate-600 hover:bg-slate-100'
+                        ? 'bg-neutral-900 text-white font-semibold'
+                        : 'text-neutral-600 hover:bg-neutral-100'
                     }`}
                   >
                     {t.label}
@@ -899,7 +961,7 @@ export const ShopPage = () => {
 
         {/* TAB 4: SỔ ĐỊA CHỈ & TÀI KHOẢN (Giống ProfileScreen trên Mobile) */}
         {activeTab === 'profile' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3 h-fit">
               <h2 className="text-sm font-bold text-slate-900">Thông tin Tài khoản</h2>
               <div className="text-xs space-y-2 text-slate-600">
