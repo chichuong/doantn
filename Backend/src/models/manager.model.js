@@ -11,10 +11,20 @@ export const getDashboardSummary = async ({ from, to }) => {
     query(`SELECT COALESCE(SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END), 0) AS active_products,
              COALESCE(SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END), 0) AS inactive_products
            FROM products`, []),
-    query(`SELECT COUNT(*) AS inventory_lines,
-             COALESCE(SUM(quantity), 0) AS total_quantity,
-             COALESCE(SUM(CASE WHEN quantity - reserved_quantity <= p.reorder_level THEN 1 ELSE 0 END), 0) AS low_stock_lines
-           FROM inventory i JOIN products p ON p.id = i.product_id`, []),
+    query(`SELECT
+             (SELECT COUNT(*) FROM inventory) AS inventory_lines,
+             (SELECT COALESCE(SUM(quantity), 0) FROM inventory) AS total_quantity,
+             COALESCE((
+               SELECT COUNT(*)
+               FROM (
+                 SELECT p.id
+                 FROM products p
+                 JOIN inventory i ON i.product_id = p.id
+                 WHERE p.is_active = 1
+                 GROUP BY p.id, p.reorder_level
+                 HAVING COALESCE(SUM(i.quantity - i.reserved_quantity), 0) <= p.reorder_level
+               ) AS low_products
+             ), 0) AS low_stock_lines`, []),
     query(`SELECT COALESCE(SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END), 0) AS active_users,
              COUNT(*) AS total_users FROM users`, []),
     query(`SELECT CAST(COALESCE(SUM(CASE WHEN status = 'delivered' THEN total_amount ELSE 0 END), 0) AS DECIMAL(14,2)) AS revenue,
