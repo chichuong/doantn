@@ -39,6 +39,19 @@ const ORDER_STATUS_LABELS = {
   returned: { label: 'Hoàn trả', cls: 'bg-rose-50 text-rose-700 border-rose-200' },
 };
 
+const formatShortOrderCode = (orderNumber, fallbackId) => {
+  const raw = String(orderNumber || fallbackId || '').trim();
+  if (!raw) return '#ĐH';
+  const uuidMatch = raw.match(/^([A-Za-z]+)-([0-9a-f]{8})-[0-9a-f-]+$/i);
+  if (uuidMatch) {
+    return `#${uuidMatch[1].toUpperCase()}-${uuidMatch[2].slice(0, 6).toUpperCase()}`;
+  }
+  if (/^[0-9a-f]{8}-[0-9a-f-]+$/i.test(raw)) {
+    return `#${raw.slice(0, 6).toUpperCase()}`;
+  }
+  return raw.startsWith('#') ? raw : `#${raw}`;
+};
+
 export const ShopPage = () => {
   const { user } = useAuth();
 
@@ -898,24 +911,27 @@ export const ShopPage = () => {
                       >
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-900">
-                              #{o.order_number}
+                            <span
+                              className="text-xs font-bold text-neutral-900"
+                              title={o.order_number}
+                            >
+                              {formatShortOrderCode(o.order_number, o.id)}
                             </span>
                             <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${st.cls}`}>
                               {st.label}
                             </span>
-                            <span className="text-[11px] text-slate-400 uppercase">
+                            <span className="text-[11px] text-neutral-400 uppercase">
                               Kênh: {o.channel}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-500 mt-1">
+                          <div className="text-[11px] text-neutral-500 mt-1">
                             Ngày đặt: {formatDate(o.created_at)}
                           </div>
                         </div>
 
                         <div className="flex items-center gap-3">
                           <div className="text-right">
-                            <div className="text-sm font-bold text-blue-600">
+                            <div className="text-sm font-bold text-neutral-900 tabular-nums">
                               {formatCurrency(o.total_amount)}
                             </div>
                           </div>
@@ -1130,7 +1146,11 @@ export const ShopPage = () => {
       <Modal
         isOpen={isOrderDetailOpen}
         onClose={() => setIsOrderDetailOpen(false)}
-        title={selectedOrder ? `Chi tiết đơn hàng #${selectedOrder.order_number}` : 'Chi tiết đơn hàng'}
+        title={
+          selectedOrder
+            ? `Chi tiết đơn hàng ${formatShortOrderCode(selectedOrder.order_number, selectedOrder.id)}`
+            : 'Chi tiết đơn hàng'
+        }
         maxWidth="max-w-2xl"
       >
         {selectedOrder && (
