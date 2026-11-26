@@ -501,33 +501,33 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-white border-b border-slate-200 text-slate-900 px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400">
+            <div className="w-9 h-9 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
               <Camera className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-bold flex items-center gap-2">
-                <span>Trạm Nhìn Camera & Quét QR Đối Soát Kho (Live Viewfinder)</span>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+              <h2 className="text-sm sm:text-base font-bold flex items-center gap-2 text-slate-900">
+                <span>Trạm Camera &amp; Quét QR Đối Soát Kho</span>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
                   Auto-WiFi v2.5
                 </span>
               </h2>
-              <p className="text-[11px] text-slate-400">
-                Tự động nhận diện IP Camera ESP32-S3, hiển thị khung ngắm tâm QR & hỗ trợ đổi Wi-Fi bằng mã QR
+              <p className="text-[11px] text-slate-500">
+                Tự động nhận diện IP Camera ESP32-S3, hiển thị khung ngắm QR &amp; hỗ trợ đổi Wi-Fi bằng mã QR
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="inline-flex rounded-lg bg-slate-800 p-0.5 border border-slate-700">
+            <div className="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200">
               <button
                 type="button"
                 onClick={() => setCameraMode('esp32')}
                 className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                   cameraMode === 'esp32'
-                    ? 'bg-sky-500 text-slate-950 shadow-2xs'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-white text-slate-900 border border-slate-200'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Cpu className="w-3.5 h-3.5" />
@@ -538,8 +538,8 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
                 onClick={() => setCameraMode('webcam')}
                 className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                   cameraMode === 'webcam'
-                    ? 'bg-sky-500 text-slate-950 shadow-2xs'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-white text-slate-900 border border-slate-200'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Laptop className="w-3.5 h-3.5" />
@@ -550,16 +550,16 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
             <button
               type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+              className="p-2 rounded-lg bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 transition"
               title={soundEnabled ? 'Tắt âm báo Bíp' : 'Bật âm báo Bíp'}
             >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-sky-400" /> : <VolumeX className="w-4 h-4" />}
+              {soundEnabled ? <Volume2 className="w-4 h-4 text-blue-600" /> : <VolumeX className="w-4 h-4" />}
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-red-600/80 text-slate-300 hover:text-white transition"
+              className="p-2 rounded-lg bg-white hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 transition"
               aria-label="Đóng cửa sổ camera"
             >
               <X className="w-4 h-4" />
@@ -641,7 +641,7 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
                     onClick={() => setShowControls(!showControls)}
                     className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition ${
                       showControls
-                        ? 'bg-sky-50 border-sky-300 text-sky-700'
+                        ? 'bg-blue-50 border-blue-300 text-blue-700'
                         : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -789,10 +789,10 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
 
             {/* KHUNG NHÌN CAMERA TRỰC TIẾP (LIVE VIEWFINDER + AIMING RETICLE) */}
             <div
-              className={`relative w-full aspect-4/3 rounded-2xl overflow-hidden bg-slate-950 border-2 transition-all duration-200 flex items-center justify-center shadow-inner ${
+              className={`relative w-full aspect-4/3 rounded-xl overflow-hidden bg-neutral-900 border-2 transition-all duration-200 flex items-center justify-center ${
                 espStatus.qrVisible
-                  ? 'border-emerald-500 ring-4 ring-emerald-500/20'
-                  : 'border-slate-800'
+                  ? 'border-emerald-500'
+                  : 'border-neutral-300'
               }`}
             >
               {cameraMode === 'esp32' ? (
@@ -817,12 +817,12 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
                       }}
                     />
                   ) : (
-                    <div className="p-6 text-center max-w-md space-y-3 text-slate-300">
-                      <Camera className="w-10 h-10 text-sky-400 mx-auto opacity-80" />
+                    <div className="p-6 text-center max-w-md space-y-3 text-neutral-300">
+                      <Camera className="w-10 h-10 text-neutral-400 mx-auto" />
                       <div className="text-sm font-bold text-white">
                         Đang dò tìm tín hiệu Camera IoT ESP32-S3 ({activeEspIp})
                       </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">
+                      <p className="text-xs text-neutral-400 leading-relaxed">
                         • Khi mạch ESP32-S3 cấp nguồn và kết nối Wi-Fi, hệ thống sẽ <strong>tự động nhận diện IP</strong> và hiển thị hình ảnh tại đây.<br />
                         • Nếu bạn mới đổi mạng Wi-Fi, hãy bấm nút <strong>"Cài Wi-Fi tự động"</strong> phía trên để tạo mã QR Wi-Fi cho Camera đọc!
                       </p>
@@ -849,47 +849,47 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
               {/* KHUNG NGẮM TÂM QUÉT QR (AIMING RETICLE OVERLAY) */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                 <div
-                  className={`relative w-[64%] h-[68%] rounded-2xl border-2 border-dashed transition-all duration-200 flex items-center justify-center ${
+                  className={`relative w-[64%] h-[68%] rounded-xl border-2 border-dashed transition-all duration-200 flex items-center justify-center ${
                     espStatus.qrVisible
                       ? 'border-emerald-400 bg-emerald-500/10 scale-[1.02]'
-                      : 'border-sky-400/70 bg-sky-500/5'
+                      : 'border-white/60 bg-black/10'
                   }`}
                   style={{
-                    boxShadow: '0 0 0 9999px rgba(2, 6, 23, 0.38)',
+                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.35)',
                   }}
                 >
                   <span
-                    className={`absolute -top-1 -left-1 w-7 h-7 border-t-4 border-l-4 rounded-tl-xl ${
-                      espStatus.qrVisible ? 'border-emerald-400' : 'border-sky-400'
+                    className={`absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 rounded-tl-lg ${
+                      espStatus.qrVisible ? 'border-emerald-400' : 'border-white'
                     }`}
                   />
                   <span
-                    className={`absolute -top-1 -right-1 w-7 h-7 border-t-4 border-r-4 rounded-tr-xl ${
-                      espStatus.qrVisible ? 'border-emerald-400' : 'border-sky-400'
+                    className={`absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 rounded-tr-lg ${
+                      espStatus.qrVisible ? 'border-emerald-400' : 'border-white'
                     }`}
                   />
                   <span
-                    className={`absolute -bottom-1 -left-1 w-7 h-7 border-b-4 border-l-4 rounded-bl-xl ${
-                      espStatus.qrVisible ? 'border-emerald-400' : 'border-sky-400'
+                    className={`absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 rounded-bl-lg ${
+                      espStatus.qrVisible ? 'border-emerald-400' : 'border-white'
                     }`}
                   />
                   <span
-                    className={`absolute -bottom-1 -right-1 w-7 h-7 border-b-4 border-r-4 rounded-br-xl ${
-                      espStatus.qrVisible ? 'border-emerald-400' : 'border-sky-400'
+                    className={`absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 rounded-br-lg ${
+                      espStatus.qrVisible ? 'border-emerald-400' : 'border-white'
                     }`}
                   />
 
                   <Crosshair
                     className={`w-6 h-6 transition-opacity ${
-                      espStatus.qrVisible ? 'text-emerald-400 opacity-90' : 'text-sky-300/40'
+                      espStatus.qrVisible ? 'text-emerald-400 opacity-90' : 'text-white/50'
                     }`}
                   />
 
                   <div
-                    className={`absolute -bottom-8 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide whitespace-nowrap border shadow-md ${
+                    className={`absolute -bottom-8 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide whitespace-nowrap border ${
                       espStatus.qrVisible
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-300'
-                        : 'bg-slate-900/90 text-sky-300 border-sky-500/40'
+                        ? 'bg-emerald-600 text-white border-emerald-400'
+                        : 'bg-neutral-900/90 text-white border-white/25'
                     }`}
                   >
                     {espStatus.qrVisible
@@ -902,17 +902,17 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
               {/* Thanh trạng thái FPS & Wi-Fi góc trên bên trái */}
               <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 pointer-events-none">
                 <span
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold backdrop-blur-md border ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
                     cameraMode === 'webcam' || espStatus.online || streamConnected
-                      ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
-                      : 'bg-slate-900/80 text-slate-400 border-slate-700'
+                      ? 'bg-emerald-950/85 text-emerald-200 border-emerald-500/40'
+                      : 'bg-neutral-900/85 text-neutral-300 border-white/15'
                   }`}
                 >
                   <span
                     className={`w-2 h-2 rounded-full ${
                       cameraMode === 'webcam' || espStatus.online || streamConnected
-                        ? 'bg-emerald-400 animate-pulse'
-                        : 'bg-slate-500'
+                        ? 'bg-emerald-400'
+                        : 'bg-neutral-400'
                     }`}
                   />
                   {cameraMode === 'esp32'
@@ -925,7 +925,7 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
                 </span>
 
                 {cameraMode === 'esp32' && espStatus.ssid && (
-                  <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-900/80 text-sky-300 border border-sky-500/30 backdrop-blur-md">
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-neutral-900/85 text-white border border-white/20">
                     Wi-Fi: {espStatus.ssid} ({espStatus.rssi} dBm)
                   </span>
                 )}
@@ -1135,7 +1135,7 @@ export const IotCameraScannerModal = ({ isOpen, onClose, onScanVerified }) => {
                 </div>
               ) : (
                 <div className="p-5 rounded-xl bg-white border border-slate-200 text-center space-y-2 shadow-2xs">
-                  <Sparkles className="w-8 h-8 text-blue-500 mx-auto opacity-80" />
+                  <QrCode className="w-8 h-8 text-slate-400 mx-auto" />
                   <div className="text-xs font-bold text-slate-800">
                     Sẵn sàng nhận diện mã QR Phiếu Kho & QR Wi-Fi
                   </div>

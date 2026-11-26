@@ -191,9 +191,9 @@ export const WarehouseApprovalsPage = () => {
           <button
             type="button"
             onClick={() => setIsCameraScannerOpen(true)}
-            className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition shadow-2xs flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-semibold transition flex items-center gap-1.5"
           >
-            <Camera className="w-3.5 h-3.5 text-sky-400" />
+            <Camera className="w-3.5 h-3.5 text-slate-600" />
             <span>Mở Camera Quét QR (IoT / Web)</span>
           </button>
 
