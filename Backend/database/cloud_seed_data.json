@@ -1174,15 +1174,6 @@
       "is_active": true,
       "created_at": "2026-10-12T03:35:55.710Z",
       "updated_at": "2026-11-09T14:34:04.270Z"
-    },
-    {
-      "id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
-      "code": "WH-HCM-02",
-      "name": "Kho cua hang quan 3",
-      "address": "Quan 3, TP Ho Chi Minh",
-      "is_active": false,
-      "created_at": "2026-10-12T03:35:55.710Z",
-      "updated_at": "2026-10-29T04:28:14.663Z"
     }
   ],
   "users": [
@@ -1278,9 +1269,9 @@
       "phone": null,
       "status": "active",
       "role_id": "97e2e140-96b9-46f6-8ccf-fefc3558f0b1",
-      "last_login_at": "2026-11-16T01:20:23.173Z",
+      "last_login_at": "2026-11-26T15:39:38.524Z",
       "created_at": "2026-10-12T03:26:37.996Z",
-      "updated_at": "2026-11-16T01:20:23.173Z"
+      "updated_at": "2026-11-26T15:39:38.524Z"
     }
   ],
   "user_warehouses": [
@@ -1623,27 +1614,6 @@
       "quantity": 60,
       "reserved_quantity": 0,
       "updated_at": "2026-11-13T11:41:01.180Z"
-    },
-    {
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
-      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
-      "quantity": 50,
-      "reserved_quantity": 0,
-      "updated_at": "2026-10-13T02:48:54.713Z"
-    },
-    {
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
-      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
-      "quantity": 100,
-      "reserved_quantity": 0,
-      "updated_at": "2026-10-12T04:47:39.383Z"
-    },
-    {
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
-      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
-      "quantity": 50,
-      "reserved_quantity": 0,
-      "updated_at": "2026-10-12T04:47:39.383Z"
     }
   ],
   "orders": [
@@ -1938,7 +1908,7 @@
       "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-10-13T02:48:54.713Z",
       "updated_at": "2026-10-13T02:48:54.713Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "b5bf626b-eef3-48ff-8167-b788907a065d",
       "shipping_address_snapshot": null,
@@ -2002,7 +1972,7 @@
       "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-10-20T03:47:55.743Z",
       "updated_at": "2026-10-20T03:47:55.743Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "23ce07a5-7bf2-4eb5-986d-802096d24e36",
       "shipping_address_snapshot": null,
@@ -2501,7 +2471,7 @@
       "created_by": "f41f45a7-5fdd-4b8b-b406-3191258a3cab",
       "created_at": "2026-10-12T03:51:36.200Z",
       "updated_at": "2026-10-12T03:51:36.543Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "16029a05-d8bc-4772-a9ca-32d9c111c384",
       "shipping_address_snapshot": null,
@@ -2591,7 +2561,7 @@
       "created_by": "33abc42c-35f7-432d-b005-cf0dc9b731b4",
       "created_at": "2026-10-12T04:09:46.646Z",
       "updated_at": "2026-10-12T04:09:46.906Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": "fa77f1c9-66bb-402e-b081-1eed9eb85fd3",
       "pos_session_id": null,
       "shipping_address_snapshot": {
@@ -3095,7 +3065,7 @@
       "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-10-20T03:47:55.580Z",
       "updated_at": "2026-10-20T03:47:55.643Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "23ce07a5-7bf2-4eb5-986d-802096d24e36",
       "shipping_address_snapshot": null,
@@ -3114,7 +3084,7 @@
       "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-10-20T03:47:55.723Z",
       "updated_at": "2026-10-20T03:47:55.723Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "23ce07a5-7bf2-4eb5-986d-802096d24e36",
       "shipping_address_snapshot": null,
@@ -3159,7 +3129,7 @@
       "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-10-20T03:47:43.366Z",
       "updated_at": "2026-10-20T03:47:43.436Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "23ce07a5-7bf2-4eb5-986d-802096d24e36",
       "shipping_address_snapshot": null,
@@ -3178,7 +3148,7 @@
       "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-10-20T03:47:43.553Z",
       "updated_at": "2026-10-20T03:47:43.553Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "23ce07a5-7bf2-4eb5-986d-802096d24e36",
       "shipping_address_snapshot": null,
@@ -3346,7 +3316,7 @@
       "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-10-20T03:47:43.536Z",
       "updated_at": "2026-10-20T03:47:43.536Z",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "shipping_address_id": null,
       "pos_session_id": "23ce07a5-7bf2-4eb5-986d-802096d24e36",
       "shipping_address_snapshot": null,
@@ -6297,7 +6267,7 @@
   "pos_sessions": [
     {
       "id": "16029a05-d8bc-4772-a9ca-32d9c111c384",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "opened_by": "f41f45a7-5fdd-4b8b-b406-3191258a3cab",
       "status": "closed",
       "opening_cash": "100000.00",
@@ -6321,7 +6291,7 @@
     },
     {
       "id": "23ce07a5-7bf2-4eb5-986d-802096d24e36",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "opened_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "status": "closed",
       "opening_cash": "500000.00",
@@ -6345,7 +6315,7 @@
     },
     {
       "id": "b5bf626b-eef3-48ff-8167-b788907a065d",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "opened_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "status": "closed",
       "opening_cash": "500000.00",
@@ -6383,13 +6353,13 @@
       "id": "a50d9ef7-0842-42dd-82e9-d7b9767fd51a",
       "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "opened_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
-      "status": "open",
+      "status": "closed",
       "opening_cash": "500000.00",
-      "closing_cash": null,
+      "closing_cash": "0.00",
       "opened_at": "2026-11-14T11:57:53.043Z",
-      "closed_at": null,
+      "closed_at": "2026-11-26T15:34:08.087Z",
       "created_at": "2026-11-14T11:57:53.043Z",
-      "updated_at": "2026-11-14T11:57:53.043Z"
+      "updated_at": "2026-11-26T15:34:08.087Z"
     }
   ],
   "api_idempotency_keys": [
@@ -7387,7 +7357,7 @@
       "id": "b7fa3e08-c9cc-40dd-8f3b-222990d0d9c9",
       "user_id": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
       "created_at": "2026-11-10T04:52:28.916Z",
-      "updated_at": "2026-11-16T02:28:06.203Z"
+      "updated_at": "2026-11-26T15:43:21.989Z"
     },
     {
       "id": "e82c8a42-0048-48f3-9d1d-46a8ef6b5408",
@@ -8343,6 +8313,33 @@
       "metadata": {}
     },
     {
+      "id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "model_name": "baseline_moving_average_7d",
+      "status": "completed",
+      "lookback_days": 30,
+      "horizon_days": 7,
+      "from_date": "2026-10-27T00:00:00.000Z",
+      "to_date": "2026-11-25T00:00:00.000Z",
+      "mae": 0.08,
+      "rmse": 0.16,
+      "created_by": "be53bfd9-2b5f-4b21-87ed-f66c08a6b63d",
+      "created_at": "2026-11-26T15:42:46.203Z",
+      "completed_at": "2026-11-26T15:42:46.203Z",
+      "warehouse_id": null,
+      "metadata": {
+        "timezone": "Asia/Ho_Chi_Minh",
+        "metric_source": "last_7_days_holdout",
+        "bounds_method": "point_only",
+        "missing_days_policy": "zero_sales",
+        "target": "delivered_order_units_by_order_creation_day",
+        "limitations": [
+          "Doanh số quan sát có thể thấp hơn nhu cầu khi hết hàng",
+          "Lịch sử dùng trạng thái hoàn tất hiện tại; chưa phải snapshot dữ liệu tại quá khứ"
+        ],
+        "fallback": "python_unavailable_used_baseline"
+      }
+    },
+    {
       "id": "4e597d78-6b64-4f04-b801-45630e7422dd",
       "model_name": "python_selected_model",
       "status": "completed",
@@ -9071,6 +9068,17 @@
   ],
   "forecast_values": [
     {
+      "id": "682276f0-d684-4469-9b1a-005db47c4acf",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.240Z"
+    },
+    {
       "id": "b30c1c0c-5415-457a-b4b2-00a474be1ce9",
       "run_id": "f913ec72-9754-4a3d-a6ed-d0e8a3b2db6f",
       "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
@@ -9126,6 +9134,17 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "69560bb0-9df7-4a0c-a51f-021df5bc07e1",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.249Z"
+    },
+    {
       "id": "f691a0e9-3892-472b-8655-0224db487840",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
@@ -9146,6 +9165,28 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "a4ac68a2-5303-44c2-85f3-027e21c348e4",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.285Z"
+    },
+    {
+      "id": "1b3c7f76-958d-49d4-aab7-02a7f8282d39",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.228Z"
     },
     {
       "id": "7d0f2cbd-3403-4423-9e59-02afe9368f60",
@@ -9214,6 +9255,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "cdb74fe4-95f7-4b36-8b96-03dd8cce0cf8",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.236Z"
+    },
+    {
       "id": "2ff32bec-1f6e-4443-b1ee-047ff53d083f",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
@@ -9258,6 +9310,28 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "388926a0-482a-49a4-8e4b-058fdd32608e",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.272Z"
+    },
+    {
+      "id": "3bd6cc34-4e48-422b-9335-0647441865b2",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "b5c52cfb-e199-4978-824d-5c1269f9719f",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.291Z"
+    },
+    {
       "id": "05e5328e-c538-40ce-9119-06c712eae2ab",
       "run_id": "32890a9e-42ae-4eeb-81dd-a2c69aa4d583",
       "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
@@ -9267,6 +9341,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "88da6ad6-3bc1-41b3-a13f-06dc68abc164",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.252Z"
     },
     {
       "id": "794c45f5-e25c-43ae-bd22-07780aa194b3",
@@ -9313,6 +9398,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "bd4bc197-6f7c-479f-a84c-07ee44002df0",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "b5c52cfb-e199-4978-824d-5c1269f9719f",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.294Z"
+    },
+    {
       "id": "184c728c-bcae-4b10-b511-080f4d19624f",
       "run_id": "869dbd3c-232a-415d-89cd-2b041b81e953",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
@@ -9333,6 +9429,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "cdcbce34-e496-460e-8582-08bc4d8e6105",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.233Z"
     },
     {
       "id": "f1737015-52ff-4fa2-9506-08ccd374f684",
@@ -9443,6 +9550,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-16T02:49:31.586Z"
+    },
+    {
+      "id": "86449474-8802-4f5d-b48b-0f4e0c64f1ed",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "b5c52cfb-e199-4978-824d-5c1269f9719f",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.291Z"
     },
     {
       "id": "78aaf165-cbad-4d17-9166-0fc90e7a6196",
@@ -9654,6 +9772,28 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "f14d1c58-3fbe-4f87-86db-1773cb128e02",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "a2a1dab1-a175-4a12-a85d-435504d75268",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.257Z"
+    },
+    {
+      "id": "eccbe9be-224e-4892-bb44-178dfb3ec553",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "a2a1dab1-a175-4a12-a85d-435504d75268",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.256Z"
+    },
+    {
       "id": "72e824c2-dd3f-4d30-9057-187fa1b4db96",
       "run_id": "cd92be53-917e-407d-9792-211bf633fe2a",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
@@ -9696,6 +9836,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:20:40.226Z"
+    },
+    {
+      "id": "5ca3bb23-003b-4399-88f6-1ba2509f4c38",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.265Z"
     },
     {
       "id": "dac3d3ea-637f-4b2d-bfe5-1bbfa5ff444b",
@@ -9751,6 +9902,17 @@
       "lower_bound": 0.004663,
       "upper_bound": 0.004663,
       "created_at": "2026-10-21T05:13:50.910Z"
+    },
+    {
+      "id": "182cf36d-21bd-40fd-add0-1c9ca8a9c865",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.231Z"
     },
     {
       "id": "fc8d876d-721d-49d8-8d17-1cf678f4948b",
@@ -9841,6 +10003,28 @@
       "created_at": "2026-10-20T03:47:43.506Z"
     },
     {
+      "id": "86253104-588f-4007-b05c-2179ccf1ea91",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.251Z"
+    },
+    {
+      "id": "5cd1103b-35ed-4024-a63c-21a420331d33",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.279Z"
+    },
+    {
       "id": "ea1cb888-3502-4870-b29b-21e67cc13a63",
       "run_id": "f913ec72-9754-4a3d-a6ed-d0e8a3b2db6f",
       "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
@@ -9861,6 +10045,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "7a9e9f68-797a-476c-9ea7-2281c8c19388",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.239Z"
     },
     {
       "id": "3b31e520-dd2e-4a67-b7c7-228e422e4c26",
@@ -9885,6 +10080,17 @@
       "created_at": "2026-10-20T03:47:55.686Z"
     },
     {
+      "id": "6b62367c-1c5d-4d96-b629-22d3fd3c5edb",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.307Z"
+    },
+    {
       "id": "cfdc1c02-522f-49d5-aacd-23040d086371",
       "run_id": "e19ffcd3-90d9-4c34-b745-38476c287d38",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
@@ -9894,6 +10100,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-12T04:26:33.780Z"
+    },
+    {
+      "id": "3662b3eb-5d20-459e-82ba-232c0e21767f",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.281Z"
     },
     {
       "id": "428366b5-d6c3-47d3-8321-2356bcc6655e",
@@ -10138,6 +10355,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "950c0a6c-de03-4b90-a86d-30befca3f6bd",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.248Z"
+    },
+    {
       "id": "52246937-7750-4476-b05b-30bfeafe3e6a",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
@@ -10169,6 +10397,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-20T03:47:43.506Z"
+    },
+    {
+      "id": "586a1311-4aa0-4239-9d23-31432a5ab197",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.305Z"
     },
     {
       "id": "2786e44b-a6e7-469f-bebf-3251c5b90013",
@@ -10369,6 +10608,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "e738e7d6-d060-4f4f-9a70-3ca4e650ad63",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.299Z"
+    },
+    {
       "id": "f6593933-259f-43d9-8180-3cb6f30d737e",
       "run_id": "e19ffcd3-90d9-4c34-b745-38476c287d38",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
@@ -10488,6 +10738,17 @@
       "lower_bound": 0.004663,
       "upper_bound": 0.004663,
       "created_at": "2026-10-21T05:13:50.910Z"
+    },
+    {
+      "id": "978fdac6-6eff-47e9-b7e9-42985129fbfb",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.280Z"
     },
     {
       "id": "7e1e0c47-d705-4fc8-8a79-42ed3b05032f",
@@ -10633,6 +10894,17 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "cb7d32bf-11e4-46fd-a839-47ec72dd1cbd",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.222Z"
+    },
+    {
       "id": "e3ec9479-a7b5-4937-b594-4884e7db05a7",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
@@ -10774,6 +11046,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-16T02:49:31.586Z"
+    },
+    {
+      "id": "1cca84f8-2e6a-427f-b451-51ad08cabfe4",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.271Z"
     },
     {
       "id": "da8fc4a6-0c7e-42ac-a891-51c3d0be9f33",
@@ -10985,6 +11268,28 @@
       "created_at": "2026-10-20T03:47:43.506Z"
     },
     {
+      "id": "75c83136-2fa2-4895-a8b4-5af10ca0267f",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.273Z"
+    },
+    {
+      "id": "957f5b33-a874-44bf-9e1b-5bee965be891",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.306Z"
+    },
+    {
       "id": "caebb711-6587-471d-8b26-5c771e4104bb",
       "run_id": "32890a9e-42ae-4eeb-81dd-a2c69aa4d583",
       "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
@@ -11038,6 +11343,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-21T05:01:22.240Z"
+    },
+    {
+      "id": "f2cbfba2-6291-4e90-936a-5f8c203e2bdd",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.244Z"
     },
     {
       "id": "a62f6795-4d5b-443b-b2c3-5facfc6d3fe8",
@@ -11172,6 +11488,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "4a4590f6-24bc-4169-878b-63f0f6909e2e",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.262Z"
+    },
+    {
       "id": "17693fa4-5bc4-44d6-bfb6-6480a38a27a4",
       "run_id": "f913ec72-9754-4a3d-a6ed-d0e8a3b2db6f",
       "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
@@ -11216,6 +11543,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "a444ecc1-6d80-4ee0-8128-66870c785513",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.308Z"
+    },
+    {
       "id": "a9c8ab38-d5c2-4f43-9d40-6696c5aca536",
       "run_id": "6f04b14c-9311-4fe3-b0e3-65d5a2544c35",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
@@ -11249,6 +11587,39 @@
       "created_at": "2026-10-21T05:03:14.540Z"
     },
     {
+      "id": "f1e99987-b481-4f63-8521-687f54a52981",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.281Z"
+    },
+    {
+      "id": "b9f26fcc-c664-4b09-a627-68c5c197818b",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.282Z"
+    },
+    {
+      "id": "839ed6d1-e725-4105-ac8d-692bd3dbf3d2",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.278Z"
+    },
+    {
       "id": "dd2e2ffb-144c-440c-94b6-695952ce5b2e",
       "run_id": "4e597d78-6b64-4f04-b801-45630e7422dd",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
@@ -11258,6 +11629,28 @@
       "lower_bound": 0.012972,
       "upper_bound": 0.012972,
       "created_at": "2026-10-21T05:13:50.910Z"
+    },
+    {
+      "id": "5fc2501b-b116-4b37-8ac0-6960a52c0a7a",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.283Z"
+    },
+    {
+      "id": "cde8ef70-26d4-45ce-aa5e-69731adefefa",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.284Z"
     },
     {
       "id": "49d7b0ba-34eb-483b-a2b6-6a0f9462ad87",
@@ -11337,6 +11730,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "56890893-97c8-4573-8b26-6f24de7e5ab5",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.286Z"
+    },
+    {
       "id": "7ec15681-4339-4754-ba3e-6f41367bad08",
       "run_id": "e19ffcd3-90d9-4c34-b745-38476c287d38",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
@@ -11346,6 +11750,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-12T04:26:33.780Z"
+    },
+    {
+      "id": "5b81ce8f-4f16-45cc-bdae-6f9b565049c7",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.309Z"
     },
     {
       "id": "d3cb3cab-9247-4656-8b28-6ff5f0347517",
@@ -11379,6 +11794,17 @@
       "lower_bound": 0.010762,
       "upper_bound": 0.010762,
       "created_at": "2026-11-16T02:49:31.586Z"
+    },
+    {
+      "id": "f41497c5-da2d-45da-bfd1-7096157f29df",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.276Z"
     },
     {
       "id": "b2c6a711-96c8-4d63-98ea-70c7cc5083ce",
@@ -11480,6 +11906,17 @@
       "created_at": "2026-11-16T02:28:54.683Z"
     },
     {
+      "id": "b1cddbdd-4eee-4ceb-8005-748b4d39e699",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "b5c52cfb-e199-4978-824d-5c1269f9719f",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.289Z"
+    },
+    {
       "id": "4b5a90d5-8591-4aba-936a-764c7fdc36f6",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
@@ -11511,6 +11948,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-20T03:47:43.506Z"
+    },
+    {
+      "id": "97a0230f-5583-4a88-97c0-76eb6c88e18c",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.302Z"
     },
     {
       "id": "398e2c5c-cd5c-4e2d-8339-7802686d37f5",
@@ -11568,6 +12016,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "2a469963-71a8-4b78-a5a6-7a2307616198",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "b5c52cfb-e199-4978-824d-5c1269f9719f",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.292Z"
+    },
+    {
       "id": "2e511390-3c4f-41fc-939d-7a96329bc2e0",
       "run_id": "6f04b14c-9311-4fe3-b0e3-65d5a2544c35",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
@@ -11579,6 +12038,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "9f9a75c6-c2c8-43e1-84b6-7a9d3b6c29f4",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.286Z"
+    },
+    {
       "id": "56b2dd47-da43-4873-b409-7b49882d5751",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
@@ -11588,6 +12058,17 @@
       "lower_bound": 0.03559,
       "upper_bound": 0.03559,
       "created_at": "2026-11-16T02:49:31.586Z"
+    },
+    {
+      "id": "b2a01cd0-9fba-4281-b72c-7b801afb5140",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "b5c52cfb-e199-4978-824d-5c1269f9719f",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.295Z"
     },
     {
       "id": "a875f1b3-2725-44b3-8be4-7bd68698960a",
@@ -11610,6 +12091,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-20T03:47:55.686Z"
+    },
+    {
+      "id": "63d719ab-f141-4945-98c0-7c0753e3e407",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.259Z"
     },
     {
       "id": "5183b564-754a-4793-8e46-7c419727e6c7",
@@ -11689,6 +12181,17 @@
       "created_at": "2026-11-16T02:28:54.683Z"
     },
     {
+      "id": "cf3d020c-e66c-46cb-9d96-8289fcf731f1",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.304Z"
+    },
+    {
       "id": "702228e0-af96-48e4-a869-832d2992f0d7",
       "run_id": "32890a9e-42ae-4eeb-81dd-a2c69aa4d583",
       "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
@@ -11698,6 +12201,28 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "fd444030-59de-4b8e-b03e-8368d8cc617f",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.301Z"
+    },
+    {
+      "id": "2a3ac7f1-7022-47a0-800e-87f1e731f2cc",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.229Z"
     },
     {
       "id": "6317fb18-79af-4790-9a68-892b5571f4e1",
@@ -11876,6 +12401,28 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "fe240003-f346-48e4-aad8-92358772cd65",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.286Z"
+    },
+    {
+      "id": "945372f6-6082-4161-ad0f-92a720508b73",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "b5c52cfb-e199-4978-824d-5c1269f9719f",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.289Z"
+    },
+    {
       "id": "646cc9c7-db10-4292-abc9-92cef777d0a3",
       "run_id": "32890a9e-42ae-4eeb-81dd-a2c69aa4d583",
       "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
@@ -11953,6 +12500,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "53ad7781-08c5-4a8b-a075-981339b686a2",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.287Z"
+    },
+    {
       "id": "8519b117-9a3e-4e74-a853-982d2ebfb24c",
       "run_id": "6f04b14c-9311-4fe3-b0e3-65d5a2544c35",
       "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
@@ -11962,6 +12520,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:20:40.226Z"
+    },
+    {
+      "id": "ef4e30a7-55ce-4853-8d33-989c22427eeb",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.283Z"
     },
     {
       "id": "8849fedc-2504-4aa6-b976-9957c5871ae1",
@@ -11997,6 +12566,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "f35dcebf-d337-474e-8fb9-99cad5bc3cd3",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.269Z"
+    },
+    {
       "id": "534c53e3-a7e9-4c7e-9db0-9b46e6e32d42",
       "run_id": "869dbd3c-232a-415d-89cd-2b041b81e953",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
@@ -12006,6 +12586,28 @@
       "lower_bound": 0.14,
       "upper_bound": 0.14,
       "created_at": "2026-10-20T03:47:55.686Z"
+    },
+    {
+      "id": "183b5916-1f2c-46a5-bc7c-9b771b69a39a",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.273Z"
+    },
+    {
+      "id": "4409c256-c0d6-4bd8-bb3e-9bc009861001",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.234Z"
     },
     {
       "id": "ca0a1eca-81fb-4210-8427-9bec32c48bcc",
@@ -12140,6 +12742,17 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "9a56c0f4-521c-4a0c-8d68-a0ec78da3dce",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.311Z"
+    },
+    {
       "id": "f03183d0-049b-4971-ba88-a113d4c1f9c3",
       "run_id": "6f04b14c-9311-4fe3-b0e3-65d5a2544c35",
       "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
@@ -12149,6 +12762,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:20:40.226Z"
+    },
+    {
+      "id": "602bb40e-d92f-4246-a328-a19b2c703c3f",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "a2a1dab1-a175-4a12-a85d-435504d75268",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.256Z"
     },
     {
       "id": "312b8ca9-256a-4b38-bb2c-a1fb6b3dd40a",
@@ -12195,6 +12819,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "6f7f5742-0fab-4989-a2e7-a3826c73714e",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.299Z"
+    },
+    {
       "id": "54400531-c933-495d-ae0f-a3e5bbea31d5",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
@@ -12206,6 +12841,39 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "b0369e32-e884-40e9-9bc2-a47a7d149927",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.307Z"
+    },
+    {
+      "id": "730e40ac-6828-4a7c-8dc2-a59af50c3643",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "a2a1dab1-a175-4a12-a85d-435504d75268",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.257Z"
+    },
+    {
+      "id": "104c5d7c-e8d1-4123-a852-a5bc6ba94229",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "a2a1dab1-a175-4a12-a85d-435504d75268",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.254Z"
+    },
+    {
       "id": "283fe866-a603-4a86-9d15-a5cd651da086",
       "run_id": "4e597d78-6b64-4f04-b801-45630e7422dd",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
@@ -12215,6 +12883,17 @@
       "lower_bound": 0.012972,
       "upper_bound": 0.012972,
       "created_at": "2026-10-21T05:13:50.910Z"
+    },
+    {
+      "id": "8a1be824-4e63-4f44-a499-a7fab2984130",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.242Z"
     },
     {
       "id": "f48b9149-3568-45da-9650-a9a3547fc52d",
@@ -12404,6 +13083,17 @@
       "created_at": "2026-10-21T05:03:14.540Z"
     },
     {
+      "id": "81afcb4a-9534-4851-9a3d-b645f8228e7f",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.231Z"
+    },
+    {
       "id": "9ea43732-3344-49da-99b7-b6cad368086f",
       "run_id": "03b1b8da-790f-4535-9d92-5d6bde1ca505",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
@@ -12413,6 +13103,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-20T03:46:28.403Z"
+    },
+    {
+      "id": "235ffedd-af74-43c4-bb98-b6ea123e3daa",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.282Z"
     },
     {
       "id": "0826b40c-34e0-4b0e-8d92-b7200024621f",
@@ -12490,6 +13191,17 @@
       "lower_bound": 0.14,
       "upper_bound": 0.14,
       "created_at": "2026-10-20T03:47:55.686Z"
+    },
+    {
+      "id": "7927dbb2-bc57-49a4-a860-b88ffd3add01",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.302Z"
     },
     {
       "id": "b4f0ac32-5b79-4a09-af9f-b8fbe99cd722",
@@ -12591,6 +13303,17 @@
       "created_at": "2026-10-12T04:26:33.780Z"
     },
     {
+      "id": "1a42ddc7-ad1d-40ea-8d7c-bd3ddfe30a10",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.299Z"
+    },
+    {
       "id": "99c4c836-8b73-491a-b109-bde6c46028b0",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
@@ -12657,6 +13380,17 @@
       "created_at": "2026-11-14T12:20:40.226Z"
     },
     {
+      "id": "f6126263-4dad-47fa-8d21-c0127f4f57fe",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.238Z"
+    },
+    {
       "id": "addfd2b6-07c8-492e-8518-c065b2fc1fe2",
       "run_id": "e19ffcd3-90d9-4c34-b745-38476c287d38",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
@@ -12666,6 +13400,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-12T04:26:33.780Z"
+    },
+    {
+      "id": "8372c15d-ae14-4786-895c-c10be5ff4aaf",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.306Z"
     },
     {
       "id": "b601392e-cb8c-4701-83b1-c123f21ef269",
@@ -12701,6 +13446,17 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "75c7e1ca-7970-4780-8d85-c267f9a74d9d",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.305Z"
+    },
+    {
       "id": "5c77d1a8-c8b3-4cdf-b40c-c2f9d426a76c",
       "run_id": "869dbd3c-232a-415d-89cd-2b041b81e953",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
@@ -12732,6 +13488,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "cb70c552-3106-4021-a892-c3f2cb711e5a",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "a2a1dab1-a175-4a12-a85d-435504d75268",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.259Z"
     },
     {
       "id": "b5142c0c-9fc9-46ca-bb67-c4cfeb8f7cbb",
@@ -12767,6 +13534,17 @@
       "created_at": "2026-10-20T03:47:43.506Z"
     },
     {
+      "id": "0a28de80-142f-41be-8a30-c707d2f5796a",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "aa3c05ee-ba43-4c4a-9a1c-926783b81426",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-29T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.275Z"
+    },
+    {
       "id": "a705f2f9-7471-4747-88cb-c727ef6ca9c6",
       "run_id": "4e597d78-6b64-4f04-b801-45630e7422dd",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
@@ -12787,6 +13565,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:20:40.226Z"
+    },
+    {
+      "id": "75260054-d77b-411a-adc9-c78a005d72be",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.247Z"
     },
     {
       "id": "a86f1d66-b00f-4d2c-8028-c79282a4fcbe",
@@ -12842,6 +13631,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-16T02:49:31.586Z"
+    },
+    {
+      "id": "78d1bfe9-8181-4646-9770-c8f554d86d34",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.309Z"
     },
     {
       "id": "3934ba31-1c88-4568-b93a-c9667c1c77f2",
@@ -13174,6 +13974,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "b5327faf-8579-4180-b18b-d52b8e75fd07",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.271Z"
+    },
+    {
       "id": "dfaa43e0-f0b0-4837-9f61-d55501c99250",
       "run_id": "32890a9e-42ae-4eeb-81dd-a2c69aa4d583",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
@@ -13183,6 +13994,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "0776c50b-a8e2-4b01-abd2-d5a724225094",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-30T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.250Z"
     },
     {
       "id": "2fc231da-d229-4b4b-ba29-d6c92c73aa05",
@@ -13306,6 +14128,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "e6cad925-c640-4e8c-b644-dd2fad92a1a2",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-26T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.296Z"
+    },
+    {
       "id": "106af5aa-a968-4c18-9892-dd33e192de74",
       "run_id": "32890a9e-42ae-4eeb-81dd-a2c69aa4d583",
       "product_id": "47b598d9-bbf8-403c-a3c4-5bffc3fef884",
@@ -13315,6 +14148,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-14T12:21:43.300Z"
+    },
+    {
+      "id": "1d7cb5aa-3999-4efa-a954-dde7fa755640",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.272Z"
     },
     {
       "id": "b6326d94-97f0-47ad-b664-de417143c6bc",
@@ -13691,6 +14535,17 @@
       "created_at": "2026-11-14T12:21:43.300Z"
     },
     {
+      "id": "e0878824-649f-4891-84f5-ee426acd00e3",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-02T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.301Z"
+    },
+    {
       "id": "96da2b4b-079e-4027-94b2-eeabdeeaed48",
       "run_id": "cd92be53-917e-407d-9792-211bf633fe2a",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
@@ -13790,6 +14645,17 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "ec4a2452-1ff1-4003-9c1d-f2661d751c00",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "a2a1dab1-a175-4a12-a85d-435504d75268",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.258Z"
+    },
+    {
       "id": "0a7db308-c028-487e-8484-f27ee90448bd",
       "run_id": "f913ec72-9754-4a3d-a6ed-d0e8a3b2db6f",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
@@ -13821,6 +14687,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-16T02:28:54.683Z"
+    },
+    {
+      "id": "d3b03bae-ab1c-49a7-9a6f-f44258c9e1bf",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-28T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.297Z"
     },
     {
       "id": "a2d1dcc9-9579-4caa-a448-f4a22c4401d6",
@@ -13977,6 +14854,17 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "1bd145fc-2eb0-4240-8ceb-fa29c851e115",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "e3fc7cc3-c9fa-42cb-a604-9eb44dec6b72",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.296Z"
+    },
+    {
       "id": "8c053821-776b-4286-8836-fb64ad69e53c",
       "run_id": "89cb1148-84c4-4df9-864d-e9081ff4ceb5",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
@@ -13997,6 +14885,17 @@
       "lower_bound": 0,
       "upper_bound": 0,
       "created_at": "2026-10-12T04:26:33.780Z"
+    },
+    {
+      "id": "57c6ee9d-6624-4440-b9ef-fc3247909355",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "c09d6dc0-43da-48bf-bfd3-7f922211e222",
+      "warehouse_id": null,
+      "forecast_date": "2026-12-01T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.241Z"
     },
     {
       "id": "6d75ba37-ec3c-4fc4-86d6-fc59b849a591",
@@ -14065,6 +14964,17 @@
       "created_at": "2026-11-16T02:49:31.586Z"
     },
     {
+      "id": "9f0eba98-4fe0-435e-ae96-ff229c3e83b7",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "88479a1d-229e-466f-b0be-3fdf4a1b8977",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.281Z"
+    },
+    {
       "id": "57f8fdab-ead0-4250-a757-ff9d81501acc",
       "run_id": "f913ec72-9754-4a3d-a6ed-d0e8a3b2db6f",
       "product_id": "c9a37c32-b056-4f63-8e58-739d443110af",
@@ -14074,6 +14984,17 @@
       "lower_bound": 0.001815,
       "upper_bound": 0.001815,
       "created_at": "2026-11-16T02:28:54.683Z"
+    },
+    {
+      "id": "5ce615cd-e8ba-4931-b8a4-fff34d3f6a78",
+      "run_id": "1146fd20-cef8-4ff7-8c97-3ecf2b757a2f",
+      "product_id": "58b26b7e-1fb4-4e33-9491-720e08d91de9",
+      "warehouse_id": null,
+      "forecast_date": "2026-11-27T00:00:00.000Z",
+      "predicted_quantity": 0,
+      "lower_bound": 0,
+      "upper_bound": 0,
+      "created_at": "2026-11-26T15:42:46.227Z"
     }
   ],
   "inventory_reservations": [
@@ -15154,7 +16075,7 @@
     },
     {
       "id": "64afcc8d-ef0b-4823-8721-3ae75342d01a",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
       "type": "receipt",
       "quantity": 8,
@@ -15254,7 +16175,7 @@
     },
     {
       "id": "df158f58-133d-4fa2-9433-45bbd868004d",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
       "type": "receipt",
       "quantity": 25,
@@ -15274,7 +16195,7 @@
     },
     {
       "id": "53bb8bb7-c0b9-4cc1-8bd2-4e3f6bb3ea18",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
       "type": "receipt",
       "quantity": 40,
@@ -15354,7 +16275,7 @@
     },
     {
       "id": "5827b327-47e9-46bc-a8e4-59202fa5ac00",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
       "type": "issue",
       "quantity": 1,
@@ -15474,7 +16395,7 @@
     },
     {
       "id": "826e68e0-32df-4614-b663-67c030b3635b",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "2344e573-39d2-4ed0-8f12-00288695a43c",
       "type": "issue",
       "quantity": 1,
@@ -15614,7 +16535,7 @@
     },
     {
       "id": "05546e42-cf79-4c8d-a622-7dc3c38e150a",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "5f64b60b-244c-4685-a4cf-8f56f14d9bf0",
       "type": "adjustment",
       "quantity": 50,
@@ -16154,7 +17075,7 @@
     },
     {
       "id": "b3a4dc87-def6-4cd8-88f0-dee30e676a91",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
       "type": "adjustment",
       "quantity": 100,
@@ -16314,7 +17235,7 @@
     },
     {
       "id": "c2f132f8-efd0-4856-81e0-f0e47a8d24dc",
-      "warehouse_id": "af0ed15f-97ad-4689-ae0f-5e84f793b70a",
+      "warehouse_id": "43efd948-a5dc-4d39-b41a-02ef6733037c",
       "product_id": "2f9879b6-22ae-4a7e-844e-5bbac4ad4450",
       "type": "receipt",
       "quantity": 1,
