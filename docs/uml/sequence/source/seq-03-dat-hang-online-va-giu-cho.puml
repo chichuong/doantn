@@ -1,0 +1,142 @@
+@startuml seq-03-dat-hang-online-va-giu-cho
+title Sơ đồ tuần tự: Đặt hàng trực tuyến, Giữ chỗ tồn kho và Đối soát chuyển khoản VietQR
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 185
+skinparam ParticipantPadding 12
+skinparam BoxPadding 10
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F1F5F9
+skinparam BoundaryBorderColor #1E293B
+skinparam BoundaryBackgroundColor #F8FAFC
+skinparam ControlBorderColor #1E293B
+skinparam ControlBackgroundColor #F8FAFC
+skinparam EntityBorderColor #1E293B
+skinparam EntityBackgroundColor #F8FAFC
+skinparam DatabaseBorderColor #1E293B
+skinparam DatabaseBackgroundColor #EFF6FF
+skinparam ArrowColor #1E293B
+skinparam LifeLineBorderColor #64748B
+skinparam LifeLineBackgroundColor #E2E8F0
+
+hide footbox
+autonumber
+
+actor "Khách hàng" as Cust
+actor "Kế toán /\nQuản lý" as Reviewer
+boundary "Web / Mobile App\n(ShopPage / CustomerApp)" as UI
+control "Customer & Payment\nController" as Ctrl
+control "CustomerService &\nPaymentService" as Svc
+entity "CustomerModel, PaymentModel\n& InventoryService" as Model
+database "Database\n(orders, inventory_reservations)" as DB
+
+== 1. Đặt hàng trực tuyến và Giữ chỗ tồn kho ==
+Cust -> UI : Chọn địa chỉ, phương thức (cod/transfer)\nvà nhấn Đặt hàng
+activate UI
+UI -> Ctrl : POST /api/v1/customer/checkout\n(Bearer JWT, Idempotency-Key)
+activate Ctrl
+Ctrl -> Svc : createOrder(userId, body, idempotencyKey)
+activate Svc
+Svc -> Model : checkout(userId, payload)
+activate Model
+Model -> DB : BEGIN; startIdempotency;\nSELECT warehouses, carts FOR UPDATE,\ncart_items, customer_addresses
+activate DB
+DB --> Model : Dữ liệu giỏ hàng & địa chỉ
+deactivate DB
+
+alt Giỏ hàng trống / Địa chỉ sai (400) / Sản phẩm ngừng bán (409)
+  Model -> DB : ROLLBACK
+  activate DB
+  DB --> Model : Đã hoàn tác
+  deactivate DB
+  Model --> Svc : Ném AppError(400 / 409)
+  Svc --> Ctrl : Lỗi nghiệp vụ
+  Ctrl --> UI : 400 Bad Request / 409 Conflict
+  UI --> Cust : Hiển thị thông báo lỗi
+else Dữ liệu đặt hàng hợp lệ
+  Model -> DB : INSERT orders (status='pending');\nINSERT order_items; UPDATE total_amount
+  activate DB
+  DB --> Model : orderId & danh sách order_items
+  deactivate DB
+  Model -> DB : reserveStock (UPDLOCK inventory,\ntăng reserved_quantity, INSERT inventory_reservations)
+  activate DB
+  DB --> Model : Kết quả giữ chỗ tồn kho
+  deactivate DB
+  alt Tồn khả dụng không đủ (409)
+    Model -> DB : ROLLBACK
+    activate DB
+    DB --> Model : Đã hoàn tác
+    deactivate DB
+    Model --> Svc : Ném AppError(409)
+    Svc --> Ctrl : Lỗi 409
+    Ctrl --> UI : 409 Conflict
+    UI --> Cust : Thông báo hết hàng khả dụng
+  else Giữ chỗ thành công
+    Model -> DB : recordInitialOrderState; DELETE cart_items;\nfinishIdempotency; COMMIT
+    activate DB
+    DB --> Model : Đơn hàng đã lưu
+    deactivate DB
+    Model --> Svc : orderDetail
+    Svc --> Ctrl : orderDetail
+    Ctrl --> UI : 201 Created ({ data: orderDetail })
+    UI --> Cust : Hiển thị đơn hàng vừa tạo
+  end
+end
+deactivate Model
+deactivate Svc
+deactivate Ctrl
+deactivate UI
+
+== 2. Gửi yêu cầu đối soát chuyển khoản VietQR ==
+opt Khách hàng chọn thanh toán chuyển khoản (transfer)
+  Cust -> UI : Quét VietQR, chuyển khoản và gửi mã giao dịch
+  activate UI
+  UI -> Ctrl : POST /api/v1/payments/orders/:orderId/transfer-requests
+  activate Ctrl
+  Ctrl -> Svc : submit(orderId, body, userId)
+  activate Svc
+  Svc -> Model : submitTransferRequest(...)
+  activate Model
+  Model -> DB : Kiểm tra đơn thuộc user & chưa thanh toán;\nINSERT bank_transfer_requests (status='pending')
+  activate DB
+  DB --> Model : transferRequest
+  deactivate DB
+  Model --> Svc : transferRequest
+  deactivate Model
+  Svc --> Ctrl : transferRequest
+  deactivate Svc
+  Ctrl --> UI : 201 Created
+  deactivate Ctrl
+  UI --> Cust : Chờ nhân viên xác nhận chuyển khoản
+  deactivate UI
+end
+
+== 3. Duyệt chuyển khoản thủ công ==
+Reviewer -> UI : Đối chiếu sao kê và nhấn Duyệt (approve)
+activate UI
+UI -> Ctrl : PATCH /api/v1/payments/transfer-requests/:requestId/review
+activate Ctrl
+Ctrl -> Svc : review(requestId, body, reviewerId)
+activate Svc
+Svc -> Model : reviewTransfer(...)
+activate Model
+Model -> DB : BEGIN; Khóa bank_transfer_requests & orders;\nINSERT payments; UPDATE orders.payment_status='paid';\nUPDATE inventory_reservations.expires_at=NULL;\nrecordOrderStateEvent; COMMIT
+activate DB
+DB --> Model : Kết quả duyệt thanh toán
+deactivate DB
+Model --> Svc : result
+deactivate Model
+Svc --> Ctrl : result
+deactivate Svc
+Ctrl --> UI : 200 OK
+deactivate Ctrl
+UI --> Reviewer : Cập nhật trạng thái Đã thanh toán
+deactivate UI
+
+@enduml

@@ -1,0 +1,85 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam defaultTextAlignment center
+
+skinparam actor {
+  FontSize 13
+  FontColor #1E293B
+  BorderColor #334155
+  BackgroundColor #F8FAFC
+}
+
+skinparam usecase {
+  FontSize 12
+  FontColor #0F172A
+  BackgroundColor #EFF6FF
+  BorderColor #1E40AF
+  BorderThickness 1.3
+}
+
+skinparam rectangle {
+  FontSize 14
+  FontStyle bold
+  FontColor #0F172A
+  BorderColor #334155
+  BorderThickness 1.5
+  BackgroundColor #FFFFFF
+}
+
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #1E293B
+skinparam Padding 5
+skinparam nodesep 32
+skinparam ranksep 90
+
+together {
+  actor "Quản trị viên" as ACT_ADM
+  actor "Quản lý" as ACT_MGR
+}
+
+rectangle "Phân hệ Tồn kho, Cảnh báo Tồn thấp và Điều chỉnh Tồn (Karat Retail)" as SYS {
+  together {
+    usecase "Tra cứu tồn kho\nthực tế, giữ chỗ\nvà khả dụng" as UC_INV_01
+    usecase "Điều chỉnh\ntăng giảm\ntồn kho" as UC_INV_04
+    usecase "Xem lịch sử\ngiao dịch biến động\ntồn kho" as UC_INV_05
+    usecase "Xem chi tiết\nlượng tồn giữ chỗ\ntheo đơn hàng" as UC_INV_06
+    usecase "Đối soát sai lệch\ntồn giữ chỗ\n(Discrepancies)" as UC_INV_07
+    usecase "Quét mã SKU\ntra cứu nhanh\ntồn kho kệ" as UC_INV_03
+  }
+  usecase "Lọc cảnh báo\nsản phẩm sắp\nhết hàng" as UC_INV_02
+}
+
+together {
+  actor "Nhân viên\nbán hàng" as ACT_SALES
+  actor "Nhân viên kho" as ACT_WH
+}
+
+' Kế thừa Actor
+ACT_ADM --|> ACT_MGR
+
+' Associations bên trái (manager.inventory.read & manager.inventory.adjust)
+ACT_MGR -- UC_INV_01
+ACT_MGR -- UC_INV_04
+ACT_MGR -- UC_INV_05
+ACT_MGR -- UC_INV_06
+ACT_MGR -- UC_INV_07
+
+' Admin có thêm quyền warehouse.inventory.read (/warehouse/scan)
+ACT_ADM -- UC_INV_03
+
+' Associations bên phải
+UC_INV_01 -- ACT_SALES
+UC_INV_01 -- ACT_WH
+UC_INV_02 -- ACT_WH
+UC_INV_03 -- ACT_WH
+
+' Quan hệ <<extend>>: Lọc cảnh báo sản phẩm chạm ngưỡng an toàn (lowStock=true) mở rộng từ Tra cứu tồn kho
+UC_INV_02 .right.> UC_INV_01 : <<extend>>
+
+@enduml

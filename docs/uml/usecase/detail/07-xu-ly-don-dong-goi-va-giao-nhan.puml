@@ -1,0 +1,101 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam defaultTextAlignment center
+
+skinparam actor {
+  FontSize 13
+  FontColor #1E293B
+  BorderColor #334155
+  BackgroundColor #F8FAFC
+}
+
+skinparam usecase {
+  FontSize 12
+  FontColor #0F172A
+  BackgroundColor #EFF6FF
+  BorderColor #1E40AF
+  BorderThickness 1.3
+}
+
+skinparam rectangle {
+  FontSize 14
+  FontStyle bold
+  FontColor #0F172A
+  BorderColor #334155
+  BorderThickness 1.5
+  BackgroundColor #FFFFFF
+}
+
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #1E293B
+skinparam Padding 5
+skinparam nodesep 28
+skinparam ranksep 90
+
+together {
+  actor "Quản trị viên" as ACT_ADM
+  actor "Quản lý" as ACT_MGR
+}
+
+rectangle "Phân hệ Xử lý Đơn hàng, Đóng gói và Giao nhận (Karat Retail)" as SYS {
+  together {
+    usecase "Xác nhận\ntiếp nhận đơn\ntrực tuyến" as UC_FUL_02
+    usecase "Phân công\nnhân viên\nxử lý đơn" as UC_FUL_03
+    usecase "Tạo vận đơn\nvà bàn giao\nnhân viên giao" as UC_FUL_07
+    usecase "Đóng gói kiện hàng\nvà khấu trừ\ntồn giữ chỗ" as UC_FUL_06
+    usecase "Tiếp nhận hàng\nhoàn trả và\nnhập lại kho" as UC_FUL_10
+    usecase "Tra cứu danh sách\nvà tiến trình\nđơn hàng" as UC_FUL_01
+    usecase "Cập nhật trạng thái\nlấy hàng và sẵn\nsàng đóng gói" as UC_FUL_04
+    usecase "Cập nhật trạng thái\ngiao hàng\n(Nhận/Giao/Hoàn)" as UC_FUL_09
+    usecase "Quét mã vận đơn\nvà xem chi tiết\ngiao hàng" as UC_FUL_08
+  }
+  usecase "Quét mã SKU\nkiểm tra sản phẩm\ntheo dòng đơn" as UC_FUL_05
+}
+
+together {
+  actor "Nhân viên kho" as ACT_WH
+  actor "Nhân viên\nxử lý đơn" as ACT_PROC
+  actor "Nhân viên\ngiao hàng" as ACT_SHIP
+}
+
+' Kế thừa Actor
+ACT_ADM --|> ACT_MGR
+
+' Quản trị viên có thêm quyền warehouse.orders.scan
+ACT_ADM -- UC_FUL_05
+
+' Quản lý
+ACT_MGR -- UC_FUL_02
+ACT_MGR -- UC_FUL_03
+ACT_MGR -- UC_FUL_07
+ACT_MGR -- UC_FUL_06
+ACT_MGR -- UC_FUL_10
+ACT_MGR -- UC_FUL_01
+ACT_MGR -- UC_FUL_04
+ACT_MGR -- UC_FUL_09
+ACT_MGR -- UC_FUL_08
+
+' Nhân viên kho (warehouse.orders.scan, pack, returns, read)
+UC_FUL_05 -- ACT_WH
+UC_FUL_06 -- ACT_WH
+UC_FUL_10 -- ACT_WH
+UC_FUL_01 -- ACT_WH
+
+' Nhân viên xử lý đơn (order_processing.orders.read, tasks.update)
+UC_FUL_01 -- ACT_PROC
+UC_FUL_04 -- ACT_PROC
+
+' Nhân viên giao hàng (shipping.shipments.update, read)
+UC_FUL_09 -- ACT_SHIP
+UC_FUL_08 -- ACT_SHIP
+
+' Quan hệ <<include>> bắt buộc (warehouse.model.js dòng 417-434)
+UC_FUL_06 ..> UC_FUL_05 : <<include>>
+
+@enduml

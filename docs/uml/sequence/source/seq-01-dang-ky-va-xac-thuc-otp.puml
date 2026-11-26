@@ -1,0 +1,130 @@
+@startuml seq-01-dang-ky-va-xac-thuc-otp
+title Sơ đồ tuần tự: Đăng ký tài khoản bằng Email OTP và Đăng nhập hệ thống
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 190
+skinparam ParticipantPadding 14
+skinparam BoxPadding 10
+skinparam SequenceBoxBorderColor #94A3B8
+skinparam SequenceBoxBackgroundColor #F8FAFC
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F1F5F9
+skinparam ParticipantBorderColor #1E293B
+skinparam ParticipantBackgroundColor #F8FAFC
+skinparam DatabaseBorderColor #1E293B
+skinparam DatabaseBackgroundColor #EFF6FF
+skinparam ArrowColor #1E293B
+skinparam LifeLineBorderColor #64748B
+skinparam LifeLineBackgroundColor #E2E8F0
+
+hide footbox
+autonumber
+
+actor "Khách hàng" as User
+boundary "Giao diện Đăng nhập\n(LoginPage.jsx)" as UI
+control "AuthController\n(auth.controller.js)" as Ctrl
+control "AuthService\n(auth.service.js)" as Svc
+database "Database\n(users, email_otp_verifications)" as DB
+control "Email Service\n(email.js)" as Mail
+
+== 1. Gửi mã OTP đăng ký tài khoản ==
+User -> UI : Nhập họ tên, email, mật khẩu\nvà nhấn Gửi mã OTP
+activate UI
+UI -> Ctrl : POST /api/v1/auth/register/send-otp\n({ email })
+activate Ctrl
+Ctrl -> Svc : sendRegisterOtp({ email })
+activate Svc
+Svc -> DB : SELECT id FROM users\nWHERE LOWER(email) = $1
+activate DB
+DB --> Svc : Kết quả kiểm tra email
+deactivate DB
+
+alt Email sai định dạng hoặc đã tồn tại
+  Svc --> Ctrl : Ném AppError(400 / 409)
+  Ctrl --> UI : 400 Bad Request / 409 Conflict
+  UI --> User : Hiển thị thông báo lỗi
+else Email hợp lệ và chưa đăng ký
+  Svc -> Svc : Sinh mã OTP 6 số & băm SHA-256
+  Svc -> DB : BEGIN; vô hiệu hóa OTP cũ;\nINSERT email_otp_verifications; COMMIT
+  activate DB
+  DB --> Svc : Đã lưu OTP (hạn 10 phút)
+  deactivate DB
+  Svc -> Mail : sendOtpEmail(email, otp, 'register')
+  activate Mail
+  Mail --> Svc : { sent, provider }
+  deactivate Mail
+  Svc --> Ctrl : { sent: true, expiresInMinutes: 10 }
+  Ctrl --> UI : 200 OK
+  UI --> User : Chuyển sang bước nhập mã OTP
+end
+deactivate Svc
+deactivate Ctrl
+deactivate UI
+
+== 2. Xác thực OTP và tạo tài khoản ==
+User -> UI : Nhập mã OTP 6 số và nhấn Xác nhận
+activate UI
+UI -> Ctrl : POST /api/v1/auth/register\n({ fullName, email, password, otp })
+activate Ctrl
+Ctrl -> Svc : register(payload)
+activate Svc
+Svc -> DB : BEGIN; SELECT users;\nSELECT email_otp_verifications FOR UPDATE
+activate DB
+DB --> Svc : Bản ghi OTP mới nhất
+deactivate DB
+
+alt OTP không tồn tại, hết hạn hoặc sai mã
+  Svc -> DB : Cập nhật attempts (nếu sai) & COMMIT/ROLLBACK
+  activate DB
+  DB --> Svc : Hoàn tất giao dịch
+  deactivate DB
+  Svc --> Ctrl : Ném AppError(400 / 409)
+  Ctrl --> UI : 400 Bad Request / 409 Conflict
+  UI --> User : Thông báo OTP không hợp lệ
+else OTP hợp lệ
+  Svc -> DB : UPDATE verified_at = NOW();\nINSERT users (scrypt hash, role='customer'); COMMIT
+  activate DB
+  DB --> Svc : Thông tin user mới tạo
+  deactivate DB
+  Svc -> Svc : Ký JWT HS256 (signToken, 7 ngày)
+  Svc --> Ctrl : { token, user }
+  Ctrl --> UI : 201 Created ({ data: { token, user } })
+  UI --> User : Lưu JWT và chuyển vào trang Cửa hàng
+end
+deactivate Svc
+deactivate Ctrl
+deactivate UI
+
+== 3. Đăng nhập hệ thống ==
+User -> UI : Nhập email, mật khẩu và nhấn Đăng nhập
+activate UI
+UI -> Ctrl : POST /api/v1/auth/login\n({ email, password })
+activate Ctrl
+Ctrl -> Svc : login({ email, password })
+activate Svc
+Svc -> DB : SELECT u.*, r.code AS role_code;\nSELECT permissions & warehouse_ids
+activate DB
+DB --> Svc : Thông tin tài khoản & quyền
+deactivate DB
+
+alt Sai email/mật khẩu hoặc tài khoản bị khóa
+  Svc --> Ctrl : Ném AppError(401 / 403)
+  Ctrl --> UI : 401 Unauthorized / 403 Forbidden
+  UI --> User : Hiển thị lỗi đăng nhập
+else Xác thực mật khẩu scrypt thành công
+  Svc -> Svc : Ký JWT HS256 (signToken)
+  Svc --> Ctrl : { token, user }
+  Ctrl --> UI : 200 OK ({ data: { token, user } })
+  UI --> User : Lưu phiên và điều hướng theo vai trò
+end
+deactivate Svc
+deactivate Ctrl
+deactivate UI
+
+@enduml

@@ -1,0 +1,86 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam defaultTextAlignment center
+
+skinparam actor {
+  FontSize 13
+  FontColor #1E293B
+  BorderColor #334155
+  BackgroundColor #F8FAFC
+}
+
+skinparam usecase {
+  FontSize 12
+  FontColor #0F172A
+  BackgroundColor #EFF6FF
+  BorderColor #1E40AF
+  BorderThickness 1.3
+}
+
+skinparam rectangle {
+  FontSize 14
+  FontStyle bold
+  FontColor #0F172A
+  BorderColor #334155
+  BorderThickness 1.5
+  BackgroundColor #FFFFFF
+}
+
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #1E293B
+skinparam Padding 5
+skinparam nodesep 30
+skinparam ranksep 90
+
+together {
+  actor "Khách hàng" as ACT_CUS
+  actor "Người dùng\nhệ thống" as ACT_USER
+  actor "Quản trị viên" as ACT_ADM
+}
+
+rectangle "Phân hệ Tài khoản, Xác thực và Phân quyền (Karat Retail)" as SYS {
+  usecase "Đăng ký\ntài khoản\nkhách hàng" as UC_AUTH_01
+  usecase "Xác thực\nmã OTP\nqua Email" as UC_AUTH_02
+  usecase "Đăng nhập\nhệ thống" as UC_AUTH_03
+  usecase "Khôi phục\nmật khẩu\nquên" as UC_AUTH_04
+  usecase "Xem thông tin\ntài khoản\ncá nhân" as UC_AUTH_05
+  usecase "Quản lý\ntài khoản\nngười dùng" as UC_AUTH_06
+  usecase "Phân công\nkho làm việc\ncho nhân sự" as UC_AUTH_07
+  usecase "Quản lý\nvai trò\nhệ thống" as UC_AUTH_08
+  usecase "Thiết lập\nquyền hạn\ncho vai trò" as UC_AUTH_09
+  usecase "Tra cứu\ndanh mục\nquyền hạn" as UC_AUTH_10
+}
+
+actor "Dịch vụ\nEmail OTP" as ACT_MAIL <<Hệ thống ngoài>>
+
+' Actor Generalization: Khách hàng và Quản trị viên đều là Người dùng hệ thống có tài khoản
+ACT_CUS --|> ACT_USER
+ACT_ADM --|> ACT_USER
+
+' Associations
+ACT_CUS -- UC_AUTH_01
+
+ACT_USER -- UC_AUTH_03
+ACT_USER -- UC_AUTH_04
+ACT_USER -- UC_AUTH_05
+
+ACT_ADM -- UC_AUTH_06
+ACT_ADM -- UC_AUTH_07
+ACT_ADM -- UC_AUTH_08
+ACT_ADM -- UC_AUTH_09
+ACT_ADM -- UC_AUTH_10
+
+' Quan hệ <<include>> đúng nghiệp vụ trong auth.service.js (bắt buộc verifySavedOtp)
+UC_AUTH_01 ..> UC_AUTH_02 : <<include>>
+UC_AUTH_04 ..> UC_AUTH_02 : <<include>>
+
+' Tác nhân ngoài nhận yêu cầu gửi email OTP (Resend API / SMTP)
+UC_AUTH_02 -- ACT_MAIL
+
+@enduml

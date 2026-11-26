@@ -1,0 +1,152 @@
+@startuml seq-05-xu-ly-don-dong-goi-va-giao-nhan
+title Sơ đồ tuần tự: Xử lý đơn hàng, Đóng gói (tiêu thụ giữ chỗ) và Giao nhận vận chuyển
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 185
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F1F5F9
+skinparam BoundaryBorderColor #1E293B
+skinparam BoundaryBackgroundColor #F8FAFC
+skinparam ControlBorderColor #1E293B
+skinparam ControlBackgroundColor #F8FAFC
+skinparam EntityBorderColor #1E293B
+skinparam EntityBackgroundColor #F8FAFC
+skinparam DatabaseBorderColor #1E293B
+skinparam DatabaseBackgroundColor #EFF6FF
+skinparam ArrowColor #1E293B
+skinparam LifeLineBorderColor #64748B
+skinparam LifeLineBackgroundColor #E2E8F0
+
+hide footbox
+autonumber
+
+actor "Quản lý" as Manager
+actor "Nhân viên\nxử lý / Kho" as Staff
+actor "Shipper" as Shipper
+boundary "Web / Mobile App" as App
+control "OrderProcessing &\nWarehouse / Shipping Ctrl" as Ctrl
+control "OrderProcessing, Warehouse\n& Shipping Service" as Svc
+entity "Models &\nInventoryService" as Model
+database "Database\n(orders, shipments, inventory)" as DB
+
+== 1. Xác nhận đơn và Chuẩn bị đóng gói ==
+Manager -> App : Xác nhận đơn hàng trực tuyến
+activate App
+App -> Ctrl : POST /api/v1/order-processing/orders/:id/confirm
+activate Ctrl
+Ctrl -> Svc : confirm(orderId, body, userId)
+activate Svc
+Svc -> Model : confirmOnlineOrder(orderId)
+activate Model
+Model -> DB : BEGIN; transitionOrder(pending -> confirmed);\nINSERT order_processing_tasks (status='pending'); COMMIT
+activate DB
+DB --> Model : Đơn đã xác nhận
+deactivate DB
+Model --> Svc : result
+deactivate Model
+Svc --> Ctrl : result
+deactivate Svc
+Ctrl --> App : 200 OK
+deactivate Ctrl
+App --> Manager : Hiển thị trạng thái 'confirmed'
+deactivate App
+
+Staff -> App : Nhận xử lý & chuyển Sẵn sàng đóng gói
+activate App
+App -> Ctrl : PATCH /api/v1/order-processing/orders/:id/task
+activate Ctrl
+Ctrl -> Svc : update(orderId, { status: 'ready_to_pack' }, actor)
+activate Svc
+Svc -> Model : updateTaskStatus(...)
+activate Model
+Model -> DB : BEGIN; transitionOrder(confirmed -> ready_to_pack);\nUPDATE order_processing_tasks; COMMIT
+activate DB
+DB --> Model : Đơn sẵn sàng đóng gói
+deactivate DB
+Model --> Svc : result
+deactivate Model
+Svc --> Ctrl : result
+deactivate Svc
+Ctrl --> App : 200 OK
+deactivate Ctrl
+App --> Staff : Cho phép quét SKU để đóng gói
+deactivate App
+
+== 2. Đóng gói đơn hàng và Tiêu thụ giữ chỗ ==
+Staff -> App : Quét đủ SKU/số lượng và nhấn Đóng gói
+activate App
+App -> Ctrl : POST /api/v1/warehouse/orders/:id/pack
+activate Ctrl
+Ctrl -> Svc : packOrder(orderId, body, userId)
+activate Svc
+Svc -> Model : packOnlineOrder(...)
+activate Model
+Model -> DB : BEGIN; Kiểm tra trạng thái 'ready_to_pack';\nconsumeReservation (trừ quantity & reserved_quantity,\nstatus='consumed', ghi inventory_transactions)
+activate DB
+DB --> Model : Đã xuất kho giữ chỗ
+deactivate DB
+Model -> DB : transitionOrder(ready_to_pack -> packed); COMMIT
+activate DB
+DB --> Model : Đơn ở trạng thái 'packed'
+deactivate DB
+Model --> Svc : packedOrder
+deactivate Model
+Svc --> Ctrl : packedOrder
+deactivate Svc
+Ctrl --> App : 200 OK
+deactivate Ctrl
+App --> Staff : Hoàn tất đóng gói đơn hàng
+deactivate App
+
+== 3. Tạo vận đơn và Cập nhật giao nhận ==
+Manager -> App : Tạo vận đơn & gán Shipper
+activate App
+App -> Ctrl : POST /api/v1/shipping/shipments
+activate Ctrl
+Ctrl -> Svc : create(body, actor)
+activate Svc
+Svc -> Model : createShipment(...)
+activate Model
+Model -> DB : BEGIN; INSERT shipments (status='assigned');\ntransitionOrder(packed -> handover); COMMIT
+activate DB
+DB --> Model : Vận đơn mới tạo
+deactivate DB
+Model --> Svc : shipment
+deactivate Model
+Svc --> Ctrl : shipment
+deactivate Svc
+Ctrl --> App : 201 Created
+deactivate Ctrl
+App --> Manager : Hiển thị vận đơn đã bàn giao
+deactivate App
+
+Shipper -> App : Nhận giao (shipping) rồi cập nhật\nGiao thành công (delivered) / Hoàn trả (returned)
+activate App
+App -> Ctrl : PATCH /api/v1/shipping/shipments/:id/status
+activate Ctrl
+Ctrl -> Svc : updateStatus(shipmentId, body, actor)
+activate Svc
+Svc -> Model : updateShipmentStatus(...)
+activate Model
+Model -> DB : BEGIN; UPDATE shipments;\ntransitionOrder(handover -> shipping -> delivered | returned);\nCOMMIT
+activate DB
+DB --> Model : Trạng thái vận đơn & đơn hàng mới
+deactivate DB
+Model --> Svc : shipment
+deactivate Model
+Svc --> Ctrl : shipment
+deactivate Svc
+Ctrl --> App : 200 OK
+deactivate Ctrl
+App --> Shipper : Cập nhật kết quả giao hàng
+deactivate App
+
+@enduml

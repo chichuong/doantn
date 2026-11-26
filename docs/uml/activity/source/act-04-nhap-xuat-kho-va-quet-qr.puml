@@ -1,0 +1,96 @@
+@startuml act-04-nhap-xuat-kho-va-quet-qr
+title Sơ đồ hoạt động: Lập, Phê duyệt phiếu nhập/xuất kho và Xác thực QR
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam ActivityBorderColor #1E293B
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityFontColor #111827
+skinparam ActivityDiamondBorderColor #1E293B
+skinparam ActivityDiamondBackgroundColor #F8FAFC
+skinparam ArrowColor #1E293B
+skinparam SwimlaneBorderColor #64748B
+skinparam SwimlaneTitleBackgroundColor #F1F5F9
+skinparam SwimlaneTitleFontColor #0F172A
+
+|Nhân viên kho|
+start
+:Chọn loại phiếu (nhập / xuất) và danh sách sản phẩm;
+|Backend API|
+:Xác thực JWT và quyền tạo phiếu kho;
+|Cơ sở dữ liệu|
+:Lưu phiếu kho (trạng thái pending) và các dòng sản phẩm;
+|Backend API|
+:Trả về mã HTTP 201 kèm thông tin phiếu;
+
+|Quản lý|
+:Kiểm tra nội dung phiếu kho;
+if (Quyết định phê duyệt?) then ([Từ chối])
+  |Backend API|
+  |Cơ sở dữ liệu|
+  :Cập nhật phiếu sang trạng thái rejected;
+  |Backend API|
+  :Trả về mã HTTP 200;
+  stop
+else ([Phê duyệt])
+  |Backend API|
+  :Bắt đầu giao dịch phê duyệt;
+  |Cơ sở dữ liệu|
+  :Khóa bản ghi phiếu kho;
+  |Backend API|
+  if (Phiếu hợp lệ và người duyệt khác người tạo?) then ([Không hợp lệ])
+    |Cơ sở dữ liệu|
+    :Hoàn tác giao dịch;
+    |Backend API|
+    :Trả về lỗi 403, 404 hoặc 409;
+    stop
+  else ([Hợp lệ])
+    |Cơ sở dữ liệu|
+    :Đổi trạng thái thành approved và sinh mã QR phiếu;
+    |Backend API|
+    :Trả về mã HTTP 200 kèm mã QR;
+  endif
+endif
+
+|Thiết bị IoT / App|
+if (Thiết bị thực hiện quét QR?) then ([Camera ESP32-S3])
+  :Giải mã QR bằng thư viện quirc và gửi truy vấn\n(kèm X-Device-Token);
+else ([Mobile App])
+  :Quét mã QR phiếu kho và gửi truy vấn\n(kèm Bearer JWT);
+endif
+
+|Backend API|
+:Xác thực thiết bị hoặc người dùng;
+|Cơ sở dữ liệu|
+:Cập nhật thời điểm quét QR và đọc chi tiết phiếu;
+|Backend API|
+:Trả về mã HTTP 200 kèm chi tiết phiếu;
+
+|Nhân viên kho|
+:Kiểm tra hàng thực tế và nhấn Hoàn tất phiếu kho;
+|Backend API|
+:Bắt đầu giao dịch hoàn tất phiếu;
+|Cơ sở dữ liệu|
+:Khóa phiếu và kiểm tra trạng thái approved\ncùng thời điểm đã quét QR;
+|Backend API|
+if (Đủ điều kiện hoàn tất và quét sản phẩm?) then ([Không đủ])
+  |Cơ sở dữ liệu|
+  :Hoàn tác giao dịch;
+  |Backend API|
+  :Trả về lỗi 400 hoặc 409;
+  stop
+else ([Đủ điều kiện])
+  |Cơ sở dữ liệu|
+  while (Còn dòng sản phẩm trong phiếu?) is ([Còn])
+    :Khóa dòng tồn kho, kiểm tra số dư sau thay đổi,\ncập nhật số lượng và ghi sổ biến động kho;
+  endwhile ([Hết])
+  :Cập nhật phiếu kho sang trạng thái completed\nvà xác nhận giao dịch;
+  |Backend API|
+  :Trả về mã HTTP 200;
+endif
+
+stop
+@enduml

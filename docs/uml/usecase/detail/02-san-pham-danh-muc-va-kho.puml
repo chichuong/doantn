@@ -1,0 +1,76 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam defaultTextAlignment center
+
+skinparam actor {
+  FontSize 13
+  FontColor #1E293B
+  BorderColor #334155
+  BackgroundColor #F8FAFC
+}
+
+skinparam usecase {
+  FontSize 12
+  FontColor #0F172A
+  BackgroundColor #EFF6FF
+  BorderColor #1E40AF
+  BorderThickness 1.3
+}
+
+skinparam rectangle {
+  FontSize 14
+  FontStyle bold
+  FontColor #0F172A
+  BorderColor #334155
+  BorderThickness 1.5
+  BackgroundColor #FFFFFF
+}
+
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #1E293B
+skinparam Padding 5
+skinparam nodesep 32
+skinparam ranksep 95
+
+together {
+  actor "Quản trị viên" as ACT_ADM
+  actor "Quản lý" as ACT_MGR
+}
+
+rectangle "Phân hệ Sản phẩm, Danh mục và Thiết lập Kho (Karat Retail)" as SYS {
+  usecase "Quản lý\ndanh mục\nsản phẩm" as UC_CAT_01
+  usecase "Thêm mới\nsản phẩm\nvà mã SKU" as UC_CAT_02
+  usecase "Cập nhật giá,\nngưỡng tồn và\ntrạng thái bán" as UC_CAT_03
+  usecase "Tra cứu\ndanh sách\nsản phẩm" as UC_CAT_04
+  usecase "Thiết lập\nvà cập nhật\nkho hàng" as UC_CAT_05
+  usecase "Xem danh sách\ncác kho\nvận hành" as UC_CAT_06
+  usecase "Tra cứu\nsản phẩm\nđang kinh doanh" as UC_CAT_07
+}
+
+together {
+  actor "Khách hàng" as ACT_CUS
+  actor "Nhân viên kho" as ACT_WH
+}
+
+' Quản trị viên kế thừa đầy đủ quyền của Quản lý (manager.*)
+ACT_ADM --|> ACT_MGR
+
+' Associations bên trái
+ACT_MGR -- UC_CAT_01
+ACT_MGR -- UC_CAT_02
+ACT_MGR -- UC_CAT_03
+ACT_MGR -- UC_CAT_04
+ACT_MGR -- UC_CAT_05
+ACT_MGR -- UC_CAT_06
+
+' Associations bên phải (/api/v1/catalog/products & /customer/catalog)
+UC_CAT_07 -- ACT_CUS
+UC_CAT_07 -- ACT_WH
+
+@enduml

@@ -1,0 +1,82 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam defaultTextAlignment center
+
+skinparam actor {
+  FontSize 13
+  FontColor #1E293B
+  BorderColor #334155
+  BackgroundColor #F8FAFC
+}
+
+skinparam usecase {
+  FontSize 12
+  FontColor #0F172A
+  BackgroundColor #EFF6FF
+  BorderColor #1E40AF
+  BorderThickness 1.3
+}
+
+skinparam rectangle {
+  FontSize 14
+  FontStyle bold
+  FontColor #0F172A
+  BorderColor #334155
+  BorderThickness 1.5
+  BackgroundColor #FFFFFF
+}
+
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #1E293B
+skinparam Padding 5
+skinparam nodesep 32
+skinparam ranksep 90
+
+together {
+  actor "Nhân viên\nbán hàng" as ACT_SALES
+  actor "Quản trị viên" as ACT_ADM
+}
+
+rectangle "Phân hệ Bán hàng Tại quầy POS (Karat Retail)" as SYS {
+  together {
+    usecase "Mở ca\nbán hàng\nPOS" as UC_POS_01
+    usecase "Chốt và\nđóng ca\nPOS" as UC_POS_02
+    usecase "Tra cứu và\nquét mã SKU\nsản phẩm POS" as UC_POS_03
+    usecase "Lập đơn và\nthanh toán\ntại quầy POS" as UC_POS_05
+    usecase "Xem lịch sử\nvà phiếu hóa đơn\nđiện tử POS" as UC_POS_07
+    usecase "Hủy giao dịch\nPOS và hoàn\ntồn kho" as UC_POS_08
+  }
+  together {
+    usecase "Áp dụng\nchiết khấu\nđơn tại quầy" as UC_POS_04
+    usecase "Trừ tồn kho\ntrực tiếp tại\nkho quầy" as UC_POS_06
+  }
+}
+
+' Chỉ role 'sales' và 'admin' được cấp quyền pos.* trong DB
+ACT_SALES -- UC_POS_01
+ACT_SALES -- UC_POS_02
+ACT_SALES -- UC_POS_03
+ACT_SALES -- UC_POS_05
+ACT_SALES -- UC_POS_07
+ACT_SALES -- UC_POS_08
+
+ACT_ADM -- UC_POS_01
+ACT_ADM -- UC_POS_02
+ACT_ADM -- UC_POS_03
+ACT_ADM -- UC_POS_05
+ACT_ADM -- UC_POS_07
+ACT_ADM -- UC_POS_08
+
+' Quan hệ <<include>> bắt buộc (pos.model.js dòng 168: directDeductStock)
+UC_POS_05 ..> UC_POS_06 : <<include>>
+
+' Quan hệ <<extend>> tùy chọn (PosPage.jsx dòng 422: nhập chiết khấu trước khi bấm Thanh toán)
+UC_POS_04 .left.> UC_POS_05 : <<extend>>
+
+@enduml

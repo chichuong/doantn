@@ -1,0 +1,98 @@
+@startuml seq-06-du-bao-nhu-cau-ai
+title Sơ đồ tuần tự: Chạy dự báo nhu cầu AI (LightGBM) và Tạo phiếu nhập bổ sung
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 185
+skinparam ParticipantPadding 12
+skinparam BoxPadding 10
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F1F5F9
+skinparam BoundaryBorderColor #1E293B
+skinparam BoundaryBackgroundColor #F8FAFC
+skinparam ControlBorderColor #1E293B
+skinparam ControlBackgroundColor #F8FAFC
+skinparam DatabaseBorderColor #1E293B
+skinparam DatabaseBackgroundColor #EFF6FF
+skinparam ArrowColor #1E293B
+skinparam LifeLineBorderColor #64748B
+skinparam LifeLineBackgroundColor #E2E8F0
+
+hide footbox
+autonumber
+
+actor "Quản lý" as Manager
+boundary "Trang Dự báo AI\n(ForecastingPage.jsx)" as UI
+control "ForecastingController\n(forecasting.controller.js)" as Ctrl
+control "ForecastingService\n(forecasting.service.js)" as Svc
+control "ForecastingPythonClient\n(forecasting-python.service.js)" as PyClient
+control "Python FastAPI\n(main.py - LightGBM)" as FastAPI
+control "WarehouseController\n(warehouse.controller.js)" as WhCtrl
+database "Database\n(forecast_runs, inventory_alerts)" as DB
+
+== 1. Chạy dự báo nhu cầu sản phẩm ==
+Manager -> UI : Chọn kho, số ngày dự báo (horizonDays=7)\nvà nhấn Chạy dự báo
+activate UI
+UI -> Ctrl : POST /api/v1/forecasting/run\n(Bearer JWT)
+activate Ctrl
+Ctrl -> Svc : run(body, userId)
+activate Svc
+
+Svc -> DB : SELECT warehouses, products JOIN inventory;\nTổng hợp lịch sử bán theo ngày (orders + order_items)
+activate DB
+DB --> Svc : Dữ liệu tồn kho & lịch sử bán hàng
+deactivate DB
+
+loop Từng sản phẩm cần dự báo
+  Svc -> PyClient : requestPythonForecast({ productId, horizonDays, history })
+  activate PyClient
+  PyClient -> FastAPI : POST /forecast\n(X-Service-Token, timeout 5000ms)
+  activate FastAPI
+
+  alt Dịch vụ Python sẵn sàng & len(history) >= 29
+    FastAPI -> FastAPI : Trích xuất 15 đặc trưng\nvà dự đoán bằng model.joblib (lightgbm_l1)
+    FastAPI --> PyClient : 200 OK ({ predictions, model_name })
+    PyClient --> Svc : { predictions, modelName }
+  else Lỗi kết nối / Timeout / Dữ liệu < 29 ngày
+    FastAPI --> PyClient : Lỗi 400 / 401 / 503 hoặc Timeout
+    PyClient --> Svc : null (hoặc lỗi kết nối)
+    Svc -> Svc : Tính dự báo dự phòng\n(moving-average-fallback)
+  end
+  deactivate FastAPI
+  deactivate PyClient
+end
+
+Svc -> DB : BEGIN; INSERT forecast_runs;\nINSERT forecast_values theo từng ngày;\nINSERT inventory_alerts (nếu dưới reorder_point); COMMIT
+activate DB
+DB --> Svc : Thông tin forecast_run & alerts
+deactivate DB
+
+Svc --> Ctrl : { run, values, alerts }
+deactivate Svc
+Ctrl --> UI : 201 Created ({ data })
+deactivate Ctrl
+UI --> Manager : Hiển thị biểu đồ dự báo & cảnh báo thiếu hàng
+deactivate UI
+
+== 2. Tạo phiếu nhập bổ sung từ cảnh báo ==
+opt Quản lý nhấn Tạo phiếu nhập đề xuất
+  Manager -> UI : Chọn các SKU cảnh báo và nhấn Tạo phiếu nhập
+  activate UI
+  UI -> WhCtrl : POST /api/v1/warehouse/documents\n(type='receipt', items thiếu hụt)
+  activate WhCtrl
+  WhCtrl -> DB : Lưu phiếu nhập kho trạng thái 'pending'
+  activate DB
+  DB --> WhCtrl : Phiếu nhập đề xuất
+  deactivate DB
+  WhCtrl --> UI : 201 Created
+  deactivate WhCtrl
+  UI --> Manager : Mở phiếu nhập chờ phê duyệt
+  deactivate UI
+end
+
+@enduml

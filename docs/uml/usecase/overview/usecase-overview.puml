@@ -1,0 +1,110 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam defaultTextAlignment center
+
+skinparam actor {
+  FontSize 13
+  FontColor #1E293B
+  BorderColor #334155
+  BackgroundColor #F8FAFC
+}
+
+skinparam usecase {
+  FontSize 12
+  FontColor #0F172A
+  BackgroundColor #EFF6FF
+  BorderColor #1E40AF
+  BorderThickness 1.3
+}
+
+skinparam rectangle {
+  FontSize 14
+  FontStyle bold
+  FontColor #0F172A
+  BorderColor #334155
+  BorderThickness 1.5
+  BackgroundColor #FFFFFF
+}
+
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #1E293B
+skinparam Padding 5
+skinparam nodesep 28
+skinparam ranksep 95
+
+' Cột 1 (Trái): Các Actor người dùng khởi phát luồng bán hàng, mua hàng & quản trị
+together {
+  actor "Nhân viên\nbán hàng" as ACT_SALES
+  actor "Quản trị viên" as ACT_ADM
+  actor "Quản lý" as ACT_MGR
+  actor "Khách hàng" as ACT_CUS
+}
+
+' Cột 2 (Giữa): Ranh giới hệ thống với 12 Use Case cấp cao bầu tròn đồng đều (tỷ lệ ~1.35 - 1.75)
+rectangle "Hệ thống Quản lý Bán lẻ Đa kênh & Kho thông minh Karat Retail" as SYS {
+  usecase "Bán hàng\ntại quầy\nPOS" as UC_OV_01
+  usecase "Quản trị\ntài khoản\nvà phân quyền" as UC_OV_02
+  usecase "Quản lý sản phẩm,\ndanh mục\nvà kho hàng" as UC_OV_03
+  usecase "Báo cáo doanh thu\nvà trao đổi\ndữ liệu" as UC_OV_04
+  usecase "Quản lý\nvận đơn\nvà giao nhận" as UC_OV_05
+  usecase "Quản lý\ntồn kho và\nđiều chỉnh tồn" as UC_OV_06
+  usecase "Nhập xuất kho\nvà đối soát\nmã QR" as UC_OV_07
+  usecase "Tiếp nhận,\nlấy hàng và\nđóng gói đơn" as UC_OV_08
+  usecase "Dự báo nhu cầu AI\nvà cảnh báo\nthiếu hàng" as UC_OV_09
+  usecase "Đối soát\nthanh toán\nvà hoàn tiền" as UC_OV_10
+  usecase "Mua sắm và\nđặt hàng\ntrực tuyến" as UC_OV_11
+  usecase "Đăng ký, đăng nhập\nvà khôi phục\nmật khẩu" as UC_OV_12
+}
+
+' Cột 3 (Phải): Các Actor vận hành hiện trường, thiết bị IoT & dịch vụ ngoài
+together {
+  actor "Nhân viên\ngiao hàng" as ACT_SHIP
+  actor "Nhân viên kho" as ACT_WH
+  actor "Camera IoT\nESP32-S3" as ACT_IOT <<Thiết bị>>
+  actor "Nhân viên\nxử lý đơn" as ACT_PROC
+  actor "Dịch vụ AI\nDự báo nhu cầu" as ACT_AI <<Hệ thống ngoài>>
+  actor "Dịch vụ\nEmail OTP" as ACT_MAIL <<Hệ thống ngoài>>
+}
+
+' Actor Generalization: Quản trị viên (58 quyền) chuyên biệt hóa từ Quản lý (33 quyền)
+ACT_ADM --|> ACT_MGR
+
+' Associations bên trái -> System Boundary
+ACT_SALES -- UC_OV_01
+
+ACT_ADM -- UC_OV_01
+ACT_ADM -- UC_OV_02
+ACT_ADM -- UC_OV_11
+
+ACT_MGR -- UC_OV_03
+ACT_MGR -- UC_OV_04
+ACT_MGR -- UC_OV_05
+ACT_MGR -- UC_OV_06
+ACT_MGR -- UC_OV_07
+ACT_MGR -- UC_OV_08
+ACT_MGR -- UC_OV_09
+ACT_MGR -- UC_OV_10
+
+ACT_CUS -- UC_OV_10
+ACT_CUS -- UC_OV_11
+ACT_CUS -- UC_OV_12
+
+' Associations System Boundary -> bên phải
+UC_OV_05 -- ACT_SHIP
+
+UC_OV_06 -- ACT_WH
+UC_OV_07 -- ACT_WH
+UC_OV_08 -- ACT_WH
+
+UC_OV_07 -- ACT_IOT
+UC_OV_08 -- ACT_PROC
+UC_OV_09 -- ACT_AI
+UC_OV_12 -- ACT_MAIL
+
+@enduml

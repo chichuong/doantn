@@ -1,0 +1,159 @@
+@startuml seq-02-ban-hang-pos
+title Sơ đồ tuần tự: Bán hàng tại quầy (POS) — Mở ca, Quét mã và Thanh toán
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 185
+skinparam ParticipantPadding 12
+skinparam BoxPadding 10
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F1F5F9
+skinparam BoundaryBorderColor #1E293B
+skinparam BoundaryBackgroundColor #F8FAFC
+skinparam ControlBorderColor #1E293B
+skinparam ControlBackgroundColor #F8FAFC
+skinparam EntityBorderColor #1E293B
+skinparam EntityBackgroundColor #F8FAFC
+skinparam DatabaseBorderColor #1E293B
+skinparam DatabaseBackgroundColor #EFF6FF
+skinparam ArrowColor #1E293B
+skinparam LifeLineBorderColor #64748B
+skinparam LifeLineBackgroundColor #E2E8F0
+
+hide footbox
+autonumber
+
+actor "Nhân viên\nbán hàng" as Sales
+boundary "Màn hình POS\n(PosPage / PaymentModal)" as UI
+control "Auth & Warehouse\nMiddleware" as MW
+control "PosController\n(pos.controller.js)" as Ctrl
+control "PosService\n(pos.service.js)" as Svc
+entity "PosModel &\nInventoryService" as Model
+database "Database\n(pos_sessions, orders, inventory)" as DB
+
+== 1. Mở ca bán hàng ==
+Sales -> UI : Nhập tiền đầu ca và nhấn Mở ca
+activate UI
+UI -> MW : POST /api/v1/pos/sessions/open\n(Bearer JWT)
+activate MW
+MW -> MW : authenticate & requirePermission\n('pos.sessions.manage') & requireWarehouseAccess
+MW -> Ctrl : Chuyển tiếp request (đã gắn warehouseId)
+activate Ctrl
+Ctrl -> Svc : open(body, userId)
+activate Svc
+Svc -> Model : openSession({ warehouseId, userId, openingCash })
+activate Model
+Model -> DB : BEGIN; SELECT warehouses;\nKiểm tra chưa có ca 'open';\nINSERT pos_sessions; COMMIT
+activate DB
+DB --> Model : Bản ghi pos_sessions
+deactivate DB
+Model --> Svc : session
+deactivate Model
+Svc --> Ctrl : session
+deactivate Svc
+Ctrl --> UI : 201 Created ({ data: session })
+deactivate Ctrl
+deactivate MW
+UI --> Sales : Hiển thị màn hình bán hàng theo ca
+deactivate UI
+
+== 2. Quét mã / Tra cứu sản phẩm ==
+Sales -> UI : Quét barcode hoặc nhập SKU
+activate UI
+UI -> MW : GET /api/v1/pos/products/lookup?identifier=...
+activate MW
+MW -> Ctrl : Kiểm tra quyền 'pos.orders.read'
+activate Ctrl
+Ctrl -> Svc : lookupProduct(identifier, warehouseId)
+activate Svc
+Svc -> Model : findProductByIdentifier(identifier, warehouseId)
+activate Model
+Model -> DB : SELECT products LEFT JOIN inventory\n(available = quantity - reserved_quantity)
+activate DB
+DB --> Model : Thông tin sản phẩm & tồn khả dụng
+deactivate DB
+Model --> Svc : product (hoặc 404)
+deactivate Model
+Svc --> Ctrl : product
+deactivate Svc
+Ctrl --> UI : 200 OK
+deactivate Ctrl
+deactivate MW
+UI --> Sales : Thêm sản phẩm vào giỏ POS
+deactivate UI
+
+== 3. Tạo đơn và Thanh toán POS ==
+Sales -> UI : Chọn cash/transfer và xác nhận thanh toán
+activate UI
+UI -> MW : POST /api/v1/pos/sales\n(Bearer JWT, Idempotency-Key)
+activate MW
+MW -> Ctrl : Kiểm tra quyền 'pos.orders.create'
+activate Ctrl
+Ctrl -> Svc : create(body, userId, idempotencyKey)
+activate Svc
+Svc -> Svc : validateIdempotencyKey & kiểm tra items
+Svc -> Model : createSale(payload)
+activate Model
+Model -> DB : BEGIN; startIdempotency
+activate DB
+DB --> Model : existingOrderId (hoặc null)
+deactivate DB
+
+alt Trùng Idempotency-Key đã có order_id
+  Model -> DB : SELECT đơn POS cũ; COMMIT
+  activate DB
+  DB --> Model : Đơn POS đã tồn tại
+  deactivate DB
+  Model --> Svc : Trả lại đơn POS cũ
+  Svc --> Ctrl : saleDetail
+  Ctrl --> UI : 201 Created (Idempotent replay)
+else Giao dịch mới
+  Model -> DB : SELECT pos_sessions FOR UPDATE;\nSELECT warehouses FOR SHARE
+  activate DB
+  DB --> Model : Ca đang 'open' & kho 'active'
+  deactivate DB
+  Model -> DB : INSERT orders (channel='pos',\nstatus='delivered', payment_status='paid')
+  activate DB
+  DB --> Model : orderId & orderNumber
+  deactivate DB
+  loop Từng sản phẩm trong giỏ
+    Model -> DB : SELECT products JOIN inventory FOR SHARE;\nINSERT order_items
+    activate DB
+    DB --> Model : order_item_id & đơn giá
+    deactivate DB
+  end
+  Model -> DB : directDeductStock (UPDLOCK inventory,\ntrừ quantity, INSERT inventory_transactions)
+  activate DB
+  DB --> Model : Kết quả trừ kho
+  deactivate DB
+  alt Tồn khả dụng không đủ (409)
+    Model -> DB : ROLLBACK
+    activate DB
+    DB --> Model : Đã hoàn tác
+    deactivate DB
+    Model --> Svc : Ném AppError(409)
+    Svc --> Ctrl : Lỗi 409
+    Ctrl --> UI : 409 Conflict
+  else Đủ tồn kho
+    Model -> DB : UPDATE orders.total_amount; INSERT payments;\nrecordInitialOrderState; finishIdempotency; COMMIT
+    activate DB
+    DB --> Model : Hoàn tất đơn POS
+    deactivate DB
+    Model --> Svc : saleDetail
+    Svc --> Ctrl : saleDetail
+    Ctrl --> UI : 201 Created ({ data: saleDetail })
+  end
+end
+deactivate Model
+deactivate Svc
+deactivate Ctrl
+deactivate MW
+UI --> Sales : Hiển thị biên lai / thông báo kết quả
+deactivate UI
+
+@enduml

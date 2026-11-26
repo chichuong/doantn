@@ -1,0 +1,93 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam defaultTextAlignment center
+
+skinparam actor {
+  FontSize 13
+  FontColor #1E293B
+  BorderColor #334155
+  BackgroundColor #F8FAFC
+}
+
+skinparam usecase {
+  FontSize 12
+  FontColor #0F172A
+  BackgroundColor #EFF6FF
+  BorderColor #1E40AF
+  BorderThickness 1.3
+}
+
+skinparam rectangle {
+  FontSize 14
+  FontStyle bold
+  FontColor #0F172A
+  BorderColor #334155
+  BorderThickness 1.5
+  BackgroundColor #FFFFFF
+}
+
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #1E293B
+skinparam Padding 5
+skinparam nodesep 30
+skinparam ranksep 95
+
+together {
+  actor "Khách hàng" as ACT_CUS
+  actor "Quản trị viên" as ACT_ADM
+  actor "Quản lý" as ACT_MGR
+}
+
+rectangle "Phân hệ Mua sắm Trực tuyến, Thanh toán & Đối soát (Karat Retail)" as SYS {
+  together {
+    usecase "Xem và tìm kiếm\nsản phẩm\ntrực tuyến" as UC_CUS_01
+    usecase "Quản lý\ngiỏ hàng\ntrực tuyến" as UC_CUS_02
+    usecase "Quản lý\nsổ địa chỉ\nnhận hàng" as UC_CUS_03
+    usecase "Theo dõi lịch sử\nvà tiến trình\nđơn hàng" as UC_CUS_07
+    usecase "Đặt hàng\ntrực tuyến\n(COD / VietQR)" as UC_CUS_04
+    usecase "Hủy đơn đặt hàng\nvà giải phóng\ntồn giữ chỗ" as UC_CUS_08
+    usecase "Đối soát và duyệt\nyêu cầu chuyển\nkhoản ngân hàng" as UC_CUS_09
+    usecase "Xác nhận\nhoàn tiền\nthủ công" as UC_CUS_10
+  }
+  together {
+    usecase "Giữ chỗ\ntồn kho\ntạm thời" as UC_CUS_05
+    usecase "Xem hướng dẫn\nVietQR và gửi mã\nchuyển khoản" as UC_CUS_06
+  }
+}
+
+' Kế thừa Actor: Quản trị viên kế thừa toàn bộ quyền của Quản lý
+ACT_ADM --|> ACT_MGR
+
+' Khách hàng (customer.* & payments.customer.manage)
+ACT_CUS -- UC_CUS_01
+ACT_CUS -- UC_CUS_02
+ACT_CUS -- UC_CUS_03
+ACT_CUS -- UC_CUS_07
+ACT_CUS -- UC_CUS_04
+ACT_CUS -- UC_CUS_06
+ACT_CUS -- UC_CUS_08
+
+' Quản trị viên có thêm quyền customer.* & payments.customer.manage
+ACT_ADM -- UC_CUS_01
+ACT_ADM -- UC_CUS_02
+ACT_ADM -- UC_CUS_03
+ACT_ADM -- UC_CUS_07
+ACT_ADM -- UC_CUS_04
+ACT_ADM -- UC_CUS_06
+
+' Quản lý (payments.transfers.*, payments.refunds.confirm, manager.orders.cancel)
+ACT_MGR -- UC_CUS_08
+ACT_MGR -- UC_CUS_09
+ACT_MGR -- UC_CUS_10
+
+' Quan hệ <<include>> và <<extend>>
+UC_CUS_04 ..> UC_CUS_05 : <<include>>
+UC_CUS_06 .left.> UC_CUS_04 : <<extend>>
+
+@enduml

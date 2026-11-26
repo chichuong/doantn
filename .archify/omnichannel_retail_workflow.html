@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Luồng Nghiệp Vụ - Hệ Thống Bán Hàng Đa Kênh (Archify Standard)</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+      --node-bg: #1e293b;
+      --node-border: #334155;
+      --edge-stroke: #475569;
+      --edge-active: #60a5fa;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.15);
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --purple: #7c3aed;
+      --cyan: #0891b2;
+      --node-bg: #f1f5f9;
+      --node-border: #cbd5e1;
+      --edge-stroke: #94a3b8;
+      --edge-active: #2563eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      transition: background 0.2s, color 0.2s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge-archify {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      background: var(--node-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .theme-toggle {
+      background: var(--node-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .diagram-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .diagram-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .diagram-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .canvas-wrap {
+      width: 100%;
+      overflow-x: auto;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    svg {
+      max-width: 100%;
+      height: auto;
+      user-select: none;
+    }
+
+    /* SVG Diagram Styling */
+    .node-box {
+      fill: var(--node-bg);
+      stroke: var(--node-border);
+      stroke-width: 1.5;
+      rx: 8;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .node-box:hover {
+      stroke: var(--accent);
+      filter: drop-shadow(0 0 8px var(--accent-glow));
+    }
+
+    .node-decision {
+      fill: var(--node-bg);
+      stroke: var(--warning);
+      stroke-width: 1.5;
+      cursor: pointer;
+    }
+
+    .node-decision:hover {
+      filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
+    }
+
+    .node-start {
+      fill: rgba(16, 185, 129, 0.15);
+      stroke: var(--success);
+      stroke-width: 2;
+    }
+
+    .node-end {
+      fill: rgba(239, 68, 68, 0.15);
+      stroke: var(--danger);
+      stroke-width: 2;
+    }
+
+    .node-subflow {
+      fill: rgba(139, 92, 246, 0.12);
+      stroke: var(--purple);
+      stroke-dasharray: 4, 4;
+      stroke-width: 1.5;
+    }
+
+    .node-text-title {
+      font-size: 13px;
+      font-weight: 600;
+      fill: var(--text);
+    }
+
+    .node-text-sub {
+      font-size: 10.5px;
+      fill: var(--text-muted);
+    }
+
+    .node-badge-text {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .edge {
+      stroke: var(--edge-stroke);
+      stroke-width: 1.75;
+      fill: none;
+      marker-end: url(#arrow);
+      transition: stroke 0.2s;
+    }
+
+    .edge-branch {
+      stroke: var(--warning);
+      stroke-dasharray: 5, 4;
+      marker-end: url(#arrow-branch);
+    }
+
+    .edge-error {
+      stroke: var(--danger);
+      stroke-dasharray: 4, 3;
+      marker-end: url(#arrow-error);
+    }
+
+    .edge-success {
+      stroke: var(--success);
+      marker-end: url(#arrow-success);
+    }
+
+    .edge-label {
+      font-size: 10.5px;
+      font-weight: 500;
+      fill: var(--text-muted);
+      paint-order: stroke;
+      stroke: var(--bg);
+      stroke-width: 3px;
+      stroke-linecap: butt;
+      stroke-linejoin: miter;
+    }
+
+    /* Detail Drawer / Info Panel */
+    .detail-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .detail-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .detail-card {
+      background: var(--node-bg);
+      border: 1px solid var(--node-border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .detail-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .code-tag {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    .detail-list {
+      list-style: none;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .detail-list li strong {
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body data-theme="dark">
+
+  <header>
+    <div class="brand-title">
+      <span class="badge-archify">Archify v3.2</span>
+      <div>
+        <h1>Sơ Đồ Luồng Nghiệp Vụ - Bán Hàng Đa Kênh</h1>
+        <div class="subtitle">Đồ án Tốt nghiệp: Hệ thống Omnichannel Retail & Quản lý Kho Đa Chi Nhánh</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="tab-btn active" onclick="switchTab('online')">1. Đơn Online & Hoàn tất</button>
+      <button class="tab-btn" onclick="switchTab('pos')">2. Bán tại Quầy (POS)</button>
+      <button class="tab-btn" onclick="switchTab('warehouse')">3. Nhập/Xuất & Hàng Hoàn</button>
+      <button class="tab-btn" onclick="switchTab('statemachine')">4. Ma Trận Trạng Thái</button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Đổi giao diện">🌓 Theme</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: ONLINE ORDER FLOW -->
+    <section id="view-online" class="diagram-container">
+      <div class="diagram-header">
+        <div class="diagram-title">
+          <span>📦 Luồng Đặt Hàng Online, Giữ Tồn Kho & Xử Lý Giao Nhận</span>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--success)"></div> Luồng chính (Happy Path)
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--warning)"></div> Điểm rẽ nhánh / Quyết định
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--danger)"></div> Luồng hủy / Hoàn trả / Hết hạn
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--purple)"></div> Tác vụ phụ trợ & Quét mã IoT
+          </div>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <svg viewBox="0 0 1120 720" width="1120" height="720">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+              orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--edge-stroke)" />
+            </marker>
+            <marker id="arrow-success" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+              orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--success)" />
+            </marker>
+            <marker id="arrow-branch" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+              orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--warning)" />
+            </marker>
+            <marker id="arrow-error" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+              orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--danger)" />
+            </marker>
+          </defs>
+
+          <!-- STAGE 1: KHÁCH HÀNG & CHECKOUT -->
+          <g transform="translate(40, 50)">
+            <rect class="node-box node-start" width="170" height="65" />
+            <text class="node-text-title" x="15" y="28">Khách hàng Checkout</text>
+            <text class="node-text-sub" x="15" y="46">Web / App Mobile (Cart)</text>
+          </g>
+
+          <path class="edge" d="M 210,82 L 270,82" />
+          <text class="edge-label" x="220" y="75">POST /checkout</text>
+
+          <!-- DECISION 1: TỒN KHO KHẢ DỤNG -->
+          <g transform="translate(270, 52)">
+            <polygon class="node-decision" points="60,0 120,30 60,60 0,30" />
+            <text class="node-text-title" x="32" y="34" font-size="11">Còn tồn kho?</text>
+          </g>
+
+          <!-- BRANCH 1: HẾT HÀNG -->
+          <path class="edge edge-error" d="M 330,52 L 330,20 L 460,20" />
+          <text class="edge-label" x="340" y="32">Hết hàng (available &lt; qty)</text>
+          <g transform="translate(460, 5)">
+            <rect class="node-box node-end" width="170" height="45" />
+            <text class="node-text-title" x="15" y="22" fill="var(--danger)">Từ chối đặt hàng</text>
+            <text class="node-text-sub" x="15" y="36">INSUFFICIENT_STOCK (409)</text>
+          </g>
+
+          <!-- PATH SUCCESS: TẠO ĐƠN & GIỮ TỒN -->
+          <path class="edge edge-success" d="M 390,82 L 460,82" />
+          <text class="edge-label" x="400" y="75">Đủ tồn</text>
+
+          <g transform="translate(460, 50)">
+            <rect class="node-box" width="220" height="65" />
+            <text class="node-text-title" x="15" y="26">Tạo đơn: status = pending</text>
+            <text class="node-text-sub" x="15" y="44">reserveStock: +reserved_quantity</text>
+            <text class="node-text-sub" x="15" y="58">Active reservation + Idempotency</text>
+          </g>
+
+          <path class="edge" d="M 570,115 L 570,165" />
+          <text class="edge-label" x="575" y="142">Chờ thanh toán / xác nhận</text>
+
+          <!-- DECISION 2: THANH TOÁN & XÁC NHẬN -->
+          <g transform="translate(510, 165)">
+            <polygon class="node-decision" points="60,0 120,30 60,60 0,30" />
+            <text class="node-text-title" x="25" y="34" font-size="11">Duyệt đơn / Hủy?</text>
+          </g>
+
+          <!-- BRANCH 2: HẾT HẠN HOẶC KHÁCH HỦY ĐƠN -->
+          <path class="edge edge-error" d="M 510,195 L 340,195" />
+          <text class="edge-label" x="360" y="185">Khách hủy / Hết hạn</text>
+          <g transform="translate(170, 165)">
+            <rect class="node-box node-end" width="170" height="60" />
+            <text class="node-text-title" x="12" y="24" fill="var(--danger)">Đơn: cancelled</text>
+            <text class="node-text-sub" x="12" y="40">releaseReservation</text>
+            <text class="node-text-sub" x="12" y="52">-reserved_qty (hoàn tồn khả dụng)</text>
+          </g>
+
+          <!-- SUCCESS: ORDER PROCESSOR XÁC NHẬN -->
+          <path class="edge edge-success" d="M 630,195 L 720,195" />
+          <text class="edge-label" x="640" y="188">Xác nhận</text>
+
+          <g transform="translate(720, 162)">
+            <rect class="node-box" width="210" height="65" />
+            <text class="node-text-title" x="15" y="26">Đơn: confirmed</text>
+            <text class="node-text-sub" x="15" y="44">Order Processing Service</text>
+            <text class="node-text-sub" x="15" y="58">Tạo task picking cho nhân viên</text>
+          </g>
+
+          <!-- STAGE 2: PICKING & PACKING -->
+          <path class="edge" d="M 825,227 L 825,280" />
+          <text class="edge-label" x="830" y="255">Phân công nhặt</text>
+
+          <g transform="translate(720, 280)">
+            <rect class="node-box node-subflow" width="210" height="65" />
+            <text class="node-text-title" x="15" y="26">Tác vụ: assigned -> picking</text>
+            <text class="node-text-sub" x="15" y="44">Nhặt hàng tại kệ kho</text>
+            <text class="node-text-sub" x="15" y="58">Chuyển ready_to_pack khi xong</text>
+          </g>
+
+          <path class="edge" d="M 720,312 L 620,312" />
+          <text class="edge-label" x="630" y="305">Hoàn tất nhặt</text>
+
+          <!-- STAGE 3: KHO KIỂM ĐẾM & QUÉT MÃ QR -->
+          <g transform="translate(390, 280)">
+            <rect class="node-box" width="230" height="75" />
+            <text class="node-text-title" x="15" y="24">Đơn: ready_to_pack</text>
+            <text class="node-text-sub" x="15" y="42">Nhân viên kho quét barcode/QR</text>
+            <text class="node-text-sub" x="15" y="56">ESP32-S3 Cam / Máy quét cầm tay</text>
+            <text class="node-text-sub" x="15" y="69">Đối chiếu checklist sản phẩm</text>
+          </g>
+
+          <path class="edge" d="M 505,355 L 505,405" />
+          <text class="edge-label" x="510" y="380">Quét đủ sản phẩm</text>
+
+          <!-- STAGE 4: PACKED & CONSUME INVENTORY -->
+          <g transform="translate(390, 405)">
+            <rect class="node-box" width="230" height="70" style="stroke:var(--purple)" />
+            <text class="node-text-title" x="15" y="24" fill="var(--purple)">Đơn: packed</text>
+            <text class="node-text-sub" x="15" y="42">consumeReservation (FOR UPDATE)</text>
+            <text class="node-text-sub" x="15" y="56">-quantity (trừ tồn thật kho)</text>
+            <text class="node-text-sub" x="15" y="68">-reserved_quantity, ghi phiếu XK</text>
+          </g>
+
+          <path class="edge" d="M 505,475 L 505,520" />
+          <text class="edge-label" x="510" y="500">Tạo vận đơn</text>
+
+          <!-- STAGE 5: HANDOVER & SHIPPING -->
+          <g transform="translate(390, 520)">
+            <rect class="node-box" width="230" height="60" />
+            <text class="node-text-title" x="15" y="24">Đơn: handover -> shipping</text>
+            <text class="node-text-sub" x="15" y="42">Gán mã tracking, phân công shipper</text>
+            <text class="node-text-sub" x="15" y="54">Shipper quét mã nhận hàng</text>
+          </g>
+
+          <path class="edge" d="M 505,580 L 505,620" />
+          <text class="edge-label" x="510" y="602">Giao hàng tận nơi</text>
+
+          <!-- DECISION 3: KẾT QUẢ GIAO HÀNG -->
+          <g transform="translate(445, 620)">
+            <polygon class="node-decision" points="60,0 120,30 60,60 0,30" />
+            <text class="node-text-title" x="15" y="34" font-size="11">Giao thành công?</text>
+          </g>
+
+          <!-- SUCCESS: DELIVERED -->
+          <path class="edge edge-success" d="M 565,650 L 680,650" />
+          <text class="edge-label" x="585" y="642">Khách nhận & ký nhận</text>
+          <g transform="translate(680, 620)">
+            <rect class="node-box node-start" width="180" height="60" />
+            <text class="node-text-title" x="15" y="26" fill="var(--success)">Đơn: delivered</text>
+            <text class="node-text-sub" x="15" y="44">Hoàn tất đơn hàng (State cuối)</text>
+          </g>
+
+          <!-- BRANCH 3: GIAO THẤT BẠI / HOÀN TRẢ -->
+          <path class="edge edge-error" d="M 445,650 L 320,650" />
+          <text class="edge-label" x="330" y="642">Giao thất bại / Bom hàng</text>
+          <g transform="translate(140, 620)">
+            <rect class="node-box node-end" width="180" height="60" />
+            <text class="node-text-title" x="15" y="24" fill="var(--danger)">Đơn: returned</text>
+            <text class="node-text-sub" x="15" y="40">Chuyển sang luồng Hàng hoàn</text>
+            <text class="node-text-sub" x="15" y="52">Kho kiểm tra & nhập lại tồn</text>
+          </g>
+
+          <!-- HOÀN ĐƠN SAU GIAO -->
+          <path class="edge edge-branch" d="M 770,680 L 770,705 L 230,705 L 230,680" />
+          <text class="edge-label" x="420" y="700">Khách đổi/trả sau khi đã nhận (delivered -> returned)</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- TAB 2: POS SALE FLOW -->
+    <section id="view-pos" class="diagram-container" style="display:none;">
+      <div class="diagram-header">
+        <div class="diagram-title">
+          <span>🏪 Luồng Bán Hàng Tại Quầy (POS Store Workflow & Return)</span>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--success)"></div> Luồng bán hàng tức thì (Trừ kho ngay)
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--warning)"></div> Rẽ nhánh kiểm tra ca / tồn khả dụng
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--danger)"></div> Trả hàng tại quầy (Void Sale)
+          </div>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <svg viewBox="0 0 1080 580" width="1080" height="580">
+          <!-- CA POS -->
+          <g transform="translate(40, 60)">
+            <rect class="node-box" width="180" height="60" />
+            <text class="node-text-title" x="15" y="25">Thu ngân mở ca</text>
+            <text class="node-text-sub" x="15" y="42">openSession: openingCash</text>
+          </g>
+
+          <path class="edge" d="M 220,90 L 280,90" />
+          <text class="edge-label" x="225" y="82">Ca mở</text>
+
+          <g transform="translate(280, 60)">
+            <rect class="node-box" width="190" height="60" />
+            <text class="node-text-title" x="15" y="24">Quét mã sản phẩm</text>
+            <text class="node-text-sub" x="15" y="42">Barcode / QR / SKU lookup</text>
+            <text class="node-text-sub" x="15" y="54">Thêm vào giỏ hàng POS</text>
+          </g>
+
+          <path class="edge" d="M 470,90 L 530,90" />
+          <text class="edge-label" x="480" y="82">Thanh toán</text>
+
+          <!-- KIỂM TRA TỒN KHO POS -->
+          <g transform="translate(530, 60)">
+            <polygon class="node-decision" points="60,0 120,30 60,60 0,30" />
+            <text class="node-text-title" x="25" y="34" font-size="11">Tồn khả dụng?</text>
+          </g>
+
+          <!-- BRANCH HẾT TỒN KHO QUẦY -->
+          <path class="edge edge-error" d="M 590,60 L 590,20 L 730,20" />
+          <text class="edge-label" x="600" y="32">Tồn không đủ (qty - reserved &lt; buy)</text>
+          <g transform="translate(730, 5)">
+            <rect class="node-box node-end" width="170" height="40" />
+            <text class="node-text-title" x="12" y="22" fill="var(--danger)">Báo lỗi tại quầy</text>
+            <text class="node-text-sub" x="12" y="34">INSUFFICIENT_STOCK (409)</text>
+          </g>
+
+          <!-- SUCCESS: TRỪ TỒN TỨC THÌ & GHI NHẬN DELIVERED -->
+          <path class="edge edge-success" d="M 650,90 L 720,90" />
+          <text class="edge-label" x="660" y="82">Đủ hàng</text>
+
+          <g transform="translate(720, 50)">
+            <rect class="node-box" width="240" height="80" style="stroke:var(--success)" />
+            <text class="node-text-title" x="15" y="24" fill="var(--success)">Tạo đơn: status = delivered</text>
+            <text class="node-text-sub" x="15" y="42">directDeductStock: trừ thẳng quantity</text>
+            <text class="node-text-sub" x="15" y="56">KHÔNG qua reserved_quantity</text>
+            <text class="node-text-sub" x="15" y="70">Ghi inventory_movements: pos-sale</text>
+          </g>
+
+          <path class="edge" d="M 840,130 L 840,190" />
+          <text class="edge-label" x="845" y="165">In hóa đơn</text>
+
+          <g transform="translate(720, 190)">
+            <rect class="node-box" width="240" height="60" />
+            <text class="node-text-title" x="15" y="24">Thanh toán hoàn tất</text>
+            <text class="node-text-sub" x="15" y="42">Tiền mặt / Chuyển khoản QR POS</text>
+            <text class="node-text-sub" x="15" y="54">In hóa đơn trao khách</text>
+          </g>
+
+          <!-- POS RETURN / HOÀN TRẢ ĐƠN QUẦY -->
+          <path class="edge edge-branch" d="M 720,220 L 520,220" />
+          <text class="edge-label" x="540" y="210">Khách yêu cầu trả hàng tại quầy</text>
+
+          <g transform="translate(300, 190)">
+            <rect class="node-box node-end" width="220" height="75" />
+            <text class="node-text-title" x="15" y="24" fill="var(--warning)">voidSale: delivered -> returned</text>
+            <text class="node-text-sub" x="15" y="42">Hoàn tiền lại cho khách</text>
+            <text class="node-text-sub" x="15" y="56">Hoàn tồn trực tiếp vào kho chi nhánh</text>
+            <text class="node-text-sub" x="15" y="68">Ghi nhận giao dịch nhập trả</text>
+          </g>
+
+          <!-- KẾT CA POS -->
+          <path class="edge" d="M 840,250 L 840,320" />
+          <text class="edge-label" x="845" y="285">Hết ca làm việc</text>
+
+          <g transform="translate(720, 320)">
+            <rect class="node-box" width="240" height="75" />
+            <text class="node-text-title" x="15" y="24">Đóng ca: closeSession</text>
+            <text class="node-text-sub" x="15" y="42">Khai báo tiền thực tế: closingCash</text>
+            <text class="node-text-sub" x="15" y="56">Hệ thống đối soát doanh số ca</text>
+            <text class="node-text-sub" x="15" y="68">Khóa ca, in báo cáo kết ca</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- TAB 3: WAREHOUSE & RETURN INTAKE -->
+    <section id="view-warehouse" class="diagram-container" style="display:none;">
+      <div class="diagram-header">
+        <div class="diagram-title">
+          <span>🏭 Luồng Nhập/Xuất Kho & Tiếp Nhận Hàng Hoàn (Inbound, Outbound & Returns)</span>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--cyan)"></div> Chứng từ nhập/xuất chuẩn
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--warning)"></div> Tiếp nhận hàng hoàn & Phân loại chất lượng
+          </div>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <svg viewBox="0 0 1080 580" width="1080" height="580">
+          <!-- CHỨNG TỪ NHẬP XUẤT -->
+          <g transform="translate(40, 50)">
+            <rect class="node-box" width="190" height="60" />
+            <text class="node-text-title" x="15" y="24">Tạo chứng từ</text>
+            <text class="node-text-sub" x="15" y="42">receipt (Nhập) / issue (Xuất)</text>
+            <text class="node-text-sub" x="15" y="54">status = draft</text>
+          </g>
+
+          <path class="edge" d="M 230,80 L 290,80" />
+          <text class="edge-label" x="235" y="72">Gửi duyệt</text>
+
+          <g transform="translate(290, 50)">
+            <polygon class="node-decision" points="60,0 120,30 60,60 0,30" />
+            <text class="node-text-title" x="25" y="34" font-size="11">Manager duyệt?</text>
+          </g>
+
+          <!-- TỪ CHỐI DUYỆT -->
+          <path class="edge edge-error" d="M 350,50 L 350,20 L 460,20" />
+          <text class="edge-label" x="360" y="32">Từ chối</text>
+          <g transform="translate(460, 5)">
+            <rect class="node-box node-end" width="150" height="40" />
+            <text class="node-text-title" x="12" y="22" fill="var(--danger)">rejected / cancelled</text>
+            <text class="node-text-sub" x="12" y="34">Không tác động tồn kho</text>
+          </g>
+
+          <!-- PHÊ DUYỆT -->
+          <path class="edge edge-success" d="M 410,80 L 480,80" />
+          <text class="edge-label" x="420" y="72">approved</text>
+
+          <g transform="translate(480, 50)">
+            <rect class="node-box" width="220" height="60" />
+            <text class="node-text-title" x="15" y="24">Kho quét mã kiểm đếm</text>
+            <text class="node-text-sub" x="15" y="42">Quét mã barcode/QR chứng từ</text>
+            <text class="node-text-sub" x="15" y="54">Kiểm số lượng thực nhận/xuất</text>
+          </g>
+
+          <path class="edge" d="M 700,80 L 760,80" />
+          <text class="edge-label" x="705" y="72">complete</text>
+
+          <g transform="translate(760, 45)">
+            <rect class="node-box" width="220" height="70" style="stroke:var(--cyan)" />
+            <text class="node-text-title" x="15" y="24" fill="var(--cyan)">status = completed</text>
+            <text class="node-text-sub" x="15" y="42">Nhập: +quantity kho</text>
+            <text class="node-text-sub" x="15" y="54">Xuất: -quantity kho</text>
+            <text class="node-text-sub" x="15" y="66">Ghi inventory_movements</text>
+          </g>
+
+          <!-- PHẦN 2: LUỒNG TIẾP NHẬN HÀNG HOÀN (RETURN INTAKE) -->
+          <g transform="translate(40, 240)">
+            <rect class="node-box node-subflow" width="220" height="70" />
+            <text class="node-text-title" x="15" y="24" fill="var(--purple)">Đơn hàng bị hoàn</text>
+            <text class="node-text-sub" x="15" y="42">Trạng thái: returned</text>
+            <text class="node-text-sub" x="15" y="56">Từ Shipper hoặc khách trả lại</text>
+          </g>
+
+          <path class="edge" d="M 260,275 L 320,275" />
+          <text class="edge-label" x="265" y="268">Nhận hàng tại kho</text>
+
+          <g transform="translate(320, 240)">
+            <rect class="node-box" width="220" height="70" />
+            <text class="node-text-title" x="15" y="24">receiveOrderReturn</text>
+            <text class="node-text-sub" x="15" y="42">Lập biên bản nhận hàng hoàn</text>
+            <text class="node-text-sub" x="15" y="56">warehouse-workflow.service.js</text>
+          </g>
+
+          <path class="edge" d="M 540,275 L 600,275" />
+          <text class="edge-label" x="545" y="268">Kiểm định chất lượng</text>
+
+          <g transform="translate(600, 245)">
+            <polygon class="node-decision" points="60,0 120,30 60,60 0,30" />
+            <text class="node-text-title" x="20" y="34" font-size="11">Tình trạng hàng?</text>
+          </g>
+
+          <!-- BRANCH HÀNG NGUYÊN VẸN -->
+          <path class="edge edge-success" d="M 720,275 L 780,275" />
+          <text class="edge-label" x="725" y="265">Nguyên vẹn</text>
+          <g transform="translate(780, 240)">
+            <rect class="node-box" width="220" height="70" style="stroke:var(--success)" />
+            <text class="node-text-title" x="15" y="24" fill="var(--success)">restockQuantity &gt; 0</text>
+            <text class="node-text-sub" x="15" y="42">Cộng trả lại tồn kho bán: +quantity</text>
+            <text class="node-text-sub" x="15" y="56">Ghi phiếu nhập hoàn kho</text>
+          </g>
+
+          <!-- BRANCH HÀNG HƯ HỎNG / LỖI -->
+          <path class="edge edge-error" d="M 660,305 L 660,370 L 780,370" />
+          <text class="edge-label" x="670" y="355">Hư hỏng / Móp bể (restock = 0)</text>
+          <g transform="translate(780, 340)">
+            <rect class="node-box node-end" width="220" height="65" />
+            <text class="node-text-title" x="15" y="24" fill="var(--danger)">Không nhập lại kho bán</text>
+            <text class="node-text-sub" x="15" y="42">Chuyển kho phế phẩm / Bảo hành</text>
+            <text class="node-text-sub" x="15" y="54">Ghi chú lý do hư hỏng</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- TAB 4: STATE MACHINE -->
+    <section id="view-statemachine" class="diagram-container" style="display:none;">
+      <div class="diagram-header">
+        <div class="diagram-title">
+          <span>⚙️ Ma Trận Chuyển Trạng Thái Đơn Hàng & Ràng Buộc Tồn Kho (State Machine 016)</span>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--success)"></div> Trạng thái bình thường
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--danger)"></div> Trạng thái kết thúc (Terminal)
+          </div>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <svg viewBox="0 0 1080 340" width="1080" height="340">
+          <!-- STATES -->
+          <g transform="translate(40, 100)">
+            <rect class="node-box" width="110" height="50" rx="25" />
+            <text class="node-text-title" x="30" y="30">pending</text>
+          </g>
+
+          <g transform="translate(180, 100)">
+            <rect class="node-box" width="120" height="50" rx="25" />
+            <text class="node-text-title" x="25" y="30">confirmed</text>
+          </g>
+
+          <g transform="translate(330, 100)">
+            <rect class="node-box" width="130" height="50" rx="25" />
+            <text class="node-text-title" x="15" y="30">ready_to_pack</text>
+          </g>
+
+          <g transform="translate(490, 100)">
+            <rect class="node-box" width="110" height="50" rx="25" />
+            <text class="node-text-title" x="30" y="30">packed</text>
+          </g>
+
+          <g transform="translate(630, 100)">
+            <rect class="node-box" width="110" height="50" rx="25" />
+            <text class="node-text-title" x="25" y="30">handover</text>
+          </g>
+
+          <g transform="translate(770, 100)">
+            <rect class="node-box" width="110" height="50" rx="25" />
+            <text class="node-text-title" x="28" y="30">shipping</text>
+          </g>
+
+          <g transform="translate(910, 100)">
+            <rect class="node-box node-start" width="110" height="50" rx="25" />
+            <text class="node-text-title" x="28" y="30" fill="var(--success)">delivered</text>
+          </g>
+
+          <!-- FORWARD ARROWS -->
+          <path class="edge" d="M 150,125 L 180,125" />
+          <path class="edge" d="M 300,125 L 330,125" />
+          <path class="edge" d="M 460,125 L 490,125" />
+          <path class="edge" d="M 600,125 L 630,125" />
+          <path class="edge" d="M 740,125 L 770,125" />
+          <path class="edge" d="M 880,125 L 910,125" />
+
+          <!-- CANCELLED NODE -->
+          <g transform="translate(230, 240)">
+            <rect class="node-box node-end" width="150" height="50" rx="25" />
+            <text class="node-text-title" x="35" y="30" fill="var(--danger)">cancelled</text>
+            <text class="node-text-sub" x="40" y="44">(Terminal)</text>
+          </g>
+
+          <!-- CANCEL EDGES FROM PENDING, CONFIRMED, READY_TO_PACK -->
+          <path class="edge edge-error" d="M 95,150 L 95,265 L 230,265" />
+          <path class="edge edge-error" d="M 240,150 L 240,240" />
+          <path class="edge edge-error" d="M 395,150 L 395,200 L 330,200 L 330,240" />
+
+          <!-- RETURNED NODE -->
+          <g transform="translate(800, 240)">
+            <rect class="node-box node-end" width="150" height="50" rx="25" />
+            <text class="node-text-title" x="35" y="30" fill="var(--warning)">returned</text>
+            <text class="node-text-sub" x="40" y="44">(Terminal)</text>
+          </g>
+
+          <!-- RETURN EDGES FROM HANDOVER, SHIPPING, DELIVERED -->
+          <path class="edge edge-branch" d="M 685,150 L 685,265 L 800,265" />
+          <path class="edge edge-branch" d="M 825,150 L 825,240" />
+          <path class="edge edge-branch" d="M 965,150 L 965,265 L 950,265" />
+
+          <!-- POS INITIAL STATE ANNOTATION -->
+          <path class="edge edge-success" d="M 965,40 L 965,100" />
+          <text class="edge-label" x="870" y="35">POS tạo đơn trực tiếp tại delivered</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- REPOSITORY FACTS & DETAILS PANEL -->
+    <section class="detail-panel">
+      <div class="detail-card">
+        <h3>🔍 Quy Tắc Khóa & Nhất Quán Tồn Kho (ACID Transactions)</h3>
+        <ul class="detail-list">
+          <li><strong>Khóa dòng tồn:</strong> <span class="code-tag">lockInventoryRows</span> sắp xếp và khóa dòng tồn
+            <span class="code-tag">FOR UPDATE</span> theo thứ tự <span class="code-tag">(warehouse_id, product_id)
+              ASC</span> để chống hoàn toàn Deadlock.</li>
+          <li><strong>Đơn Online:</strong> Giữ tồn tức thì bằng <span class="code-tag">reserveStock</span> (tăng <span
+              class="code-tag">reserved_quantity</span>), chuyển sang <span class="code-tag">consumeReservation</span>
+            khi đóng gói (<span class="code-tag">packed</span>) để giảm tồn thật.</li>
+          <li><strong>Đơn POS:</strong> Bán và giao trực tiếp tại quầy, dùng <span
+              class="code-tag">directDeductStock</span> trừ thẳng <span class="code-tag">quantity</span>, trạng thái
+            xuất phát ngay tại <span class="code-tag">delivered</span>.</li>
+          <li><strong>Idempotency:</strong> Mọi lệnh checkout và POS đều bảo vệ bằng <span
+              class="code-tag">idempotencyKey</span>, chống nhân bản đơn khi bấm trùng hoặc giật mạng.</li>
+        </ul>
+      </div>
+
+      <div class="detail-card">
+        <h3>⚡ Xử Lý Rẽ Nhánh & Hàng Hoàn (Edge Cases & Returns)</h3>
+        <ul class="detail-list">
+          <li><strong>Hủy đơn Online:</strong> Chỉ cho phép hủy khi ở <span class="code-tag">pending, confirmed,
+              ready_to_pack</span>. Tự động gọi <span class="code-tag">releaseReservation</span> để trả lại tồn khả
+            dụng.</li>
+          <li><strong>Quét mã kiểm đếm (IoT ESP32-S3):</strong> Quét mã vạch/QR đối chiếu checklist dòng hàng trước khi
+            cho phép đóng gói. Thiếu hoặc sai sản phẩm sẽ chặn chuyển sang <span class="code-tag">packed</span>.</li>
+          <li><strong>Hàng hoàn kho:</strong> Đơn <span class="code-tag">shipping</span> hoặc <span
+              class="code-tag">delivered</span> chuyển sang <span class="code-tag">returned</span>. Nhân viên kho lập
+            phiếu tiếp nhận <span class="code-tag">receiveOrderReturn</span>, phân loại hàng nguyên vẹn (<span
+              class="code-tag">restock</span>) và hàng hư hỏng.</li>
+          <li><strong>Đối soát toàn vẹn:</strong> View PostgreSQL <span
+              class="code-tag">inventory_reservation_reconciliation</span> giám sát liên tục <span
+              class="code-tag">is_balanced</span> đảm bảo không lệch 1 đơn vị tồn.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('view-online').style.display = tab === 'online' ? 'block' : 'none';
+      document.getElementById('view-pos').style.display = tab === 'pos' ? 'block' : 'none';
+      document.getElementById('view-warehouse').style.display = tab === 'warehouse' ? 'block' : 'none';
+      document.getElementById('view-statemachine').style.display = tab === 'statemachine' ? 'block' : 'none';
+    }
+
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', next);
+    }
+  </script>
+</body>
+
+</html>

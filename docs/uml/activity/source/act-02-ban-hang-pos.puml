@@ -1,0 +1,115 @@
+@startuml act-02-ban-hang-pos
+title Sơ đồ hoạt động: Quy trình bán hàng tại quầy (POS)
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam wrapWidth 165
+skinparam ActivityBorderColor #1E293B
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityFontColor #111827
+skinparam ActivityDiamondBorderColor #1E293B
+skinparam ActivityDiamondBackgroundColor #F8FAFC
+skinparam ArrowColor #1E293B
+skinparam SwimlaneBorderColor #64748B
+skinparam SwimlaneTitleBackgroundColor #F1F5F9
+skinparam SwimlaneTitleFontColor #0F172A
+
+|Nhân viên bán hàng|
+start
+:Mở màn hình bán hàng POS;
+|Giao diện POS|
+:Kiểm tra ca bán hàng hiện tại;
+
+|Backend API|
+:Xác thực JWT, kiểm tra quyền\nvà tự gán kho trung tâm;
+|Cơ sở dữ liệu|
+:Truy vấn ca bán hàng đang mở;
+|Backend API|
+if (Đã có ca mở?) then ([Chưa có])
+  |Nhân viên bán hàng|
+  :Nhập tiền đầu ca và mở ca;
+  |Cơ sở dữ liệu|
+  :Kiểm tra kho và tạo ca POS\n(trạng thái open);
+  |Backend API|
+  :Trả về HTTP 201 kèm ca mới;
+else ([Đã có])
+  :Trả về ca hiện tại (HTTP 200);
+endif
+
+|Nhân viên bán hàng|
+repeat
+  :Quét mã vạch hoặc\ntìm sản phẩm theo SKU;
+  |Cơ sở dữ liệu|
+  :Truy vấn sản phẩm và\ntính tồn khả dụng;
+  |Giao diện POS|
+  if (Sản phẩm hợp lệ\nvà còn tồn?) then ([Có])
+    :Thêm / tăng số lượng\nvào giỏ POS;
+  else ([Không])
+    :Hiển thị cảnh báo\nhết hàng / không thấy;
+  endif
+repeat while (Tiếp tục thêm hàng?) is ([Có]) not ([Thanh toán])
+
+|Nhân viên bán hàng|
+:Chọn phương thức thanh toán\nvà xác nhận;
+|Giao diện POS|
+if (Tiền khách đưa hợp lệ?) then ([Không đủ])
+  :Hiển thị lỗi chưa đủ tiền;
+  stop
+else ([Hợp lệ])
+  :Gửi yêu cầu tạo đơn POS\n(kèm khóa chống trùng lặp);
+endif
+
+|Backend API|
+:Xác thực quyền và định dạng\nkhóa chống trùng lặp;
+:Bắt đầu giao dịch CSDL;
+|Cơ sở dữ liệu|
+:Kiểm tra và khóa bản ghi\nchống trùng lặp;
+|Backend API|
+if (Khóa trùng lặp đã có đơn?) then ([Trùng])
+  |Cơ sở dữ liệu|
+  :Đọc lại đơn POS cũ và\nkết thúc giao dịch;
+  |Backend API|
+  :Trả về đơn POS cũ (HTTP 201);
+else ([Mới])
+  |Cơ sở dữ liệu|
+  :Khóa kiểm tra ca mở\nvà kho hoạt động;
+  |Backend API|
+  if (Ca mở và kho hoạt động?) then ([Không])
+    |Cơ sở dữ liệu|
+    :Hoàn tác giao dịch;
+    |Backend API|
+    :Trả về lỗi 404 hoặc 409;
+    stop
+  else ([Có])
+    |Cơ sở dữ liệu|
+    :Tạo đơn POS (delivered, paid);
+    while (Còn sản phẩm trong giỏ?) is ([Còn])
+      :Kiểm tra giá và lưu\nchi tiết đơn hàng;
+    endwhile ([Hết])
+    :Khóa dòng tồn kho theo\nthứ tự chuẩn hóa;
+    |Backend API|
+    if (Đủ tồn khả dụng?) then ([Thiếu])
+      |Cơ sở dữ liệu|
+      :Hoàn tác giao dịch;
+      |Backend API|
+      :Trả về lỗi 409 Conflict;
+      |Giao diện POS|
+      :Thông báo thiếu tồn khả dụng;
+      stop
+    else ([Đủ])
+      |Cơ sở dữ liệu|
+      :Trừ trực tiếp tồn thực tế\nvà ghi sổ biến động kho;
+      :Lưu thanh toán, lịch sử\nvà hoàn tất giao dịch;
+      |Backend API|
+      :Trả về HTTP 201;
+    endif
+  endif
+endif
+
+|Giao diện POS|
+:Hiển thị biên lai và xóa giỏ;
+stop
+@enduml

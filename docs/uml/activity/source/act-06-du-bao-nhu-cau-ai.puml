@@ -1,0 +1,65 @@
+@startuml act-06-du-bao-nhu-cau-ai
+title Sơ đồ hoạt động: Chạy dự báo nhu cầu AI (LightGBM) và Lập phiếu nhập bổ sung
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam ActivityBorderColor #1E293B
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityFontColor #111827
+skinparam ActivityDiamondBorderColor #1E293B
+skinparam ActivityDiamondBackgroundColor #F8FAFC
+skinparam ArrowColor #1E293B
+skinparam SwimlaneBorderColor #64748B
+skinparam SwimlaneTitleBackgroundColor #F1F5F9
+skinparam SwimlaneTitleFontColor #0F172A
+
+|Quản lý|
+start
+:Chọn kho, số ngày dự báo (mặc định 7 ngày)\nvà nhấn Chạy dự báo;
+|Giao diện Dự báo|
+:Gửi yêu cầu chạy dự báo AI;
+
+|Backend API|
+:Xác thực JWT và quyền chạy dự báo;
+|Cơ sở dữ liệu|
+:Truy vấn thông tin kho, tồn kho hiện tại\nvà tổng hợp lịch sử bán theo ngày;
+|Backend API|
+
+while (Còn sản phẩm cần dự báo?) is ([Còn])
+  :Gửi lịch sử bán sang dịch vụ AI Python\n(kèm X-Service-Token, timeout 5000ms);
+  |Dịch vụ AI (FastAPI)|
+  if (Token hợp lệ, mô hình sẵn sàng\nvà lịch sử >= 29 ngày?) then ([Đủ điều kiện])
+    :Trích xuất 15 đặc trưng chuỗi thời gian\nvà dự đoán bằng mô hình LightGBM;
+    :Trả về mã HTTP 200 kèm kết quả dự báo;
+  else ([Lỗi / Thiếu dữ liệu / Timeout])
+    :Trả về lỗi 400 / 401 / 503 hoặc hết thời gian chờ;
+    |Backend API|
+    :Tính dự báo dự phòng bằng trung bình động;
+  endif
+endwhile ([Hết])
+
+|Backend API|
+:Tính lượng thiếu hụt dự kiến so với điểm đặt hàng lại;
+|Cơ sở dữ liệu|
+:Lưu phiên dự báo, chi tiết giá trị theo ngày\nvà tạo cảnh báo thiếu hàng (nếu có);
+|Backend API|
+:Trả về mã HTTP 201 kèm kết quả và cảnh báo;
+
+|Giao diện Dự báo|
+:Hiển thị biểu đồ dự báo và danh sách cảnh báo;
+|Quản lý|
+if (Tạo phiếu nhập bổ sung từ cảnh báo?) then ([Có])
+  :Chọn các sản phẩm cảnh báo và tạo phiếu nhập;
+  |Backend API|
+  |Cơ sở dữ liệu|
+  :Lưu phiếu nhập kho trạng thái pending;
+  |Backend API|
+  :Trả về mã HTTP 201;
+else ([Không])
+endif
+
+stop
+@enduml

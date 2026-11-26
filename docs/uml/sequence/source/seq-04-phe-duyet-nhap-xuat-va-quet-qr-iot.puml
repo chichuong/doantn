@@ -1,0 +1,161 @@
+@startuml seq-04-phe-duyet-nhap-xuat-va-quet-qr-iot
+title Sơ đồ tuần tự: Lập, Phê duyệt phiếu nhập/xuất kho và Xác thực QR qua ESP32-S3 / App
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 185
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F1F5F9
+skinparam BoundaryBorderColor #1E293B
+skinparam BoundaryBackgroundColor #F8FAFC
+skinparam ControlBorderColor #1E293B
+skinparam ControlBackgroundColor #F8FAFC
+skinparam EntityBorderColor #1E293B
+skinparam EntityBackgroundColor #F8FAFC
+skinparam DatabaseBorderColor #1E293B
+skinparam DatabaseBackgroundColor #EFF6FF
+skinparam ArrowColor #1E293B
+skinparam LifeLineBorderColor #64748B
+skinparam LifeLineBackgroundColor #E2E8F0
+
+hide footbox
+autonumber
+
+actor "Nhân viên kho" as Staff
+actor "Quản lý" as Manager
+boundary "Web / Mobile App" as App
+boundary "Camera ESP32-S3\n(IoT Device)" as IoT
+control "WarehouseController\n(warehouse.controller.js)" as Ctrl
+control "WarehouseService\n(warehouse.service.js)" as Svc
+entity "WarehouseModel &\nInventoryModel" as Model
+database "Database\n(warehouse_documents, inventory)" as DB
+
+== 1. Lập phiếu nhập / xuất kho ==
+Staff -> App : Chọn loại phiếu (receipt/issue)\nvà nhập danh sách sản phẩm
+activate App
+App -> Ctrl : POST /api/v1/warehouse/documents\n(Bearer JWT)
+activate Ctrl
+Ctrl -> Svc : createDocument(body, userId)
+activate Svc
+Svc -> Model : insertDocumentWithItems(payload)
+activate Model
+Model -> DB : BEGIN; INSERT warehouse_documents (status='pending');\nINSERT warehouse_document_items; COMMIT
+activate DB
+DB --> Model : Phiếu kho trạng thái 'pending'
+deactivate DB
+Model --> Svc : document
+deactivate Model
+Svc --> Ctrl : document
+deactivate Svc
+Ctrl --> App : 201 Created ({ data: document })
+deactivate Ctrl
+App --> Staff : Hiển thị phiếu chờ phê duyệt
+deactivate App
+
+== 2. Phê duyệt phiếu và sinh mã QR ==
+Manager -> App : Kiểm tra phiếu và nhấn Phê duyệt
+activate App
+App -> Ctrl : PATCH /api/v1/warehouse/documents/:id/approve
+activate Ctrl
+Ctrl -> Svc : approveDocument(id, userId, userRole)
+activate Svc
+Svc -> Model : approveDocument(...)
+activate Model
+Model -> DB : BEGIN; SELECT warehouse_documents FOR UPDATE
+activate DB
+DB --> Model : Thông tin phiếu kho
+deactivate DB
+
+alt Không tìm thấy (404) / Sai trạng thái (409) / Tự duyệt phiếu mình tạo (403)
+  Model -> DB : ROLLBACK
+  activate DB
+  DB --> Model : Đã hoàn tác
+  deactivate DB
+  Model --> Svc : Ném AppError(403 / 404 / 409)
+  Svc --> Ctrl : Lỗi phê duyệt
+  Ctrl --> App : 403 / 404 / 409
+  App --> Manager : Hiển thị thông báo lỗi
+else Hợp lệ để phê duyệt
+  Model -> DB : UPDATE status='approved', qr_code='DOC:'+document_number,\napproved_by, approved_at; COMMIT
+  activate DB
+  DB --> Model : Phiếu đã duyệt kèm qr_code
+  deactivate DB
+  Model --> Svc : document
+  Svc --> Ctrl : document
+  Ctrl --> App : 200 OK
+  App --> Manager : Hiển thị mã QR của phiếu kho
+end
+deactivate Model
+deactivate Svc
+deactivate Ctrl
+deactivate App
+
+== 3. Quét mã QR và Hoàn tất cập nhật tồn kho ==
+alt Quét QR bằng thiết bị Camera ESP32-S3
+  IoT -> IoT : Core 1 giải mã QR bằng thư viện quirc
+  activate IoT
+  IoT -> Ctrl : GET /api/v1/warehouse/documents/lookup?qr=...\n(Header X-Device-Token)
+  activate Ctrl
+else Quét QR bằng Mobile App
+  Staff -> App : Quét mã QR trên phiếu kho
+  activate App
+  App -> Ctrl : GET /api/v1/warehouse/documents/lookup?qr=...\n(Bearer JWT)
+end
+
+Ctrl -> Svc : lookupByQr(qr, userId)
+activate Svc
+Svc -> Model : markQrScannedAndFindDocument(qr, userId)
+activate Model
+Model -> DB : UPDATE qr_scanned_at = NOW();\nSELECT phiếu & các dòng hàng
+activate DB
+DB --> Model : Chi tiết phiếu đã xác thực QR
+deactivate DB
+Model --> Svc : document
+deactivate Model
+Svc --> Ctrl : document
+deactivate Svc
+Ctrl --> IoT : 200 OK (nếu nguồn từ ESP32-S3)
+deactivate IoT
+Ctrl --> App : 200 OK (nếu nguồn từ App)
+deactivate Ctrl
+
+Staff -> App : Nhấn Hoàn tất phiếu kho
+App -> Ctrl : POST /api/v1/warehouse/documents/:id/complete
+activate Ctrl
+Ctrl -> Svc : completeDocument(id, actualItems, userId)
+activate Svc
+Svc -> Model : completeDocument(...)
+activate Model
+Model -> DB : BEGIN; SELECT FOR UPDATE\n(Kiểm tra status='approved' & qr_scanned_at != NULL)
+activate DB
+DB --> Model : Dữ liệu phiếu & danh sách dòng hàng
+deactivate DB
+
+loop Từng dòng sản phẩm trong phiếu
+  Model -> DB : changeStock (lockInventory, cập nhật quantity,\nINSERT inventory_transactions)
+  activate DB
+  DB --> Model : Tồn kho mới
+  deactivate DB
+end
+
+Model -> DB : UPDATE warehouse_documents\nSET status='completed', completed_by, completed_at; COMMIT
+activate DB
+DB --> Model : Phiếu đã hoàn tất
+deactivate DB
+Model --> Svc : completedDocument
+deactivate Model
+Svc --> Ctrl : completedDocument
+deactivate Svc
+Ctrl --> App : 200 OK
+deactivate Ctrl
+App --> Staff : Thông báo cập nhật tồn kho thành công
+deactivate App
+
+@enduml
