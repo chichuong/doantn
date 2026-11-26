@@ -12,19 +12,18 @@ export const getDashboardSummary = async ({ from, to }) => {
              COALESCE(SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END), 0) AS inactive_products
            FROM products`, []),
     query(`SELECT
-             (SELECT COUNT(*) FROM inventory) AS inventory_lines,
-             (SELECT COALESCE(SUM(quantity), 0) FROM inventory) AS total_quantity,
-             COALESCE((
-               SELECT COUNT(*)
-               FROM (
-                 SELECT p.id
-                 FROM products p
-                 JOIN inventory i ON i.product_id = p.id
-                 WHERE p.is_active = 1
-                 GROUP BY p.id, p.reorder_level
-                 HAVING COALESCE(SUM(i.quantity - i.reserved_quantity), 0) <= p.reorder_level
-               ) AS low_products
-             ), 0) AS low_stock_lines`, []),
+             COUNT(*) AS inventory_lines,
+             COALESCE(SUM(i.quantity), 0) AS total_quantity,
+             COALESCE(SUM(CASE WHEN (i.quantity - i.reserved_quantity) <= p.reorder_level THEN 1 ELSE 0 END), 0) AS low_stock_lines
+           FROM inventory i
+           JOIN products p ON p.id = i.product_id
+           JOIN warehouses w ON w.id = i.warehouse_id
+           WHERE p.is_active = 1
+             AND w.id = (
+               SELECT TOP 1 id FROM warehouses
+               WHERE is_active = 1
+               ORDER BY CASE WHEN code = 'WH-HCM-01' THEN 0 ELSE 1 END, name ASC
+             )`, []),
     query(`SELECT COALESCE(SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END), 0) AS active_users,
              COUNT(*) AS total_users FROM users`, []),
     query(`SELECT CAST(COALESCE(SUM(CASE WHEN status = 'delivered' THEN total_amount ELSE 0 END), 0) AS DECIMAL(14,2)) AS revenue,
