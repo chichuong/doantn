@@ -28,7 +28,7 @@ git push origin main
 
 echo.
 echo [3/3] Dang cap nhat & khoi dong lai Docker tren May chu Azure (172.128.32.14)...
-python -c "import paramiko, sys; ssh = paramiko.SSHClient(); ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()); ssh.connect('172.128.32.14', username='karatadmin', password='KaratRetail@2026!', timeout=20); stdin, stdout, stderr = ssh.exec_command('sudo bash -c \"cd /opt/karat-retail && git fetch origin main && git reset --hard origin/main && docker compose up -d --build mssql app && docker ps\"', get_pty=True); [sys.stdout.write(line) for line in iter(stdout.readline, '')]; ssh.close()"
+python -c "import paramiko, sys; ssh = paramiko.SSHClient(); ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()); ssh.connect('172.128.32.14', username='karatadmin', password='KaratRetail@2026!', timeout=20); cmd = 'cd /opt/karat-retail && sudo git fetch origin main && sudo git reset --hard origin/main && sudo docker compose up -d --build mssql app && sudo docker ps'; stdin, stdout, stderr = ssh.exec_command(cmd, get_pty=True); [sys.stdout.write(line) for line in iter(stdout.readline, '')]; ssh.close()"
 
 echo.
 echo ====================================================================

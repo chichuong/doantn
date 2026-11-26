@@ -43,23 +43,47 @@ const PermissionRoute = ({ children, all = [], any = [] }) => {
 };
 
 const ProtectedContent = () => {
-  const { hasPermission, hasAnyPermission, hasAllPermissions } = useAuth();
+  const { user, hasPermission, hasAnyPermission, hasAllPermissions } = useAuth();
   const { currentSession, refreshSession } = usePos();
   const [isOpenShiftModalOpen, setIsOpenShiftModalOpen] = useState(false);
   const [isCloseShiftModalOpen, setIsCloseShiftModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const canManageSession = hasPermission('pos.sessions.manage');
   const homePath = getHomePath(hasPermission, hasAnyPermission, hasAllPermissions);
+  const isCustomerOnly =
+    user?.role === 'customer' ||
+    (homePath === '/shop' &&
+      !hasAnyPermission(
+        'manager.dashboard.read',
+        'manager.reports.read',
+        'pos.sessions.manage',
+        'pos.products.read',
+        'manager.orders.read',
+        'pos.sales.read',
+        'manager.products.read',
+        'manager.categories.read',
+        'warehouse.documents.approve',
+        'manager.documents.read',
+        'manager.inventory.read',
+        'forecasting.read',
+        'data_exchange.import',
+        'data_exchange.export',
+        'data_exchange.jobs.read',
+        'auth.users.read',
+        'auth.roles.read'
+      ));
 
   return (
     <div className="h-[100dvh] overflow-hidden bg-[#f8fafc] flex flex-col font-sans text-slate-900">
       <Navbar
         onOpenShiftClick={canManageSession ? () => setIsOpenShiftModalOpen(true) : undefined}
         onCloseShiftClick={canManageSession ? () => setIsCloseShiftModalOpen(true) : undefined}
-        onMenuClick={() => setIsSidebarOpen(true)}
+        onMenuClick={isCustomerOnly ? undefined : () => setIsSidebarOpen(true)}
       />
       <div className="flex-1 flex min-h-0 overflow-hidden">
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        {!isCustomerOnly && (
+          <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        )}
         <main className="min-w-0 flex-1 flex flex-col overflow-hidden bg-[#f8fafc]">
           <Routes>
             <Route path="/dashboard" element={
