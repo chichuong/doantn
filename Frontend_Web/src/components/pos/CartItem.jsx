@@ -12,56 +12,51 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
   };
 
   return (
-    <div className="p-3 rounded-lg bg-white border border-slate-200 hover:border-slate-300 transition space-y-2">
-      <div className="flex items-start justify-between gap-2.5">
+    <div className="p-2.5 rounded-xl bg-white border border-slate-200/90 hover:border-[#e6bf4d] transition space-y-2">
+      <div className="flex items-start justify-between gap-2">
         {(item.imageUrl || item.image_url) && (
           <img
             src={item.imageUrl || item.image_url}
             alt={item.name}
-            className="w-10 h-10 rounded-md object-contain bg-slate-50 border border-slate-200 p-0.5 shrink-0"
+            className="w-9 h-9 rounded-lg object-contain bg-slate-50 border border-slate-200 p-0.5 shrink-0"
           />
         )}
         <div className="flex-1 min-w-0">
-          <h4 className="text-xs font-semibold text-slate-900 truncate" title={item.name}>
+          <h4 className="text-xs font-bold text-slate-900 truncate" title={item.name}>
             {item.name}
           </h4>
-          <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-            <span className="font-mono bg-slate-100 px-1 py-0.5 rounded text-[10px] text-slate-600 border border-slate-200">
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
+            <span className="font-mono text-[#926a09] font-semibold">
               {item.sku || 'N/A'}
             </span>
-            <span>•</span>
-            <span className="text-slate-600 font-medium">
-              {formatCurrency(item.price)}
-            </span>
+            <span>·</span>
+            <span className="tabular-nums">{formatCurrency(item.price)}</span>
           </div>
         </div>
 
-        {/* Delete Item */}
         <button
           type="button"
           onClick={() => onRemove(item.id)}
-          className="text-slate-400 hover:text-red-600 p-1 rounded-md hover:bg-red-50 transition"
+          className="text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 transition"
           title="Xóa khỏi giỏ"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Stock limits warning */}
       {isMaxStock && (
-        <div className="flex items-center gap-1.5 text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+        <div className="flex items-center gap-1.5 text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
           <AlertTriangle className="w-3 h-3 shrink-0 text-amber-600" />
-          <span>Đã chạm giới hạn tồn khả dụng ({item.availableQuantity} sp)</span>
+          <span>Chạm trần tồn khả dụng ({item.availableQuantity} SP)</span>
         </div>
       )}
 
-      {/* Quantity & Subtotal Controls */}
       <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-        <div className="flex items-center gap-1 bg-slate-50 p-0.5 rounded-md border border-slate-200">
+        <div className="flex items-center gap-1 bg-slate-50 p-0.5 rounded-lg border border-slate-200">
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-            className="w-6 h-6 rounded flex items-center justify-center bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition"
+            className="w-6 h-6 rounded-md flex items-center justify-center bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition"
           >
             <Minus className="w-2.5 h-2.5" />
           </button>
@@ -72,27 +67,23 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
             max={item.availableQuantity}
             value={item.quantity}
             onChange={handleManualQuantityChange}
-            className="w-10 text-center bg-transparent text-xs font-bold text-slate-900 focus:outline-none"
+            className="w-9 text-center bg-transparent text-xs font-bold text-slate-900 focus:outline-none focus:shadow-none border-none tabular-nums"
           />
 
           <button
             type="button"
             disabled={isMaxStock}
             onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-            className="w-6 h-6 rounded flex items-center justify-center bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition disabled:opacity-40"
+            className="w-6 h-6 rounded-md flex items-center justify-center bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition disabled:opacity-40"
             title={isMaxStock ? 'Hết tồn khả dụng' : 'Tăng số lượng'}
           >
             <Plus className="w-2.5 h-2.5" />
           </button>
         </div>
 
-        {/* Item Subtotal */}
-        <div className="text-right">
-          <span className="text-[10px] text-slate-400 block">Thành tiền</span>
-          <span className="text-xs font-bold text-slate-900 tabular-nums">
-            {formatCurrency(item.subtotal)}
-          </span>
-        </div>
+        <span className="text-xs font-extrabold text-slate-900 tabular-nums">
+          {formatCurrency(item.subtotal)}
+        </span>
       </div>
     </div>
   );

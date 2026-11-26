@@ -9,6 +9,8 @@ import {
   Plus,
   Sparkles,
   ArrowRight,
+  ChevronRight,
+  Bot,
 } from 'lucide-react';
 import { forecastingApi } from '../api/forecastingApi';
 import { inventoryApi } from '../api/inventoryApi';
@@ -26,7 +28,7 @@ export const ForecastingPage = () => {
   const canReadAlerts = hasPermission('forecasting.alerts.read');
   const canReadWarehouses = hasPermission('manager.warehouses.read');
   const canReadInventory = hasPermission('manager.inventory.read');
-  // Data States
+
   const [runs, setRuns] = useState([]);
   const [selectedRunId, setSelectedRunId] = useState('');
   const [selectedRun, setSelectedRun] = useState(null);
@@ -35,22 +37,18 @@ export const ForecastingPage = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [creatingBatchDoc, setCreatingBatchDoc] = useState(false);
 
-  // UI States
   const [loading, setLoading] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [triggering, setTriggering] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedProductForDetail, setSelectedProductForDetail] = useState(null);
 
-  // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'attention' | 'safe' | 'unknown'
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  // Load Warehouses
   useEffect(() => {
     const fetchWarehouses = async () => {
       if (!canReadWarehouses) return;
@@ -64,7 +62,6 @@ export const ForecastingPage = () => {
     fetchWarehouses();
   }, [canReadWarehouses]);
 
-  // Fetch Runs
   const fetchRuns = useCallback(async () => {
     try {
       setLoading(true);
@@ -98,47 +95,45 @@ export const ForecastingPage = () => {
     fetchRuns();
   }, [fetchRuns]);
 
-  // Fetch Run Detail
-  const fetchRunDetail = useCallback(async (runId) => {
-    if (!runId) return;
-    try {
-      setLoadingDetail(true);
-      setError('');
+  const fetchRunDetail = useCallback(
+    async (runId) => {
+      if (!runId) return;
+      try {
+        setLoadingDetail(true);
+        setError('');
 
-      const [detailRes, alertRes, invRes] = await Promise.allSettled([
-        forecastingApi.getRunDetail(runId),
-        canReadAlerts ? forecastingApi.getAlerts({ runId }) : Promise.resolve(null),
-        canReadInventory ? inventoryApi.getInventory({ limit: 100 }) : Promise.resolve(null),
-      ]);
+        const [detailRes, alertRes, invRes] = await Promise.allSettled([
+          forecastingApi.getRunDetail(runId),
+          canReadAlerts ? forecastingApi.getAlerts({ runId }) : Promise.resolve(null),
+          canReadInventory ? inventoryApi.getInventory({ limit: 100 }) : Promise.resolve(null),
+        ]);
 
-      if (detailRes.status === 'fulfilled') {
-        const dData = detailRes.value?.data || detailRes.value;
-        setSelectedRun(dData || null);
+        if (detailRes.status === 'fulfilled') {
+          const dData = detailRes.value?.data || detailRes.value;
+          setSelectedRun(dData || null);
+        }
+
+        if (alertRes.status === 'fulfilled') {
+          const aData = alertRes.value?.data ?? alertRes.value;
+          setAlerts(
+            Array.isArray(aData) ? aData : Array.isArray(aData?.rows) ? aData.rows : []
+          );
+        } else {
+          setAlerts([]);
+        }
+
+        if (invRes.status === 'fulfilled') {
+          const iData = invRes.value?.data || invRes.value?.rows || [];
+          setInventoryList(Array.isArray(iData) ? iData : []);
+        }
+      } catch (err) {
+        setError(err.message || 'Không thể tải chi tiết đợt dự báo.');
+      } finally {
+        setLoadingDetail(false);
       }
-
-      if (alertRes.status === 'fulfilled') {
-        const aData = alertRes.value?.data ?? alertRes.value;
-        setAlerts(
-          Array.isArray(aData)
-            ? aData
-            : Array.isArray(aData?.rows)
-            ? aData.rows
-            : []
-        );
-      } else {
-        setAlerts([]);
-      }
-
-      if (invRes.status === 'fulfilled') {
-        const iData = invRes.value?.data || invRes.value?.rows || [];
-        setInventoryList(Array.isArray(iData) ? iData : []);
-      }
-    } catch (err) {
-      setError(err.message || 'Không thể tải chi tiết đợt dự báo.');
-    } finally {
-      setLoadingDetail(false);
-    }
-  }, [canReadAlerts, canReadInventory]);
+    },
+    [canReadAlerts, canReadInventory]
+  );
 
   useEffect(() => {
     if (selectedRunId) {
@@ -146,7 +141,6 @@ export const ForecastingPage = () => {
     }
   }, [selectedRunId, fetchRunDetail]);
 
-  // Trigger Run
   const handleTriggerRun = async (payload) => {
     try {
       setTriggering(true);
@@ -172,7 +166,6 @@ export const ForecastingPage = () => {
     }
   };
 
-  // Process Products for Display
   const processedProducts = useMemo(() => {
     if (!selectedRun?.values || selectedRun.values.length === 0) return [];
 
@@ -200,7 +193,6 @@ export const ForecastingPage = () => {
       });
     });
 
-    // Merge alerts
     (alerts || []).forEach((alert) => {
       const pId = alert.product_id;
       if (productMap.has(pId)) {
@@ -212,7 +204,6 @@ export const ForecastingPage = () => {
       }
     });
 
-    // Merge inventory
     (inventoryList || []).forEach((inv) => {
       if (productMap.has(inv.product_id)) {
         const item = productMap.get(inv.product_id);
@@ -232,7 +223,7 @@ export const ForecastingPage = () => {
           status: {
             code: 'unknown',
             label: 'Chưa rõ tồn',
-            badgeClass: 'bg-slate-100 text-slate-600 border-slate-200',
+            badgeClass: 'wm-badge-neutral',
             priority: 2,
           },
         };
@@ -244,7 +235,7 @@ export const ForecastingPage = () => {
           status: {
             code: 'attention',
             label: 'Cần xem xét',
-            badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+            badgeClass: 'wm-badge-warning',
             priority: 1,
           },
         };
@@ -255,7 +246,7 @@ export const ForecastingPage = () => {
         status: {
           code: 'safe',
           label: 'Đủ hàng',
-          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          badgeClass: 'wm-badge-success',
           priority: 3,
         },
       };
@@ -269,7 +260,6 @@ export const ForecastingPage = () => {
     });
   }, [selectedRun, alerts, inventoryList]);
 
-  // Filtered products
   const filteredProducts = useMemo(() => {
     return processedProducts.filter((product) => {
       const matchSearch =
@@ -290,18 +280,20 @@ export const ForecastingPage = () => {
     });
   }, [processedProducts, searchQuery, statusFilter]);
 
-  // KPI calculations
-  const totalForecastQty = useMemo(() => {
-    return processedProducts.reduce((sum, p) => sum + (p.predictedQuantity || 0), 0);
-  }, [processedProducts]);
+  const totalForecastQty = useMemo(
+    () => processedProducts.reduce((sum, p) => sum + (p.predictedQuantity || 0), 0),
+    [processedProducts]
+  );
 
-  const attentionCount = useMemo(() => {
-    return processedProducts.filter((p) => p.status.code === 'attention').length;
-  }, [processedProducts]);
+  const attentionCount = useMemo(
+    () => processedProducts.filter((p) => p.status.code === 'attention').length,
+    [processedProducts]
+  );
 
-  const unknownCount = useMemo(() => {
-    return processedProducts.filter((p) => p.status.code === 'unknown').length;
-  }, [processedProducts]);
+  const unknownCount = useMemo(
+    () => processedProducts.filter((p) => p.status.code === 'unknown').length,
+    [processedProducts]
+  );
 
   const isDataSparse = useMemo(() => {
     if (!processedProducts.length) return false;
@@ -313,7 +305,6 @@ export const ForecastingPage = () => {
     try {
       setCreatingBatchDoc(true);
       setError('');
-      // Ưu tiên các sản phẩm cần chú ý, nếu tất cả đủ hàng thì lấy Top 3 sản phẩm có dự báo cao nhất
       const attentionItems = processedProducts.filter((p) => p.status.code === 'attention');
       const targetList = attentionItems.length > 0 ? attentionItems : processedProducts.slice(0, 3);
 
@@ -347,97 +338,103 @@ export const ForecastingPage = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
-      {/* Unified Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
-        <div>
-          <h1 className="app-page-title flex items-center gap-2">
-            <BrainCircuit className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>Dự báo Nhu cầu AI & Gợi ý Nhập hàng</span>
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Phân tích chuỗi thời gian doanh số và cảnh báo sớm các mã hàng có nguy cơ thiếu hụt tồn kho
-          </p>
-        </div>
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-[1680px] mx-auto p-4 sm:p-6 space-y-5">
+        {/* Header */}
+        <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+          <div>
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
+              <span>Trang chủ</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              <span>Kho & Hàng hóa</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              <span className="font-semibold text-slate-700">Warehouse AI</span>
+            </nav>
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 mt-1 flex items-center gap-2.5">
+              <BrainCircuit className="w-6 h-6 text-[#b8860b] shrink-0" />
+              <span>Dự báo Nhu cầu AI & Gợi ý Nhập hàng</span>
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Phân tích chuỗi thời gian doanh số và cảnh báo sớm các mã hàng có nguy cơ thiếu hụt tồn kho
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Lịch sử đợt chạy ngắn gọn */}
-          {runs.length > 0 && (
-            <div className="flex items-center gap-1.5 bg-white border border-slate-300 px-2.5 py-1.5 rounded-lg text-xs">
-              <History className="w-3.5 h-3.5 text-slate-400" />
-              <select
-                value={selectedRunId}
-                onChange={(e) => setSelectedRunId(e.target.value)}
-                aria-label="Chọn đợt chạy dự báo"
-                className="bg-transparent font-medium text-slate-700 focus:outline-none cursor-pointer"
+          <div className="flex flex-wrap items-center gap-2">
+            {runs.length > 0 && (
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 h-9 rounded-xl text-xs shadow-2xs">
+                <History className="w-3.5 h-3.5 text-[#b8860b]" />
+                <select
+                  value={selectedRunId}
+                  onChange={(e) => setSelectedRunId(e.target.value)}
+                  aria-label="Chọn đợt chạy dự báo"
+                  className="bg-transparent font-semibold text-slate-700 focus:outline-none focus:shadow-none border-none cursor-pointer"
+                >
+                  {runs.map((run) => (
+                    <option key={run.id} value={run.id}>
+                      Đợt {run.to_date?.slice(5)} ({run.horizon_days}N)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {canRunForecast && (
+              <button
+                type="button"
+                onClick={() => {
+                  fetchRuns();
+                  if (selectedRunId) fetchRunDetail(selectedRunId);
+                }}
+                disabled={loading || loadingDetail}
+                className="wm-btn wm-btn-ghost !px-2.5"
+                title="Làm mới"
+                aria-label="Làm mới dữ liệu dự báo"
               >
-                {runs.map((run) => (
-                  <option key={run.id} value={run.id}>
-                    Đợt {run.to_date?.slice(5)} ({run.horizon_days}N)
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+                <RefreshCw className={`w-4 h-4 ${loading || loadingDetail ? 'animate-spin' : ''}`} />
+              </button>
+            )}
 
-          {/* Làm mới */}
-          {canRunForecast && (
-            <button
-              type="button"
-              onClick={() => {
-                fetchRuns();
-                if (selectedRunId) fetchRunDetail(selectedRunId);
-              }}
-              disabled={loading || loadingDetail}
-              className="p-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 transition"
-              title="Làm mới"
-              aria-label="Làm mới dữ liệu dự báo"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading || loadingDetail ? 'animate-spin' : ''}`} />
-            </button>
-          )}
+            {processedProducts.length > 0 && (
+              <button
+                type="button"
+                disabled={creatingBatchDoc}
+                onClick={handleCreateBatchReplenishDoc}
+                className="wm-btn wm-btn-dark"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#f7d268]" />
+                <span>{creatingBatchDoc ? 'Đang lập phiếu...' : 'Lập phiếu nhập kho AI'}</span>
+              </button>
+            )}
 
-          {/* Lập phiếu nhập kho đề xuất từ AI */}
-          {processedProducts.length > 0 && (
-            <button
-              type="button"
-              disabled={creatingBatchDoc}
-              onClick={handleCreateBatchReplenishDoc}
-              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs disabled:opacity-50"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{creatingBatchDoc ? 'Đang tạo phiếu...' : 'Lập phiếu nhập kho AI'}</span>
-            </button>
-          )}
+            {canRunForecast && (
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="wm-btn wm-btn-primary"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Tạo dự báo mới</span>
+              </button>
+            )}
+          </div>
+        </header>
 
-          {/* Tạo dự báo mới */}
-          {canRunForecast && (
-            <button
-              type="button"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Tạo dự báo mới</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
         {error && (
-          <div role="alert" className="px-3.5 py-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+          <div role="alert" className="px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
             {error}
           </div>
         )}
+
         {successMessage && (
-          <div role="status" className="px-3.5 py-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex flex-wrap items-center justify-between gap-2">
-            <span>{successMessage}</span>
+          <div
+            role="status"
+            className="px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex flex-wrap items-center justify-between gap-2"
+          >
+            <span className="font-medium">{successMessage}</span>
             <button
               type="button"
               onClick={() => navigate('/warehouse-approvals')}
-              className="px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1 transition"
+              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1 transition"
             >
               <span>Xem & Duyệt phiếu ngay</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -445,7 +442,33 @@ export const ForecastingPage = () => {
           </div>
         )}
 
-        {/* 4 Thẻ KPI */}
+        {/* Warehouse AI Assistant Callout Banner (inspired by warehouse-ai.html .d11-say) */}
+        {processedProducts.length > 0 && (
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#fffaf0] via-[#fdf8e6] to-white border border-[#f7e08f] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start sm:items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f7d268] to-[#b8860b] text-[#0f172a] flex items-center justify-center shrink-0 shadow-xs">
+                <Bot className="w-5 h-5" />
+              </span>
+              <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed">
+                <b className="font-bold text-slate-900">Trợ lý Kho AI:</b> Đã phân tích{' '}
+                <b>{formatNumber(processedProducts.length)}</b> mặt hàng trong chu kỳ{' '}
+                <b>{selectedRun?.horizon_days || 7} ngày</b> tới — hiện có{' '}
+                <b className="text-amber-700">{formatNumber(attentionCount)} mặt hàng</b> cần cân nhắc nhập bổ sung sớm.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+              <button
+                type="button"
+                onClick={() => setStatusFilter(statusFilter === 'attention' ? 'all' : 'attention')}
+                className="wm-btn wm-btn-ghost !h-8 text-xs"
+              >
+                {statusFilter === 'attention' ? 'Xem tất cả SP' : 'Lọc SP cần nhập'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 4 KPI Cards */}
         <ForecastSummaryCards
           totalProducts={processedProducts.length}
           totalForecastQty={totalForecastQty}
@@ -455,42 +478,35 @@ export const ForecastingPage = () => {
           loading={loadingDetail}
         />
 
-        {/* Bảng chính: Sản phẩm cần theo dõi */}
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
-          {/* Table Toolbar */}
-          <div className="p-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        {/* Main Products Table */}
+        <section className="wm-card overflow-hidden">
+          <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                Sản phẩm cần theo dõi
-              </span>
-              <span className="text-xs text-slate-400 tabular-nums">
-                ({filteredProducts.length})
-              </span>
+              <h2 className="text-sm font-bold text-slate-900">Danh sách Sản phẩm Theo dõi</h2>
+              <span className="wm-badge wm-badge-neutral tabular-nums">{filteredProducts.length} mã</span>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Search */}
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <div className="flex flex-wrap items-center gap-2.5">
+              <div className="relative flex-1 sm:flex-initial">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="Tìm tên hoặc SKU..."
+                  placeholder="Tìm tên sản phẩm hoặc SKU..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white w-full sm:w-52"
+                  className="wm-field !h-9 pl-8.5 pr-3 w-full sm:w-60"
                 />
               </div>
 
-              {/* Status Filter */}
-              <div className="flex items-center gap-1 bg-white border border-slate-300 px-2.5 py-1.5 rounded-lg text-xs">
-                <Filter className="w-3 h-3 text-slate-400" />
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 h-9 rounded-lg text-xs">
+                <Filter className="w-3.5 h-3.5 text-slate-400" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   aria-label="Lọc trạng thái dự báo"
-                  className="bg-transparent text-slate-700 focus:outline-none cursor-pointer"
+                  className="bg-transparent text-slate-700 font-medium focus:outline-none focus:shadow-none border-none cursor-pointer"
                 >
-                  <option value="all">Tất cả</option>
+                  <option value="all">Tất cả trạng thái</option>
                   <option value="attention">Cần xem xét</option>
                   <option value="safe">Đủ hàng</option>
                   <option value="unknown">Chưa rõ tồn</option>
@@ -499,16 +515,12 @@ export const ForecastingPage = () => {
             </div>
           </div>
 
-          {/* Mobile Cards (< md) */}
+          {/* Mobile Cards */}
           <div className="md:hidden divide-y divide-slate-100">
             {loadingDetail ? (
-              <div className="py-10 text-center text-xs text-slate-400">
-                Đang tải dữ liệu...
-              </div>
+              <div className="py-10 text-center text-xs text-slate-400">Đang tải dữ liệu...</div>
             ) : filteredProducts.length === 0 ? (
-              <div className="py-10 text-center text-xs text-slate-400">
-                Chưa có dữ liệu dự báo phù hợp.
-              </div>
+              <div className="py-10 text-center text-xs text-slate-400">Chưa có dữ liệu dự báo phù hợp.</div>
             ) : (
               filteredProducts.map((item) => {
                 const avail = item.availableQuantity;
@@ -518,28 +530,29 @@ export const ForecastingPage = () => {
                   <div key={item.productId} className="p-3.5 space-y-2.5">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <div className="font-mono text-[11px] font-bold text-blue-700">{item.sku}</div>
+                        <div className="font-mono text-[11px] font-bold text-[#926a09]">{item.sku}</div>
                         <div className="font-bold text-xs text-slate-900 line-clamp-2">{item.name}</div>
                       </div>
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold border shrink-0 ${item.status?.badgeClass}`}
-                      >
+                      <span className={`wm-badge shrink-0 ${item.status?.badgeClass}`}>
                         {item.status?.label}
                       </span>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
                       <div className="space-x-3 tabular-nums">
                         <span className="text-slate-500">
-                          Tồn khả dụng: <strong className="text-slate-900">{avail === null || avail === undefined ? 'Chưa rõ' : formatNumber(avail)}</strong>
+                          Khả dụng:{' '}
+                          <strong className="text-slate-900">
+                            {avail === null || avail === undefined ? 'Chưa rõ' : formatNumber(avail)}
+                          </strong>
                         </span>
-                        <span className="text-blue-700">
-                          Dự kiến bán: <strong>{isSmall ? 'Dưới 1' : pred === 0 ? '0' : Math.round(pred)}</strong>
+                        <span className="text-[#926a09]">
+                          Dự báo: <strong>{isSmall ? 'Dưới 1' : pred === 0 ? '0' : Math.round(pred)}</strong>
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setSelectedProductForDetail(item)}
-                        className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-semibold text-xs"
+                        className="wm-btn wm-btn-ghost !h-7 !px-2.5 text-xs"
                       >
                         Chi tiết
                       </button>
@@ -550,29 +563,30 @@ export const ForecastingPage = () => {
             )}
           </div>
 
-          {/* Desktop Table (>= md) */}
+          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full min-w-[820px] text-left text-xs border-collapse">
-              <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase font-semibold border-b border-slate-200">
+            <table className="wm-table min-w-[820px]">
+              <thead>
                 <tr>
-                  <th className="py-3 px-4">Sản phẩm</th>
-                  <th className="py-3 px-4 text-right">Tồn kho khả dụng</th>
-                  <th className="py-3 px-4 text-right">Dự kiến bán ({selectedRun?.horizon_days || 7}N)</th>
-                  <th className="py-3 px-4 text-center">Trạng thái</th>
-                  <th className="py-3 px-4 text-center">Thao tác</th>
+                  <th>Sản phẩm</th>
+                  <th>Mã SKU</th>
+                  <th className="text-right">Tồn kho khả dụng</th>
+                  <th className="text-right">Dự kiến bán ({selectedRun?.horizon_days || 7}N)</th>
+                  <th className="text-center">Trạng thái</th>
+                  <th className="text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 tabular-nums">
+              <tbody className="tabular-nums">
                 {loadingDetail ? (
                   <tr>
-                    <td colSpan={5} className="py-10 text-center text-slate-400">
-                      <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-1 text-slate-300" />
-                      Đang tải dữ liệu...
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-1.5 text-[#b8860b]" />
+                      Đang phân tích dữ liệu dự báo...
                     </td>
                   </tr>
                 ) : filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-10 text-center text-slate-400">
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
                       {searchQuery || statusFilter !== 'all'
                         ? 'Không có sản phẩm phù hợp bộ lọc.'
                         : 'Chưa có dữ liệu dự báo.'}
@@ -585,46 +599,42 @@ export const ForecastingPage = () => {
                     const isSmall = pred > 0 && pred < 1;
 
                     return (
-                      <tr
-                        key={item.productId}
-                        className="hover:bg-slate-50/70 transition h-[48px]"
-                      >
-                        <td className="py-2.5 px-4">
-                          <div className="font-semibold text-slate-900 truncate max-w-[280px]" title={item.name}>
+                      <tr key={item.productId}>
+                        <td>
+                          <div className="font-semibold text-slate-900 truncate max-w-[320px]" title={item.name}>
                             {item.name}
                           </div>
-                          <div className="font-mono text-[11px] text-blue-700">
-                            {item.sku}
-                          </div>
                         </td>
-
-                        <td className="py-2.5 px-4 text-right font-medium">
+                        <td>
+                          <span className="font-mono text-xs font-semibold text-[#926a09] bg-[#fdf8e6] px-2 py-0.5 rounded border border-[#f7e08f]">
+                            {item.sku}
+                          </span>
+                        </td>
+                        <td className="text-right font-medium">
                           {avail === null || avail === undefined ? (
                             <span className="text-slate-400 font-normal">Chưa rõ</span>
                           ) : (
-                            <span className="text-slate-800">{formatNumber(avail)}</span>
+                            <span className="text-slate-800 font-semibold">{formatNumber(avail)}</span>
                           )}
                         </td>
-
-                        <td className="py-2.5 px-4 text-right font-bold text-slate-900" title={`Giá trị đầy đủ: ${pred.toFixed(6)}`}>
+                        <td
+                          className="text-right font-extrabold text-slate-900"
+                          title={`Giá trị đầy đủ: ${pred.toFixed(6)}`}
+                        >
                           {isSmall ? 'Dưới 1' : pred === 0 ? '0' : Math.round(pred)}
                         </td>
-
-                        <td className="py-2.5 px-4 text-center">
-                          <span
-                            className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${item.status?.badgeClass}`}
-                          >
+                        <td className="text-center">
+                          <span className={`wm-badge ${item.status?.badgeClass}`}>
                             {item.status?.label}
                           </span>
                         </td>
-
-                        <td className="py-2.5 px-4 text-center">
+                        <td className="text-right">
                           <button
                             type="button"
                             onClick={() => setSelectedProductForDetail(item)}
-                            className="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-medium text-xs transition"
+                            className="wm-btn wm-btn-ghost !h-8 !px-3 text-xs"
                           >
-                            Chi tiết
+                            Xem biểu đồ
                           </button>
                         </td>
                       </tr>
@@ -636,17 +646,15 @@ export const ForecastingPage = () => {
           </div>
 
           {isDataSparse && (
-            <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 text-[11px] text-slate-500">
-              Dữ liệu bán hàng còn ít, kết quả mang tính tham khảo khi cửa hàng có thêm lịch sử giao dịch.
+            <div className="px-4 py-2.5 bg-[#fffdf7] border-t border-[#f7e08f]/60 text-[11px] text-[#735309]">
+              Dữ liệu bán hàng lịch sử còn ít — độ chính xác dự báo sẽ tăng dần khi phát sinh thêm đơn hàng.
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Thông tin kỹ thuật */}
         <ModelTechSection selectedRun={selectedRun} />
       </div>
 
-      {/* Modal Chi tiết Sản phẩm */}
       <ForecastDetailModal
         isOpen={Boolean(selectedProductForDetail)}
         onClose={() => setSelectedProductForDetail(null)}
@@ -654,7 +662,6 @@ export const ForecastingPage = () => {
         selectedRun={selectedRun}
       />
 
-      {/* Modal Tạo dự báo mới */}
       {canRunForecast && (
         <CreateForecastModal
           isOpen={isCreateModalOpen}

@@ -1,24 +1,39 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary-50: #fdf8e6;
+  --color-primary-100: #faf0c4;
+  --color-primary-200: #f7e08f;
+  --color-primary-300: #f7d268;
+  --color-primary-400: #e6bf4d;
+  --color-primary-500: #d4af37;
+  --color-primary-600: #b8860b;
+  --color-primary-700: #926a09;
+  --color-primary-800: #735309;
+  --color-primary-900: #5a4208;
+  --color-primary-950: #342604;
+}
+
 @layer base {
   :root {
-    /* UI/UX Pro Max — Omnichannel Retail Design System Tokens */
-    --color-primary: #2563eb;
-    --color-primary-hover: #1d4ed8;
+    /* DreamsPOS — Warehouse | WareHouse POS Design System Tokens */
+    --color-primary: #b8860b;
+    --color-primary-hover: #926a09;
     --color-on-primary: #ffffff;
-    --color-secondary: #3b82f6;
-    --color-accent: #ea580c;
+    --color-secondary: #d4af37;
+    --color-accent: #f7d268;
     --color-background: #f8fafc;
     --color-foreground: #0f172a;
     --color-card: #ffffff;
     --color-card-foreground: #1e293b;
-    --color-muted: #e9eff8;
-    --color-muted-foreground: #475569;
+    --color-muted: #f1f5f9;
+    --color-muted-foreground: #64748b;
     --color-border: #e2e8f0;
     --color-destructive: #dc2626;
-    --color-ring: #2563eb;
+    --color-ring: #d4af37;
+    --grad-primary: linear-gradient(135deg, #f7d268 0%, #d4af37 52%, #b8860b 100%);
 
-    /* Legacy aliases preserved for backward compatibility */
+    /* Legacy aliases preserved */
     --app-bg: var(--color-background);
     --surface: var(--color-card);
     --border: var(--color-border);
@@ -26,15 +41,6 @@
     --muted: var(--color-muted-foreground);
     --primary: var(--color-primary);
     --primary-hover: var(--color-primary-hover);
-
-    /* Density 8/10 Dashboard Spacing Tokens */
-    --space-xs: 0.125rem;
-    --space-sm: 0.25rem;
-    --space-md: 0.5rem;
-    --space-lg: 0.75rem;
-    --space-xl: 1rem;
-    --space-2xl: 1.5rem;
-    --space-3xl: 2rem;
 
     color-scheme: light;
   }
@@ -56,7 +62,10 @@
   }
 
   body {
-    background-color: var(--color-background);
+    background:
+      radial-gradient(45% 28% at 8% 0%, rgba(212, 175, 55, 0.09), transparent 70%),
+      radial-gradient(50% 30% at 92% 95%, rgba(184, 134, 11, 0.07), transparent 70%),
+      var(--color-background);
     color: var(--color-foreground);
     margin: 0;
     min-height: 100vh;
@@ -95,19 +104,434 @@
     outline-offset: 2px;
   }
 
-  /* Ensure form controls inside modals and filter bars always show clear focus border & subtle ring */
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
   select:focus,
   textarea:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.16);
     outline: none;
   }
 
   ::selection {
-    background: #dbeafe;
-    color: #1e3a8a;
+    background: #faf0c4;
+    color: #5a4208;
   }
+}
+
+/* ============================================================================
+   DreamsPOS WareHouse POS — Signature Shell & Component Primitives
+   ============================================================================ */
+
+@layer components {
+/* Dark Dotted Two-Row Header (.hm) */
+.hm-shell {
+  z-index: 40;
+  color: #cbd5e1;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.045) 1px, transparent 0) 0 0 / 18px 18px,
+    #0f172a;
+  position: relative;
+}
+
+.hm-shell::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(36% 110% at 10% -30%, rgba(212, 175, 55, 0.22), transparent 70%),
+    radial-gradient(32% 95% at 88% -20%, rgba(184, 134, 11, 0.16), transparent 72%);
+}
+
+/* Conic Capacity / Shift Ring in Header */
+.hm-ring {
+  width: 2rem;
+  height: 2rem;
+  color: #f7e08f;
+  background: conic-gradient(from 0deg, #f7d268, #d4af37 calc(var(--p, 78) * 0.6%), #b8860b calc(var(--p, 78) * 1%), rgba(255, 255, 255, 0.12) 0);
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  position: relative;
+  box-shadow: 0 0 16px -4px rgba(212, 175, 55, 0.55);
+}
+
+.hm-ring::before {
+  content: "";
+  background: #0f172a;
+  border-radius: 9999px;
+  position: absolute;
+  inset: 3px;
+}
+
+.hm-ring > span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Active Horizontal Menu Glow Bar */
+.hm-nav-active::after {
+  content: "";
+  background: var(--grad-primary);
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: -7px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  position: absolute;
+  box-shadow: 0 0 12px rgba(230, 191, 77, 0.75);
+}
+
+/* Standard Cards (.wm-card & .c2-card) */
+.wm-card {
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  min-width: 0;
+}
+
+.c2-card {
+  backdrop-filter: blur(16px) saturate(1.25);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 1.35rem;
+  padding: 1.25rem;
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(247, 210, 104, 0.2),
+    0 1px 2px rgba(58, 42, 4, 0.05),
+    0 22px 40px -28px rgba(120, 90, 10, 0.28);
+  transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.28s;
+}
+
+.c2-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 0 1px rgba(230, 191, 77, 0.36),
+    0 2px 4px rgba(58, 42, 4, 0.06),
+    0 28px 48px -28px rgba(120, 90, 10, 0.38);
+}
+
+.c2-ico {
+  width: 2.35rem;
+  height: 2.35rem;
+  color: #926a09;
+  background: linear-gradient(145deg, #ffffff, #faf0c4);
+  border-radius: 0.8rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  box-shadow:
+    inset 0 0 0 1px rgba(247, 210, 104, 0.6),
+    0 8px 14px -8px rgba(184, 134, 11, 0.5);
+}
+
+/* Buttons (.wm-btn) */
+.wm-btn {
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 0.625rem;
+  padding-inline: 0.9rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+}
+
+.wm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.wm-btn-primary {
+  background: linear-gradient(180deg, #c99612 0%, #b8860b 100%);
+  color: #ffffff;
+  border: 1px solid #a37508;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 2px 6px -1px rgba(184, 134, 11, 0.35);
+}
+
+.wm-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #b8860b 0%, #926a09 100%);
+  border-color: #7c5907;
+}
+
+.wm-btn-dark {
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid #0f172a;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+.wm-btn-dark:hover:not(:disabled) {
+  background: #1e293b;
+}
+
+.wm-btn-ghost {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+}
+
+.wm-btn-ghost:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Inputs & Selects (.wm-field) */
+.wm-field {
+  height: 2.375rem;
+  border-radius: 0.625rem;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  padding-inline: 0.75rem;
+  font-size: 0.8125rem;
+  color: #0f172a;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wm-field::placeholder {
+  color: #94a3b8;
+}
+
+/* Semantic Badges (.wm-badge) */
+.wm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.175rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  border: 1px solid transparent;
+}
+
+.wm-badge-gold {
+  background-color: #fdf8e6;
+  color: #926a09;
+  border-color: #f7e08f;
+}
+
+.wm-badge-success {
+  background-color: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.wm-badge-warning {
+  background-color: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.wm-badge-danger {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.wm-badge-info {
+  background-color: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+.wm-badge-neutral {
+  background-color: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+/* Data Tables (.wm-table) */
+.wm-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.wm-table thead tr {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wm-table th {
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+}
+
+.wm-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.wm-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.wm-table tbody tr:hover {
+  background-color: #fdf8e64d;
+}
+
+/* Action Icon Buttons (.wm-act) */
+.wm-act {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.wm-act:hover {
+  background-color: #fdf8e6;
+  color: #926a09;
+  border-color: #f7e08f;
+}
+
+/* Live Pulsing Pill (.c2-live) */
+.c2-live {
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.c2-live-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: #10b981;
+  position: relative;
+}
+
+.c2-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: #10b981;
+  animation: wm-ping 1.8s ease-out infinite;
+}
+
+@keyframes wm-ping {
+  0% { opacity: 0.75; transform: scale(1); }
+  80%, 100% { opacity: 0; transform: scale(2.8); }
+}
+
+/* Hero Warehouse Animated Banner (.hw-banner) */
+.hw-banner {
+  isolation: isolate;
+  background: linear-gradient(180deg, #fffaf0 0%, #fbeab0 56%, #f4d36a 100%);
+  border-radius: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(247, 210, 104, 0.55),
+    0 24px 44px -30px rgba(120, 90, 10, 0.45);
+}
+
+.hw-scene {
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+@keyframes hw-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes hw-drift {
+  0% { translate: -280px; }
+  100% { translate: 1350px; }
+}
+@keyframes hw-drive-a {
+  0% { translate: 0; }
+  100% { translate: 1520px; }
+}
+@keyframes hw-drive-b {
+  0% { translate: 0; }
+  100% { translate: -1620px; }
+}
+
+.hw-rays {
+  transform-origin: 930px 96px;
+  animation: 70s linear infinite hw-spin;
+}
+.hw-cloud {
+  animation: hw-drift var(--d, 70s) linear infinite;
+  animation-delay: var(--t, 0s);
+}
+.hw-tr1 {
+  animation: 18s linear infinite hw-drive-a;
+}
+.hw-tr2 {
+  animation: 24s linear -9s infinite hw-drive-b;
+}
+
+/* Serrated POS Paper Receipt (.bq-paper) */
+.bq-receipt-wrap {
+  filter: drop-shadow(0 16px 28px rgba(15, 23, 42, 0.08));
+  padding: 10px 0;
+}
+
+.bq-paper {
+  background: #ffffff;
+  position: relative;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+}
+
+.bq-paper::before,
+.bq-paper::after {
+  content: "";
+  height: 9px;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.bq-paper::before {
+  background: conic-gradient(from 135deg at top, transparent, #ffffff 1deg 90deg, transparent 91deg) 0 0 / 18px 100%;
+  bottom: calc(100% - 1px);
+}
+
+.bq-paper::after {
+  background: conic-gradient(from -45deg at bottom, transparent, #ffffff 1deg 90deg, transparent 91deg) 0 0 / 18px 100%;
+  top: calc(100% - 1px);
+}
+
+/* Login Warehouse Scene (.lgn-bg) */
+.lgn-bg {
+  background:
+    radial-gradient(55% 65% at 50% 38%, rgba(255, 250, 232, 0.72), transparent 72%),
+    linear-gradient(180deg, #f9f1d8 0%, #efe2bf 68%, #e4cf97 100%);
+}
 }
 
 @layer utilities {
@@ -123,10 +547,10 @@
   }
 
   .app-page-title {
-    font-size: 1.125rem;
-    line-height: 1.625rem;
-    font-weight: 700;
-    letter-spacing: -0.015em;
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
     color: var(--color-foreground);
   }
 
@@ -145,7 +569,7 @@
   }
 
   .app-page-title {
-    font-size: 1.0625rem;
+    font-size: 1.15rem;
     line-height: 1.5rem;
   }
 }

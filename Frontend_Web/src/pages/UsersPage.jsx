@@ -514,12 +514,14 @@ export const UsersPage = () => {
   const selectedRoleDisplay = getRoleDisplay(selectedRole);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-[1680px] mx-auto p-4 sm:p-6 space-y-5">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="app-page-title flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
+          <p className="text-xs text-slate-500">Trang chủ › Hệ thống › <span className="font-semibold text-slate-700">Tài khoản & Phân quyền</span></p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 mt-1 flex items-center gap-2.5">
+            <Users className="w-6 h-6 text-[#b8860b]" />
             <span>Quản lý Tài khoản & Phân quyền</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -528,12 +530,12 @@ export const UsersPage = () => {
         </div>
 
         <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
-          <div className="flex bg-slate-100 p-1 rounded-lg text-xs font-medium flex-1 sm:flex-initial">
+          <div className="flex bg-white border border-slate-200 p-1 rounded-xl text-xs font-medium flex-1 sm:flex-initial shadow-2xs">
             <button
               type="button"
               onClick={() => setActiveTab('users')}
-              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
-                activeTab === 'users' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
+              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
+                activeTab === 'users' ? 'bg-[#fdf8e6] text-[#926a09] border border-[#f7e08f] font-bold' : 'text-slate-600'
               }`}
             >
               <Users className="w-3.5 h-3.5 shrink-0" />
@@ -542,8 +544,8 @@ export const UsersPage = () => {
             <button
               type="button"
               onClick={() => setActiveTab('roles')}
-              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition ${
-                activeTab === 'roles' ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600'
+              className={`flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
+                activeTab === 'roles' ? 'bg-[#fdf8e6] text-[#926a09] border border-[#f7e08f] font-bold' : 'text-slate-600'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
@@ -555,7 +557,7 @@ export const UsersPage = () => {
             <button
               type="button"
               onClick={openCreateUser}
-              className="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition shrink-0"
+              className="wm-btn wm-btn-primary w-full sm:w-auto shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Thêm tài khoản</span>
@@ -565,7 +567,7 @@ export const UsersPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4">
+      <div className="space-y-4">
         {error && (
           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
             {error}
@@ -844,17 +846,17 @@ export const UsersPage = () => {
                         Đang bật <strong>{selectedPermissionIds.size}</strong> trên tổng số <strong>{permissions.length}</strong> chức năng của hệ thống
                       </p>
                     </div>
-                    {canUpdateRoles && (
-                      <button
-                        type="button"
-                        onClick={handleSaveRolePermissions}
-                        disabled={savingPermissions}
-                        className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 shadow-2xs"
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                        <span>{savingPermissions ? 'Đang lưu thay đổi...' : 'Lưu thiết lập quyền'}</span>
-                      </button>
-                    )}
+                      {canUpdateRoles && (
+                        <button
+                          type="button"
+                          onClick={handleSaveRolePermissions}
+                          disabled={savingPermissions}
+                          className="wm-btn wm-btn-primary"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                          <span>{savingPermissions ? 'Đang lưu thay đổi...' : 'Lưu thiết lập quyền'}</span>
+                        </button>
+                      )}
                   </div>
 
                   <div className="space-y-4 max-h-[560px] overflow-y-auto pr-1">
@@ -1039,13 +1041,14 @@ export const UsersPage = () => {
             <button
               type="submit"
               disabled={savingUser}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold disabled:opacity-50"
+              className="wm-btn wm-btn-primary"
             >
               {savingUser ? 'Đang lưu...' : 'Lưu thông tin'}
             </button>
           </div>
         </form>
       </Modal>
+      </div>
     </div>
   );
 };

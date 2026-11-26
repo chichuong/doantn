@@ -132,18 +132,18 @@ const DataTypeCard = ({ dt, selected, onClick }) => {
     <button
       type="button"
       onClick={() => onClick(dt.value)}
-      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border text-left transition ${
+      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left transition ${
         isSelected
-          ? 'border-blue-600 bg-blue-50/50 text-blue-700'
+          ? 'border-[#d4af37] bg-[#fdf8e6] text-[#735309]'
           : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
       }`}
     >
       <div className="flex items-center gap-2.5">
-        <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
+        <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#b8860b]' : 'text-slate-400'}`} />
         <span className="text-xs font-semibold">{dt.label}</span>
       </div>
       {isSelected && (
-        <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+        <span className="w-1.5 h-1.5 rounded-full bg-[#b8860b]" />
       )}
     </button>
   );
@@ -197,9 +197,9 @@ const DropZone = ({ onFile, loading, fileName }) => {
       />
       <div className="flex flex-col items-center gap-2 text-slate-500">
         {loading ? (
-          <Loader2 className="w-7 h-7 text-blue-600 animate-spin" />
+          <Loader2 className="w-7 h-7 text-[#b8860b] animate-spin" />
         ) : (
-          <FileUp className={`w-8 h-8 ${dragging ? 'text-blue-600' : 'text-blue-500'}`} />
+          <FileUp className={`w-8 h-8 ${dragging ? 'text-[#926a09]' : 'text-[#b8860b]'}`} />
         )}
         <p className="text-xs font-semibold text-slate-700">
           {loading ? 'Đang xử lý file...' : fileName || 'Kéo thả file vào đây hoặc nhấn để chọn'}
@@ -459,13 +459,15 @@ export const DataExchangePage = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-[1680px] mx-auto p-4 sm:p-6 space-y-5">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="app-page-title flex items-center gap-2">
-            <FileSpreadsheet className="w-5 h-5 text-blue-600" />
-            <span>Nhập / Xuất dữ liệu</span>
+          <p className="text-xs text-slate-500">Trang chủ › Hệ thống › <span className="font-semibold text-slate-700">Nhập / Xuất dữ liệu</span></p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 mt-1 flex items-center gap-2.5">
+            <FileSpreadsheet className="w-6 h-6 text-[#b8860b]" />
+            <span>Nhập / Xuất Dữ liệu Hàng loạt</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Đồng bộ hàng loạt danh mục sản phẩm, tồn kho và xuất báo cáo Excel/CSV
@@ -473,13 +475,13 @@ export const DataExchangePage = () => {
         </div>
 
         {/* Tab switcher */}
-        <div className="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg">
+        <div className="flex flex-wrap items-center gap-1 bg-white border border-slate-200 p-1 rounded-xl shadow-2xs">
           {canImport && <button
             type="button"
             onClick={() => setActiveTab('import')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
               activeTab === 'import'
-                ? 'bg-white text-blue-700 shadow-2xs'
+                ? 'bg-[#fdf8e6] text-[#926a09] border border-[#f7e08f]'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -489,9 +491,9 @@ export const DataExchangePage = () => {
           {canExport && <button
             type="button"
             onClick={() => setActiveTab('export')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
               activeTab === 'export'
-                ? 'bg-white text-blue-700 shadow-2xs'
+                ? 'bg-[#fdf8e6] text-[#926a09] border border-[#f7e08f]'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -501,9 +503,9 @@ export const DataExchangePage = () => {
           {canReadJobs && <button
             type="button"
             onClick={() => setActiveTab('jobs')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
               activeTab === 'jobs'
-                ? 'bg-white text-blue-700 shadow-2xs'
+                ? 'bg-[#fdf8e6] text-[#926a09] border border-[#f7e08f]'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -513,7 +515,7 @@ export const DataExchangePage = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+      <div className="space-y-5">
       {/* TAB 1: NHẬP DỮ LIỆU */}
       {activeTab === 'import' && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 lg:gap-6">
@@ -672,7 +674,7 @@ export const DataExchangePage = () => {
                 importing ||
                 (currentDT?.needsWarehouse && !warehouseId.trim())
               }
-              className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-2xs transition disabled:opacity-40 flex items-center justify-center gap-2"
+              className="wm-btn wm-btn-primary !h-10 w-full"
             >
               {importing ? (
                 <>
@@ -837,7 +839,7 @@ export const DataExchangePage = () => {
                   (currentExDT?.needsWarehouse && !exWarehouseId.trim()) ||
                   (currentExDT?.needsDateRange && (!exFrom || !exTo))
                 }
-                className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-2xs transition disabled:opacity-40 flex items-center justify-center gap-2"
+                className="wm-btn wm-btn-primary !h-10 w-full"
               >
                 {exporting ? (
                   <>
@@ -953,6 +955,7 @@ export const DataExchangePage = () => {
           </div>
         </div>
       )}
+      </div>
       </div>
     </div>
   );

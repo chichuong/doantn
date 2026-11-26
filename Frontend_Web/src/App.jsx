@@ -37,7 +37,8 @@ const getHomePath = (hasPermission, hasAnyPermission, hasAllPermissions) => {
 
 const PermissionRoute = ({ children, all = [], any = [] }) => {
   const { hasAllPermissions, hasAnyPermission } = useAuth();
-  const allowed = (!all.length || hasAllPermissions(...all)) &&
+  const allowed =
+    (!all.length || hasAllPermissions(...all)) &&
     (!any.length || hasAnyPermission(...any));
   return allowed ? children : <Navigate to="/403" replace />;
 };
@@ -48,6 +49,7 @@ const ProtectedContent = () => {
   const [isOpenShiftModalOpen, setIsOpenShiftModalOpen] = useState(false);
   const [isCloseShiftModalOpen, setIsCloseShiftModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const canManageSession = hasPermission('pos.sessions.manage');
   const homePath = getHomePath(hasPermission, hasAnyPermission, hasAllPermissions);
   const isCustomerOnly =
@@ -74,50 +76,101 @@ const ProtectedContent = () => {
       ));
 
   return (
-    <div className="h-[100dvh] overflow-hidden bg-[#f8fafc] flex flex-col font-sans text-slate-900">
+    <div className="h-[100dvh] overflow-hidden bg-[#0f172a] flex flex-col font-sans text-slate-900">
       <Navbar
+        isCustomerOnly={isCustomerOnly}
         onOpenShiftClick={canManageSession ? () => setIsOpenShiftModalOpen(true) : undefined}
         onCloseShiftClick={canManageSession ? () => setIsCloseShiftModalOpen(true) : undefined}
         onMenuClick={isCustomerOnly ? undefined : () => setIsSidebarOpen(true)}
       />
-      <div className="flex-1 flex min-h-0 overflow-hidden">
-        {!isCustomerOnly && (
-          <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        )}
+
+      {!isCustomerOnly && (
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      )}
+
+      <div className="flex-1 flex min-h-0 overflow-hidden bg-[#f8fafc] lg:rounded-t-[22px] shadow-[0_-8px_28px_rgba(0,0,0,0.22)] relative z-10">
         <main className="min-w-0 flex-1 flex flex-col overflow-hidden bg-[#f8fafc]">
           <Routes>
-            <Route path="/dashboard" element={
-              <PermissionRoute any={['manager.dashboard.read', 'manager.reports.read']}><DashboardPage /></PermissionRoute>
-            } />
-            <Route path="/pos" element={
-              <PermissionRoute all={['pos.sessions.manage', 'pos.products.read']}><PosPage /></PermissionRoute>
-            } />
-            <Route path="/orders" element={
-              <PermissionRoute any={['manager.orders.read', 'pos.sales.read']}><OrdersPage /></PermissionRoute>
-            } />
-            <Route path="/products" element={
-              <PermissionRoute any={['manager.products.read', 'manager.categories.read']}><ProductsPage /></PermissionRoute>
-            } />
-            <Route path="/warehouse-approvals" element={
-              <PermissionRoute any={['warehouse.documents.approve', 'manager.documents.read']}><WarehouseApprovalsPage /></PermissionRoute>
-            } />
-            <Route path="/inventory" element={
-              <PermissionRoute all={['manager.inventory.read']}><InventoryPage /></PermissionRoute>
-            } />
-            <Route path="/forecasting" element={
-              <PermissionRoute all={['forecasting.read']}><ForecastingPage /></PermissionRoute>
-            } />
-            <Route path="/data-exchange" element={
-              <PermissionRoute any={['data_exchange.import', 'data_exchange.export', 'data_exchange.jobs.read']}>
-                <DataExchangePage />
-              </PermissionRoute>
-            } />
-            <Route path="/users" element={
-              <PermissionRoute any={['auth.users.read', 'auth.roles.read']}><UsersPage /></PermissionRoute>
-            } />
-            <Route path="/shop" element={
-              <PermissionRoute any={['customer.catalog.read', 'customer.orders.read']}><ShopPage /></PermissionRoute>
-            } />
+            <Route
+              path="/dashboard"
+              element={
+                <PermissionRoute any={['manager.dashboard.read', 'manager.reports.read']}>
+                  <DashboardPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/pos"
+              element={
+                <PermissionRoute all={['pos.sessions.manage', 'pos.products.read']}>
+                  <PosPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <PermissionRoute any={['manager.orders.read', 'pos.sales.read']}>
+                  <OrdersPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/products"
+              element={
+                <PermissionRoute any={['manager.products.read', 'manager.categories.read']}>
+                  <ProductsPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/warehouse-approvals"
+              element={
+                <PermissionRoute any={['warehouse.documents.approve', 'manager.documents.read']}>
+                  <WarehouseApprovalsPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/inventory"
+              element={
+                <PermissionRoute all={['manager.inventory.read']}>
+                  <InventoryPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/forecasting"
+              element={
+                <PermissionRoute all={['forecasting.read']}>
+                  <ForecastingPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/data-exchange"
+              element={
+                <PermissionRoute any={['data_exchange.import', 'data_exchange.export', 'data_exchange.jobs.read']}>
+                  <DataExchangePage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <PermissionRoute any={['auth.users.read', 'auth.roles.read']}>
+                  <UsersPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/shop"
+              element={
+                <PermissionRoute any={['customer.catalog.read', 'customer.orders.read']}>
+                  <ShopPage />
+                </PermissionRoute>
+              }
+            />
             <Route path="/403" element={<ForbiddenPage homePath={homePath} />} />
             <Route path="/" element={<Navigate to={homePath} replace />} />
             <Route path="*" element={<Navigate to={homePath} replace />} />
@@ -148,13 +201,26 @@ const ProtectedLayout = () => {
   const { user, loading } = useAuth();
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center text-slate-500 text-sm" role="status">
-        Đang xác minh quyền truy cập Karat Retail...
+      <div
+        className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center gap-3 text-slate-300 text-sm"
+        role="status"
+      >
+        <div className="w-11 h-11 rounded-2xl bg-[#d4af37]/15 border border-[#d4af37]/40 flex items-center justify-center text-[#f7d268] font-extrabold animate-pulse">
+          KW
+        </div>
+        <div className="text-center">
+          <p className="font-bold text-white">Đang tải hệ thống kho & bán lẻ...</p>
+          <p className="text-xs text-slate-400 mt-0.5">Kiểm tra phân quyền và đồng bộ dữ liệu trực tuyến</p>
+        </div>
       </div>
     );
   }
   if (!user) return <Navigate to="/login" replace />;
-  return <PosProvider><ProtectedContent /></PosProvider>;
+  return (
+    <PosProvider>
+      <ProtectedContent />
+    </PosProvider>
+  );
 };
 
 export default function App() {

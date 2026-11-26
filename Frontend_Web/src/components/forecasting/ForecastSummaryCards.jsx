@@ -1,13 +1,7 @@
 import React from 'react';
+import { Package, TrendingUp, AlertTriangle, Calendar } from 'lucide-react';
 import { formatNumber } from '../../utils/formatters';
 
-/**
- * 4 Thẻ KPI Tối giản:
- * - Sản phẩm: 9
- * - Dự kiến bán: Dưới 1 SP
- * - Cần chú ý: 0 (hoặc số lượng cần xem xét, kèm chú thích nếu có SP chưa rõ tồn)
- * - Cập nhật: 21/10/2026
- */
 export const ForecastSummaryCards = ({
   totalProducts = 0,
   totalForecastQty = 0,
@@ -16,7 +10,6 @@ export const ForecastSummaryCards = ({
   selectedRun = null,
   loading = false,
 }) => {
-  // Format total forecast quantity
   const formatForecastValue = (qty) => {
     const num = Number(qty || 0);
     if (!Number.isFinite(num) || num === 0) return '0 SP';
@@ -40,63 +33,77 @@ export const ForecastSummaryCards = ({
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      {/* 1. Sản phẩm */}
-      <div className="px-4 py-3 rounded-lg bg-white border border-slate-200">
-        <span className="text-xs text-slate-500 font-medium block">Sản phẩm</span>
-        <div className="text-xl font-bold text-slate-900 mt-0.5">
-          {loading ? '...' : formatNumber(totalProducts)}
+    <div className="wm-card grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 overflow-hidden">
+      {/* 1. Sản phẩm phân tích */}
+      <div className="p-4 flex items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-semibold text-slate-500 block">Sản phẩm phân tích</span>
+          <div className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
+            {loading ? '...' : formatNumber(totalProducts)}
+          </div>
+          <span className="text-[11px] text-slate-400">mã SKU trong đợt chạy</span>
         </div>
+        <span className="w-10 h-10 rounded-xl bg-[#fdf8e6] border border-[#f7e08f] text-[#b8860b] flex items-center justify-center shrink-0">
+          <Package className="w-5 h-5" />
+        </span>
       </div>
 
       {/* 2. Dự kiến bán */}
-      <div className="px-4 py-3 rounded-lg bg-white border border-slate-200">
-        <span className="text-xs text-slate-500 font-medium block">
-          Dự kiến bán ({selectedRun?.horizon_days ? `${selectedRun.horizon_days}N` : '7N'})
-        </span>
-        <div className="text-xl font-bold text-slate-900 mt-0.5">
-          {loading ? '...' : formatForecastValue(totalForecastQty)}
+      <div className="p-4 flex items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-semibold text-slate-500 block">
+            Sản lượng dự báo ({selectedRun?.horizon_days ? `${selectedRun.horizon_days}N` : '7N'})
+          </span>
+          <div className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
+            {loading ? '...' : formatForecastValue(totalForecastQty)}
+          </div>
+          <span className="text-[11px] text-emerald-600 font-medium">Ước tính sức mua kỳ tới</span>
         </div>
+        <span className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+          <TrendingUp className="w-5 h-5" />
+        </span>
       </div>
 
       {/* 3. Cần chú ý */}
-      <div className="px-4 py-3 rounded-lg bg-white border border-slate-200">
-        <span className="text-xs text-slate-500 font-medium block">Cần chú ý</span>
-        <div className="mt-0.5">
-          {loading ? (
-            <div className="text-xl font-bold text-slate-900">...</div>
-          ) : attentionCount > 0 ? (
-            <div className="text-xl font-bold text-amber-600">
-              {formatNumber(attentionCount)}
-              {unknownCount > 0 && (
-                <span className="text-[11px] font-normal text-slate-400 ml-1.5">
-                  ({unknownCount} chưa rõ tồn)
-                </span>
-              )}
-            </div>
-          ) : unknownCount > 0 ? (
-            <div className="text-xl font-bold text-slate-700">
-              0
-              <span className="text-[11px] font-normal text-slate-400 ml-1.5">
-                ({unknownCount} chưa rõ tồn)
+      <div className="p-4 flex items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-semibold text-slate-500 block">Cần xem xét nhập thêm</span>
+          <div className="mt-1 tabular-nums">
+            {loading ? (
+              <span className="text-2xl font-extrabold text-slate-900">...</span>
+            ) : (
+              <span className={`text-2xl font-extrabold ${attentionCount > 0 ? 'text-amber-600' : 'text-slate-900'}`}>
+                {formatNumber(attentionCount)}
               </span>
-            </div>
-          ) : (
-            <div className="text-xl font-bold text-slate-900">0</div>
-          )}
+            )}
+          </div>
+          <span className="text-[11px] text-slate-400">
+            {unknownCount > 0 ? `${unknownCount} mã chưa rõ tồn` : 'Mặt hàng sắp chạm ngưỡng'}
+          </span>
         </div>
+        <span className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-5 h-5" />
+        </span>
       </div>
 
       {/* 4. Cập nhật */}
-      <div className="px-4 py-3 rounded-lg bg-white border border-slate-200">
-        <span className="text-xs text-slate-500 font-medium block">Cập nhật</span>
-        <div className="text-xl font-bold text-slate-900 mt-0.5 truncate">
-          {selectedRun?.created_at
-            ? formatDateDisplay(selectedRun.created_at)
-            : loading
-            ? '...'
-            : '—'}
+      <div className="p-4 flex items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-semibold text-slate-500 block">Cập nhật gần nhất</span>
+          <div className="text-xl font-extrabold text-slate-900 mt-1 tabular-nums truncate">
+            {selectedRun?.created_at
+              ? formatDateDisplay(selectedRun.created_at)
+              : loading
+                ? '...'
+                : '—'}
+          </div>
+          <span className="text-[11px] text-slate-400">
+            Mô hình: {selectedRun?.model_name || 'LightGBM'}
+          </span>
         </div>
+        <span className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+          <Calendar className="w-5 h-5" />
+        </span>
       </div>
     </div>
   );

@@ -37,7 +37,7 @@ export const formatDateTime = (dateStr) => {
 export const formatDate = formatDateTime;
 
 /**
- * Bản dịch và màu sắc trạng thái Đơn hàng (Light Mode Enterprise chuẩn Stripe/Shopify)
+ * Bản dịch và màu sắc trạng thái Đơn hàng (Chuẩn WareHouse POS)
  */
 export const ORDER_STATUS_META = {
   pending: {
@@ -47,27 +47,27 @@ export const ORDER_STATUS_META = {
   },
   confirmed: {
     label: 'Đã xác nhận',
-    color: 'bg-blue-50 text-blue-700 border-blue-200',
+    color: 'bg-[#fdf8e6] text-[#926a09] border-[#f7e08f]',
     stepIndex: 1,
   },
   ready_to_pack: {
     label: 'Chờ đóng gói',
-    color: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    color: 'bg-orange-50 text-orange-700 border-orange-200',
     stepIndex: 2,
   },
   packed: {
     label: 'Đã đóng gói',
-    color: 'bg-purple-50 text-purple-700 border-purple-200',
+    color: 'bg-violet-50 text-violet-700 border-violet-200',
     stepIndex: 3,
   },
   handover: {
     label: 'Đã bàn giao vận chuyển',
-    color: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+    color: 'bg-sky-50 text-sky-700 border-sky-200',
     stepIndex: 4,
   },
   shipping: {
     label: 'Đang vận chuyển',
-    color: 'bg-sky-50 text-sky-700 border-sky-200',
+    color: 'bg-indigo-50 text-indigo-700 border-indigo-200',
     stepIndex: 5,
   },
   delivered: {
@@ -88,10 +88,10 @@ export const ORDER_STATUS_META = {
 };
 
 /**
- * Bản dịch kênh bán hàng (Light Mode)
+ * Bản dịch kênh bán hàng
  */
 export const CHANNEL_META = {
-  pos: { label: 'Bán lẻ POS', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  web: { label: 'Website Online', badge: 'bg-blue-50 text-blue-700 border-blue-200' },
-  mobile: { label: 'App Di động', badge: 'bg-purple-50 text-purple-700 border-purple-200' },
+  pos: { label: 'Quầy POS', badge: 'bg-[#fdf8e6] text-[#926a09] border-[#f7e08f]' },
+  web: { label: 'Website Online', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  mobile: { label: 'App Di động', badge: 'bg-violet-50 text-violet-700 border-violet-200' },
 };

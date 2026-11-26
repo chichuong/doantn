@@ -27,12 +27,12 @@ export const OpenShiftModal = ({ isOpen, onClose, onSuccess }) => {
               setWarehouseId(list[0].id);
             }
           } catch {
-            // Nếu không tải được danh sách kho thì Backend sẽ tự gán kho trung tâm WH-HCM-01
+            // Backend auto-assigns central warehouse WH-HCM-01
           }
         };
         fetchWarehouses();
       }
-      setOpeningCash(500000); // Mặc định 500k tiền mặt đầu ca
+      setOpeningCash(500000);
       setError('');
     }
   }, [isOpen, canReadWarehouses]);
@@ -66,45 +66,45 @@ export const OpenShiftModal = ({ isOpen, onClose, onSuccess }) => {
     <Modal isOpen={isOpen} onClose={onClose} title="Mở Ca Bán Hàng POS">
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* Central Warehouse Display */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Điểm bán / Kho trung tâm
           </label>
-          <div className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 font-medium flex items-center justify-between">
-            <span>{warehouses[0]?.name || 'Kho trung tâm TP Hồ Chí Minh'} ({warehouses[0]?.code || 'WH-HCM-01'})</span>
-            <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">Kho trung tâm</span>
+          <div className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-semibold flex items-center justify-between">
+            <span>
+              {warehouses[0]?.name || 'Kho trung tâm TP Hồ Chí Minh'} ({warehouses[0]?.code || 'WH-HCM-01'})
+            </span>
+            <span className="wm-badge wm-badge-gold">WH-01</span>
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
-            Giao dịch bán lẻ tại quầy sẽ trừ tồn kho thực tế trực tiếp tại kho trung tâm.
+            Giao dịch bán lẻ tại quầy sẽ trừ tồn kho thực tế trực tiếp tại kho vận hành.
           </p>
         </div>
 
-        {/* Opening Cash Input */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Tiền mặt đầu ca (Tiền thối ban đầu) <span className="text-red-500">*</span>
+            Tiền mặt đầu ca (Tiền lẻ ban đầu) <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
-            <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <DollarSign className="w-4 h-4 text-[#b8860b] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="number"
               min="0"
               step="1000"
               value={openingCash}
               onChange={(e) => setOpeningCash(Number(e.target.value))}
-              className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition"
+              className="wm-field w-full pl-9 font-bold tabular-nums"
               required
             />
           </div>
           <div className="flex items-center justify-between mt-2">
-            <span className="text-xs text-blue-700 font-bold">
+            <span className="text-xs text-[#926a09] font-extrabold tabular-nums">
               {formatCurrency(openingCash)}
             </span>
             <div className="flex gap-1.5">
@@ -113,29 +113,20 @@ export const OpenShiftModal = ({ isOpen, onClose, onSuccess }) => {
                   key={amt}
                   type="button"
                   onClick={() => setOpeningCash(amt)}
-                  className="px-2 py-1 text-[11px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition"
+                  className="px-2 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-[#fdf8e6] hover:text-[#926a09] text-slate-700 rounded-md transition tabular-nums"
                 >
-                  +{amt / 1000}k
+                  {amt / 1000}k
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3.5 py-2 rounded-lg border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition"
-          >
+          <button type="button" onClick={onClose} className="wm-btn wm-btn-ghost">
             Hủy bỏ
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-2xs disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="wm-btn wm-btn-primary">
             {loading ? 'Đang kích hoạt...' : 'Bắt đầu ca bán hàng'}
           </button>
         </div>

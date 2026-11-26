@@ -12,13 +12,14 @@ import { formatCurrency } from '../utils/formatters';
 import { useAuth } from '../context/AuthContext';
 import {
   Search,
-  ShoppingCart,
   Trash2,
-  CreditCard,
   AlertCircle,
   Clock,
   Store,
   User,
+  Receipt,
+  ArrowRight,
+  Lock,
 } from 'lucide-react';
 
 export const PosPage = () => {
@@ -46,10 +47,10 @@ export const PosPage = () => {
 
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [stockFilter, setStockFilter] = useState('all'); // 'all' | 'in' | 'low' | 'out'
   const [loadingProducts, setLoadingProducts] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState(null); // { type: 'success' | 'error', text }
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
 
-  // Modals
   const [isOpenShiftOpen, setIsOpenShiftOpen] = useState(false);
   const [isCloseShiftOpen, setIsCloseShiftOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -78,7 +79,7 @@ export const PosPage = () => {
           const price = Number(item.sale_price ?? item.salePrice ?? item.price ?? 0);
           const qty = Number(item.quantity ?? 0);
           const reserved = Number(item.reserved_quantity ?? item.reservedQuantity ?? 0);
-          const avail = Number(item.available_quantity ?? item.availableQuantity ?? (qty - reserved));
+          const avail = Number(item.available_quantity ?? item.availableQuantity ?? qty - reserved);
           return {
             id: item.productId || item.product_id || item.id,
             name: item.productName || item.product_name || item.name,
@@ -111,7 +112,6 @@ export const PosPage = () => {
     }
   }, [currentSession, loadWarehouseProducts]);
 
-  // Tìm kiếm sản phẩm: lookup API theo SKU khi nhấn Enter
   const handleSkuSearch = useCallback(
     async (code) => {
       const cleanCode = code.trim();
@@ -133,8 +133,12 @@ export const PosPage = () => {
 
         const foundProduct = res?.data || res;
         if (foundProduct) {
-          const unitPrice = Number(foundProduct.sale_price ?? foundProduct.salePrice ?? foundProduct.price ?? 0);
-          const avail = Number(foundProduct.available_quantity ?? foundProduct.availableQuantity ?? 0);
+          const unitPrice = Number(
+            foundProduct.sale_price ?? foundProduct.salePrice ?? foundProduct.price ?? 0
+          );
+          const avail = Number(
+            foundProduct.available_quantity ?? foundProduct.availableQuantity ?? 0
+          );
           const productObj = {
             id: foundProduct.id || foundProduct.productId,
             name: foundProduct.name,
@@ -148,13 +152,13 @@ export const PosPage = () => {
 
           const addRes = addToCart(productObj, 1);
           if (addRes.success) {
-            showFeedback(`Đã thêm "${foundProduct.name}" vào giỏ`, 'success');
+            showFeedback(`Đã thêm "${foundProduct.name}" vào hóa đơn`, 'success');
             setSearchQuery('');
           } else {
             showFeedback(addRes.message, 'error');
           }
         }
-      } catch (err) {
+      } catch {
         const local = products.find(
           (p) =>
             p.sku?.toLowerCase() === cleanCode.toLowerCase() ||
@@ -164,7 +168,7 @@ export const PosPage = () => {
         if (local) {
           const addRes = addToCart(local, 1);
           if (addRes.success) {
-            showFeedback(`Đã thêm "${local.name}" vào giỏ`, 'success');
+            showFeedback(`Đã thêm "${local.name}" vào hóa đơn`, 'success');
             setSearchQuery('');
           } else {
             showFeedback(addRes.message, 'error');
@@ -188,13 +192,27 @@ export const PosPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentSession, cart.length, canCreateSale]);
 
+  const counts = {
+    in: products.filter((p) => Number(p.availableQuantity ?? 0) > 5).length,
+    low: products.filter((p) => {
+      const a = Number(p.availableQuantity ?? 0);
+      return a > 0 && a <= 5;
+    }).length,
+    out: products.filter((p) => Number(p.availableQuantity ?? 0) <= 0).length,
+  };
+
   const filteredProducts = products.filter((p) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      p.name?.toLowerCase().includes(q) ||
-      p.sku?.toLowerCase().includes(q)
-    );
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (!p.name?.toLowerCase().includes(q) && !p.sku?.toLowerCase().includes(q)) {
+        return false;
+      }
+    }
+    const avail = Number(p.availableQuantity ?? 0);
+    if (stockFilter === 'in') return avail > 5;
+    if (stockFilter === 'low') return avail > 0 && avail <= 5;
+    if (stockFilter === 'out') return avail <= 0;
+    return true;
   });
 
   if (loadingSession) {
@@ -205,27 +223,26 @@ export const PosPage = () => {
     );
   }
 
-  // NẾU CHƯA MỞ CA: Bắt buộc mở ca
   if (!currentSession) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4 bg-[#f8fafc]">
-        <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 shadow-2xs">
-          <Clock className="w-7 h-7 text-blue-600" />
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-[#fdf8e6] border border-[#f7e08f] flex items-center justify-center text-[#b8860b] shadow-xs">
+          <Clock className="w-8 h-8" />
         </div>
-        <div className="max-w-sm space-y-1">
-          <h2 className="text-base font-bold text-slate-900">Chưa có ca bán hàng</h2>
+        <div className="max-w-sm space-y-1.5">
+          <h2 className="text-lg font-extrabold text-slate-900">Chưa mở ca thu ngân POS</h2>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Vui lòng mở ca bán hàng để bắt đầu thực hiện giao dịch tại quầy.
+            Khai báo tiền mặt đầu ca để kích hoạt quầy bán lẻ trực tiếp và trừ kho tự động.
           </p>
         </div>
 
         <button
           type="button"
           onClick={() => setIsOpenShiftOpen(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-2xs flex items-center gap-2 transition"
+          className="wm-btn wm-btn-primary !h-10 !px-5 shadow-md"
         >
           <Store className="w-4 h-4" />
-          <span>Mở ca bán hàng</span>
+          <span>Mở ca bán hàng ngay</span>
         </button>
 
         <OpenShiftModal
@@ -238,13 +255,13 @@ export const PosPage = () => {
   }
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col lg:flex-row h-full overflow-y-auto lg:overflow-hidden bg-[#f8fafc] p-3 sm:p-5 gap-3 sm:gap-4">
-      {/* KHỐI TRÁI: Tìm kiếm sản phẩm theo SKU */}
-      <div className="flex-1 min-h-[360px] lg:min-h-0 flex flex-col lg:overflow-hidden">
-        {/* Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
+    <div className="flex-1 min-h-0 flex flex-col lg:flex-row h-full overflow-y-auto lg:overflow-hidden max-w-[1680px] w-full mx-auto p-3 sm:p-5 gap-4">
+      {/* ============ LEFT PANE: Product Search, Stock Filter Bar & Catalogue ============ */}
+      <section className="flex-1 min-h-[380px] lg:min-h-0 flex flex-col lg:overflow-hidden">
+        {/* Search + Shift Close Bar */}
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 mb-3">
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#b8860b] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               ref={searchInputRef}
               type="text"
@@ -256,10 +273,10 @@ export const PosPage = () => {
                   handleSkuSearch(searchQuery);
                 }
               }}
-              placeholder="Nhập SKU hoặc tên sản phẩm rồi nhấn Enter..."
-              className="w-full bg-white border border-slate-300 rounded-lg pl-10 pr-24 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition shadow-2xs"
+              placeholder="Quét mã vạch, nhập SKU hoặc tên sản phẩm rồi nhấn Enter..."
+              className="wm-field !h-10 w-full pl-10 pr-24 shadow-2xs"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#fdf8e6] text-[#926a09] border border-[#f7e08f]">
               Enter ↵
             </span>
           </div>
@@ -267,19 +284,55 @@ export const PosPage = () => {
           <button
             type="button"
             onClick={() => setIsCloseShiftOpen(true)}
-            className="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-2xs flex items-center justify-center gap-1.5 shrink-0"
+            className="wm-btn wm-btn-ghost !h-10 w-full sm:w-auto"
           >
-            <span>Đóng ca POS</span>
+            <Lock className="w-3.5 h-3.5 text-slate-500" />
+            <span>Chốt & Đóng ca</span>
           </button>
         </div>
 
-        {/* Feedback message */}
+        {/* Stock Status Sub-Bar (modeled after pos-terminal.html .bq-sub-bar) */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-2 border-b border-slate-200/80 text-xs">
+          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Lọc theo tồn kho">
+            {[
+              { key: 'all', label: `Tất cả (${products.length})`, dot: 'bg-slate-400' },
+              { key: 'in', label: `${counts.in} sẵn hàng`, dot: 'bg-emerald-500' },
+              { key: 'low', label: `${counts.low} sắp hết`, dot: 'bg-amber-500' },
+              { key: 'out', label: `${counts.out} hết hàng`, dot: 'bg-rose-500' },
+            ].map((f) => {
+              const active = stockFilter === f.key;
+              return (
+                <button
+                  key={f.key}
+                  type="button"
+                  onClick={() => setStockFilter(f.key)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition ${
+                    active
+                      ? 'bg-[#0f172a] text-white border-[#0f172a]'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${f.dot}`} />
+                  <span>{f.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="text-[11px] text-slate-500 font-medium">
+            Điểm xuất:{' '}
+            <strong className="text-slate-800">
+              {currentSession.warehouseName || currentSession.warehouse_name || 'Kho quầy'}
+            </strong>
+          </span>
+        </div>
+
         {feedbackMessage && (
           <div
-            className={`mb-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 transition ${
+            className={`mb-3 p-2.5 rounded-xl text-xs font-medium flex items-center gap-2 transition ${
               feedbackMessage.type === 'success'
                 ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-                : 'bg-red-50 border border-red-200 text-red-700'
+                : 'bg-rose-50 border border-rose-200 text-rose-700'
             }`}
           >
             <AlertCircle className="w-4 h-4 shrink-0" />
@@ -289,23 +342,13 @@ export const PosPage = () => {
 
         {/* Product Grid */}
         <div className="flex-1 overflow-y-auto pr-1">
-          <div className="flex items-center justify-between mb-2.5 text-xs text-slate-500 font-medium">
-            <span>
-              Sản phẩm tại{' '}
-              <strong className="text-slate-800">
-                {currentSession.warehouseName || currentSession.warehouse_name || 'Kho quầy'}
-              </strong>{' '}
-              ({filteredProducts.length} mặt hàng)
-            </span>
-          </div>
-
           {loadingProducts ? (
             <div className="py-20 text-center text-xs text-slate-400">
-              Đang tải danh mục tồn kho...
+              Đang tải danh mục hàng hóa tại quầy...
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="py-20 text-center text-xs text-slate-400">
-              Không tìm thấy sản phẩm nào phù hợp
+            <div className="py-20 text-center text-xs text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
+              Không tìm thấy sản phẩm phù hợp với bộ lọc
             </div>
           ) : (
             <div className="grid grid-cols-1 min-[460px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 pb-4">
@@ -328,137 +371,153 @@ export const PosPage = () => {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* KHỐI PHẢI: Giỏ hàng & Thanh toán (Gọn gàng, vừa vặn theo nội dung) */}
-      <div className="w-full lg:w-96 xl:w-[390px] shrink-0 h-fit max-h-full bg-white rounded-xl border border-slate-200 shadow-2xs flex flex-col p-4 overflow-hidden">
-        {/* Giỏ hàng Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
-              <ShoppingCart className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900">
-                Giỏ hàng & Thanh toán
-              </h3>
-              <span className="text-[11px] text-slate-500">
-                {totalItems} mặt hàng đã chọn
-              </span>
-            </div>
-          </div>
-
-          {cart.length > 0 && (
-            <button
-              type="button"
-              onClick={clearCart}
-              className="text-slate-400 hover:text-red-600 text-xs font-medium flex items-center gap-1 transition"
-              title="Xóa giỏ hàng"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Xóa giỏ</span>
-            </button>
-          )}
-        </div>
-
-        {/* Danh sách món hàng trong giỏ */}
-        <div className="overflow-y-auto py-3 space-y-2 pr-1 min-h-[140px] max-h-[42vh]">
-          {cart.length === 0 ? (
-            <div className="py-8 flex flex-col items-center justify-center text-center text-slate-400 space-y-1.5">
-              <ShoppingCart className="w-8 h-8 stroke-[1.3] opacity-35 text-slate-400" />
-              <p className="text-xs font-medium text-slate-500">Giỏ hàng trống</p>
-              <p className="text-[11px] text-slate-400">
-                Chọn sản phẩm bên trái hoặc nhập mã SKU
+      {/* ============ RIGHT PANE: Signature Serrated Thermal Paper Receipt (bq-paper) ============ */}
+      <aside
+        className="w-full lg:w-96 xl:w-[400px] shrink-0 bq-receipt-wrap flex flex-col max-h-full"
+        aria-label="Hóa đơn hiện tại"
+      >
+        <div className="bq-paper flex flex-col max-h-full overflow-hidden">
+          {/* Receipt Header */}
+          <div className="px-5 pt-5 pb-3.5 border-b border-dashed border-slate-200 flex items-center gap-3 shrink-0">
+            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f7d268] to-[#b8860b] text-[#0f172a] flex items-center justify-center shadow-xs shrink-0">
+              <Store className="w-5 h-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-extrabold text-slate-900 tracking-tight truncate">
+                Karat POS Store
+              </p>
+              <p className="text-[11px] text-slate-500">
+                Phiếu bán lẻ <b className="font-mono text-[#926a09]">#POS-LIVE</b>
               </p>
             </div>
-          ) : (
-            cart.map((item) => (
-              <CartItem
-                key={item.id}
-                item={item}
-                onUpdateQuantity={(id, qty) => {
-                  const res = updateQuantity(id, qty);
-                  if (!res.success) {
-                    showFeedback(res.message, 'error');
-                  }
-                }}
-                onRemove={removeFromCart}
-              />
-            ))
-          )}
-        </div>
+            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold tabular-nums">
+              {totalItems} món
+            </span>
+          </div>
 
-        {/* Tổng kết tiền & Nút thanh toán */}
-        <div className="pt-3 border-t border-slate-100 space-y-2.5 shrink-0">
-          {/* Thông tin khách hàng nhanh */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+          {/* Customer Quick Strip */}
+          <div className="px-5 py-2.5 bg-slate-50/70 border-b border-slate-100 grid grid-cols-2 gap-2 shrink-0">
+            <div className="relative">
               <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={customer.name}
                 onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
-                placeholder="Tên khách hàng"
-                className="w-full bg-slate-50 border border-slate-200 rounded-md pl-7 pr-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                placeholder="Khách lẻ tại quầy"
+                className="w-full bg-white border border-slate-200 rounded-lg pl-7.5 pr-2 py-1.5 text-xs text-slate-900"
               />
             </div>
-            <div className="relative flex-1">
-              <input
-                type="text"
-                value={customer.phone}
-                onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
-                placeholder="Số điện thoại"
-                className="w-full bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
-              />
+            <input
+              type="text"
+              value={customer.phone}
+              onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
+              placeholder="SĐT tích điểm..."
+              className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono"
+            />
+          </div>
+
+          {/* Receipt Lines */}
+          <div className="px-4 py-3 overflow-y-auto space-y-2 min-h-[150px] max-h-[38vh]">
+            {cart.length === 0 ? (
+              <div className="py-8 flex flex-col items-center justify-center text-center space-y-2">
+                <span className="w-11 h-11 rounded-2xl bg-[#fdf8e6] border border-[#f7e08f] text-[#b8860b] flex items-center justify-center">
+                  <Receipt className="w-5 h-5" />
+                </span>
+                <p className="text-xs font-bold text-slate-800">Hóa đơn mới sẵn sàng</p>
+                <p className="text-[11px] text-slate-400 max-w-[230px]">
+                  Chọn mặt hàng bên trái hoặc quét mã SKU để thêm vào phiếu thu ngân
+                </p>
+                <div className="flex items-center gap-2 pt-1 text-[10px] text-slate-500">
+                  <span className="px-2 py-0.5 rounded bg-slate-100 font-mono font-semibold">F2 Thanh toán</span>
+                  <span className="px-2 py-0.5 rounded bg-slate-100 font-mono font-semibold">Enter Quét mã</span>
+                </div>
+              </div>
+            ) : (
+              cart.map((item) => (
+                <CartItem
+                  key={item.id}
+                  item={item}
+                  onUpdateQuantity={(id, qty) => {
+                    const res = updateQuantity(id, qty);
+                    if (!res.success) {
+                      showFeedback(res.message, 'error');
+                    }
+                  }}
+                  onRemove={removeFromCart}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Receipt Summary & Charge Action */}
+          <div className="px-5 pt-3 pb-4 border-t border-dashed border-slate-200 bg-slate-50/40 space-y-2.5 shrink-0">
+            <div className="space-y-1.5 text-xs">
+              <div className="flex items-center justify-between text-slate-500">
+                <span>Tạm tính</span>
+                <span className="font-semibold text-slate-900 tabular-nums">{formatCurrency(subtotal)}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-slate-500">
+                <span>Chiết khấu trực tiếp</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={discountAmount}
+                    onChange={(e) => setDiscountAmount(Number(e.target.value))}
+                    className="w-24 text-right bg-white border border-slate-200 rounded-md px-2 py-0.5 text-xs font-semibold text-slate-900 tabular-nums"
+                  />
+                  <span className="text-slate-400">₫</span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Chiết khấu */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-500">Tạm tính:</span>
-            <span className="font-semibold text-slate-900 tabular-nums">{formatCurrency(subtotal)}</span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-500">Chiết khấu / Giảm giá:</span>
-            <div className="flex items-center gap-1">
-              <input
-                type="number"
-                min="0"
-                step="1000"
-                value={discountAmount}
-                onChange={(e) => setDiscountAmount(Number(e.target.value))}
-                className="w-20 text-right bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5 text-xs text-slate-900 tabular-nums focus:outline-none focus:border-blue-600 focus:bg-white"
-              />
-              <span className="text-slate-400">₫</span>
-            </div>
-          </div>
-
-          {/* Tổng tiền cần trả */}
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
-                Tổng cộng
+            <div className="pt-2 border-t border-slate-200/80 flex items-baseline justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Khách cần trả
               </span>
-              <span className="text-lg font-bold text-slate-900 tabular-nums">
+              <strong className="text-xl font-extrabold text-slate-900 tabular-nums">
                 {formatCurrency(finalTotal)}
-              </span>
+              </strong>
             </div>
 
-            <button
-              type="button"
-              disabled={cart.length === 0 || !canCreateSale}
-              onClick={() => canCreateSale && setIsPaymentOpen(true)}
-              className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-2xs flex items-center gap-1.5 transition disabled:opacity-40 active:scale-95"
-            >
-              <CreditCard className="w-4 h-4" />
-              <span>Thanh toán (F2)</span>
-            </button>
+            {/* Action Row */}
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                disabled={cart.length === 0}
+                onClick={clearCart}
+                title="Xóa toàn bộ giỏ"
+                aria-label="Xóa toàn bộ giỏ hàng"
+                className="w-10 h-10 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-500 hover:text-rose-600 flex items-center justify-center transition disabled:opacity-40 shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                disabled={cart.length === 0 || !canCreateSale}
+                onClick={() => canCreateSale && setIsPaymentOpen(true)}
+                className="flex-1 h-10 px-4 rounded-xl wm-btn-primary font-bold text-xs flex items-center justify-between shadow-sm disabled:opacity-40 active:scale-[0.99] transition"
+              >
+                <span>Thanh toán (F2)</span>
+                <span className="inline-flex items-center gap-1.5 font-mono">
+                  <span>{formatCurrency(finalTotal)}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </span>
+              </button>
+            </div>
+
+            <p className="text-center text-[10px] text-slate-400 font-mono pt-1 tracking-wide">
+              ||| || |||| ||| · CẢM ƠN QUÝ KHÁCH
+            </p>
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* CÁC MODAL HỖ TRỢ */}
       <CloseShiftModal
         isOpen={isCloseShiftOpen}
         onClose={() => setIsCloseShiftOpen(false)}
@@ -469,21 +528,23 @@ export const PosPage = () => {
         }}
       />
 
-      {canCreateSale && <PaymentModal
-        isOpen={isPaymentOpen}
-        onClose={() => setIsPaymentOpen(false)}
-        session={currentSession}
-        cart={cart}
-        subtotal={subtotal}
-        discountAmount={discountAmount}
-        finalTotal={finalTotal}
-        customer={customer}
-        onSuccess={(completedSaleData) => {
-          clearCart();
-          setReceiptData(completedSaleData);
-          loadWarehouseProducts();
-        }}
-      />}
+      {canCreateSale && (
+        <PaymentModal
+          isOpen={isPaymentOpen}
+          onClose={() => setIsPaymentOpen(false)}
+          session={currentSession}
+          cart={cart}
+          subtotal={subtotal}
+          discountAmount={discountAmount}
+          finalTotal={finalTotal}
+          customer={customer}
+          onSuccess={(completedSaleData) => {
+            clearCart();
+            setReceiptData(completedSaleData);
+            loadWarehouseProducts();
+          }}
+        />
+      )}
 
       <ReceiptModal
         isOpen={!!receiptData}

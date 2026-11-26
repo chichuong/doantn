@@ -5,7 +5,7 @@ import { AlertCircle, PlusCircle, ArrowDownCircle, Sliders } from 'lucide-react'
 
 export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = [], onSuccess }) => {
   const [productId, setProductId] = useState('');
-  const [type, setType] = useState('receipt'); // receipt | issue | adjustment
+  const [type, setType] = useState('receipt');
   const [quantity, setQuantity] = useState(1);
   const [referenceCode, setReferenceCode] = useState('');
   const [note, setNote] = useState('');
@@ -52,33 +52,33 @@ export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = 
     <Modal isOpen={isOpen} onClose={onClose} title="Lập Phiếu Điều Chỉnh & Cân Tồn Kho">
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* Warehouse */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             Kho hàng thực hiện
           </label>
-          <div className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold flex items-center justify-between">
-            <span>{warehouses[0]?.name || 'Kho trung tâm TP Hồ Chí Minh'} ({warehouses[0]?.code || 'WH-HCM-01'})</span>
-            <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded">Kho trung tâm</span>
+          <div className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-semibold flex items-center justify-between">
+            <span>
+              {warehouses[0]?.name || 'Kho trung tâm TP Hồ Chí Minh'} ({warehouses[0]?.code || 'WH-HCM-01'})
+            </span>
+            <span className="wm-badge wm-badge-gold">WH-01</span>
           </div>
         </div>
 
-        {/* Product Selection */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Sản phẩm cần điều chỉnh <span className="text-red-500">*</span>
+            Sản phẩm cần điều chỉnh <span className="text-rose-500">*</span>
           </label>
           {products.length > 0 ? (
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+              className="wm-field w-full"
               required
             >
               <option value="">-- Chọn sản phẩm trong kho --</option>
@@ -98,22 +98,21 @@ export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = 
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               placeholder="Nhập mã sản phẩm..."
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+              className="wm-field w-full"
               required
             />
           )}
         </div>
 
-        {/* Type */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Loại giao dịch kho <span className="text-red-500">*</span>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Loại giao dịch kho <span className="text-rose-500">*</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {[
-              { id: 'receipt', label: 'Nhập kho (+)', icon: PlusCircle, color: 'text-emerald-700' },
-              { id: 'issue', label: 'Xuất kho (-)', icon: ArrowDownCircle, color: 'text-red-700' },
-              { id: 'adjustment', label: 'Cân kho (±)', icon: Sliders, color: 'text-amber-700' },
+              { id: 'receipt', label: 'Nhập kho (+)', icon: PlusCircle, color: 'text-emerald-600' },
+              { id: 'issue', label: 'Xuất kho (-)', icon: ArrowDownCircle, color: 'text-rose-600' },
+              { id: 'adjustment', label: 'Cân kho (±)', icon: Sliders, color: 'text-amber-600' },
             ].map((item) => {
               const Icon = item.icon;
               const isSelected = type === item.id;
@@ -122,13 +121,13 @@ export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = 
                   key={item.id}
                   type="button"
                   onClick={() => setType(item.id)}
-                  className={`p-2 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1 transition ${
+                  className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition ${
                     isSelected
-                      ? 'bg-blue-50 border-blue-600 text-blue-700'
+                      ? 'bg-[#fdf8e6] border-[#d4af37] text-[#735309]'
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isSelected ? 'text-blue-700' : item.color}`} />
+                  <Icon className={`w-4 h-4 ${isSelected ? 'text-[#b8860b]' : item.color}`} />
                   <span>{item.label}</span>
                 </button>
               );
@@ -136,22 +135,20 @@ export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = 
           </div>
         </div>
 
-        {/* Quantity */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Số lượng điều chỉnh <span className="text-red-500">*</span>
+            Số lượng điều chỉnh <span className="text-rose-500">*</span>
           </label>
           <input
             type="number"
             min="1"
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
-            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-blue-600"
+            className="wm-field w-full font-bold tabular-nums"
             required
           />
         </div>
 
-        {/* Reference Code */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             Mã chứng từ / Đơn nhập đối chiếu
@@ -161,11 +158,10 @@ export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = 
             value={referenceCode}
             onChange={(e) => setReferenceCode(e.target.value)}
             placeholder="VD: PO-2026-0001 hoặc KIEM-KHO-01"
-            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+            className="wm-field w-full font-mono"
           />
         </div>
 
-        {/* Note */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             Lý do điều chỉnh
@@ -175,23 +171,15 @@ export const AdjustStockModal = ({ isOpen, onClose, warehouses = [], products = 
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nhập lý do kiểm kê, bổ sung hoặc hư hại..."
-            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
           />
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition"
-          >
+          <button type="button" onClick={onClose} className="wm-btn wm-btn-ghost">
             Hủy
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs transition disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="wm-btn wm-btn-primary">
             {loading ? 'Đang cập nhật...' : 'Ghi nhận thẻ kho'}
           </button>
         </div>

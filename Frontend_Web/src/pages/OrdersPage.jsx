@@ -23,17 +23,15 @@ export const OrdersPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Filters & Sort
   const [statusFilter, setStatusFilter] = useState('');
   const [channelFilter, setChannelFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-  const [sortOrder, setSortOrder] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'amount_desc' | 'amount_asc'
+  const [sortOrder, setSortOrder] = useState('date_desc');
   const [page, setPage] = useState(1);
   const [limit] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
 
-  // Selected Order for Detail Modal
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const isManagerFlow = hasPermission('manager.orders.read');
@@ -117,80 +115,86 @@ export const OrdersPage = () => {
       if (sortOrder === 'date_asc') return timeA - timeB;
       if (sortOrder === 'amount_desc') return amtB - amtA;
       if (sortOrder === 'amount_asc') return amtA - amtB;
-      return timeB - timeA; // default 'date_desc'
+      return timeB - timeA;
     });
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
-      {/* Unified Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
-        <div>
-          <h1 className="app-page-title flex items-center gap-2">
-            <ClipboardList className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>{isSalesOnly ? 'Lịch sử hóa đơn tại quầy' : 'Quản lý Đơn hàng'}</span>
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {isSalesOnly
-              ? 'Tra cứu lịch sử giao dịch bán lẻ tại quầy trong ca làm việc'
-              : 'Theo dõi và xử lý đơn đặt hàng từ quầy thu ngân, website và ứng dụng di động'}
-          </p>
-        </div>
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-[1680px] mx-auto p-4 sm:p-6 space-y-5">
+        {/* Header */}
+        <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
+              <span>Trang chủ</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              <span>Bán hàng & Đơn</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              <span className="font-semibold text-slate-700">
+                {isSalesOnly ? 'Lịch sử POS' : 'Đơn hàng'}
+              </span>
+            </nav>
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 mt-1 flex items-center gap-2.5">
+              <ClipboardList className="w-6 h-6 text-[#b8860b] shrink-0" />
+              <span>{isSalesOnly ? 'Lịch sử Hóa đơn tại Quầy' : 'Quản lý Đơn hàng Đa kênh'}</span>
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {isSalesOnly
+                ? 'Tra cứu lịch sử giao dịch bán lẻ tại quầy trong ca làm việc'
+                : 'Theo dõi và xử lý đơn đặt hàng từ quầy thu ngân POS, website và ứng dụng di động'}
+            </p>
+          </div>
 
-        <button
-          type="button"
-          onClick={fetchOrders}
-          disabled={loading}
-          className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-2xs flex items-center gap-1.5 self-start sm:self-auto disabled:opacity-50"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Làm mới</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={fetchOrders}
+            disabled={loading}
+            className="wm-btn wm-btn-primary self-start sm:self-auto"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Làm mới</span>
+          </button>
+        </header>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
         {error && (
-          <div role="alert" className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
+          <div role="alert" className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* Filter Bar (Gọn 1 hàng) */}
-        <div
-          className={`p-4 rounded-xl bg-white border border-slate-200 grid grid-cols-1 sm:grid-cols-2 ${isSalesOnly ? 'lg:grid-cols-5' : 'lg:grid-cols-6'
-            } gap-3 shadow-2xs`}
-        >
-          {/* Search Input */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm theo mã đơn, khách hàng, SĐT..."
-              className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400"
-            />
-          </div>
+        {/* Unified Table Card with Filter Toolbar */}
+        <section className="wm-card overflow-hidden">
+          <div
+            className={`p-4 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 ${
+              isSalesOnly ? 'lg:grid-cols-5' : 'lg:grid-cols-6'
+            } gap-2.5`}
+          >
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Mã đơn, khách hàng, SĐT..."
+                className="wm-field w-full pl-9"
+              />
+            </div>
 
-          {/* Chọn 1 ngày cụ thể */}
-          <div className="relative">
-            <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => {
-                setSelectedDate(e.target.value);
-                setPage(1);
-              }}
-              aria-label="Chọn ngày bán hàng"
-              className="w-full bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-800"
-            />
-          </div>
+            <div className="relative">
+              <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  setPage(1);
+                }}
+                aria-label="Chọn ngày bán hàng"
+                className="wm-field w-full pl-8"
+              />
+            </div>
 
-          {/* Channel Filter (Dành cho Quản lý / Admin) */}
-          {!isSalesOnly && (
-            <div>
+            {!isSalesOnly && (
               <select
                 value={channelFilter}
                 onChange={(e) => {
@@ -198,18 +202,15 @@ export const OrdersPage = () => {
                   setPage(1);
                 }}
                 aria-label="Lọc theo kênh bán hàng"
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800"
+                className="wm-field w-full"
               >
-                <option value="">Tất cả các kênh</option>
+                <option value="">Tất cả kênh bán</option>
                 <option value="pos">Bán lẻ POS</option>
                 <option value="web">Website</option>
                 <option value="mobile">App Di động</option>
               </select>
-            </div>
-          )}
+            )}
 
-          {/* Status Filter */}
-          <div>
             <select
               value={statusFilter}
               onChange={(e) => {
@@ -217,7 +218,7 @@ export const OrdersPage = () => {
                 setPage(1);
               }}
               aria-label="Lọc theo trạng thái đơn hàng"
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800"
+              className="wm-field w-full"
             >
               <option value="">Tất cả trạng thái</option>
               <option value="pending">Chờ xác nhận</option>
@@ -230,26 +231,22 @@ export const OrdersPage = () => {
               <option value="cancelled">Đã hủy</option>
               <option value="returned">Đã trả hàng</option>
             </select>
-          </div>
 
-          {/* Sort By Date / Amount */}
-          <div className="relative">
-            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              aria-label="Sắp xếp đơn hàng"
-              className="w-full bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-800 font-medium"
-            >
-              <option value="date_desc">Mới nhất → Cũ nhất</option>
-              <option value="date_asc">Cũ nhất → Mới nhất</option>
-              <option value="amount_desc">Tổng tiền: Cao → Thấp</option>
-              <option value="amount_asc">Tổng tiền: Thấp → Cao</option>
-            </select>
-          </div>
+            <div className="relative">
+              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                aria-label="Sắp xếp đơn hàng"
+                className="wm-field w-full pl-8 font-medium"
+              >
+                <option value="date_desc">Mới nhất → Cũ nhất</option>
+                <option value="date_asc">Cũ nhất → Mới nhất</option>
+                <option value="amount_desc">Tổng tiền: Cao → Thấp</option>
+                <option value="amount_asc">Tổng tiền: Thấp → Cao</option>
+              </select>
+            </div>
 
-          {/* Reset Filter Button */}
-          <div>
             <button
               type="button"
               onClick={() => {
@@ -260,26 +257,19 @@ export const OrdersPage = () => {
                 setSortOrder('date_desc');
                 setPage(1);
               }}
-              className="w-full py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium transition flex items-center justify-center gap-1.5"
+              className="wm-btn wm-btn-ghost !h-[38px] w-full"
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-              <span>Đặt lại bộ lọc</span>
+              <span>Đặt lại</span>
             </button>
           </div>
-        </div>
 
-        {/* Orders List: Mobile Cards + Desktop Table */}
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
-          {/* Mobile Cards (< md) */}
+          {/* Mobile Cards */}
           <div className="md:hidden divide-y divide-slate-100">
             {loading ? (
-              <div className="py-12 text-center text-xs text-slate-400">
-                Đang tải danh sách đơn hàng...
-              </div>
+              <div className="py-12 text-center text-xs text-slate-400">Đang tải danh sách đơn hàng...</div>
             ) : filteredOrders.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-400">
-                Không tìm thấy đơn hàng nào phù hợp
-              </div>
+              <div className="py-12 text-center text-xs text-slate-400">Không tìm thấy đơn hàng nào phù hợp</div>
             ) : (
               filteredOrders.map((order, idx) => {
                 const statusMeta = ORDER_STATUS_META[order.status] || {
@@ -291,9 +281,7 @@ export const OrdersPage = () => {
                   label: channel,
                   badge: 'bg-slate-100 text-slate-700 border-slate-200',
                 };
-                const fullOrderCode = String(
-                  order.order_number || order.orderNumber || order.id || '---'
-                );
+                const fullOrderCode = String(order.order_number || order.orderNumber || order.id || '---');
                 const displayOrderCode =
                   fullOrderCode.length > 18
                     ? `${fullOrderCode.slice(0, 10)}…${fullOrderCode.slice(-5)}`
@@ -303,17 +291,11 @@ export const OrdersPage = () => {
                   <div
                     key={order.id || `m-order-${idx}`}
                     onClick={() => canViewDetail && setSelectedOrderId(order.id)}
-                    className="p-3.5 space-y-2 hover:bg-slate-50 active:bg-slate-100 transition cursor-pointer"
+                    className="p-3.5 space-y-2 hover:bg-[#fdf8e6]/40 transition cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono font-bold text-xs text-blue-700">
-                        #{displayOrderCode}
-                      </span>
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${statusMeta.color}`}
-                      >
-                        {statusMeta.label}
-                      </span>
+                      <span className="font-mono font-bold text-xs text-[#926a09]">#{displayOrderCode}</span>
+                      <span className={`wm-badge ${statusMeta.color}`}>{statusMeta.label}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <div className="font-semibold text-slate-900 truncate">
@@ -322,11 +304,7 @@ export const OrdersPage = () => {
                           <span className="text-slate-500 font-normal"> • {order.customer_phone}</span>
                         )}
                       </div>
-                      <span
-                        className={`inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border shrink-0 ${channelMeta.badge}`}
-                      >
-                        {channelMeta.label}
-                      </span>
+                      <span className={`wm-badge shrink-0 ${channelMeta.badge}`}>{channelMeta.label}</span>
                     </div>
                     <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 text-xs">
                       <span className="text-[11px] text-slate-500 tabular-nums">
@@ -343,7 +321,7 @@ export const OrdersPage = () => {
                               e.stopPropagation();
                               setSelectedOrderId(order.id);
                             }}
-                            className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-semibold text-[11px] flex items-center gap-1"
+                            className="wm-btn wm-btn-ghost !h-7 !px-2.5 text-[11px]"
                           >
                             <Eye className="w-3 h-3" />
                             <span>Chi tiết</span>
@@ -357,14 +335,14 @@ export const OrdersPage = () => {
             )}
           </div>
 
-          {/* Desktop Table (>= md) */}
+          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full min-w-[920px] text-left text-xs border-collapse">
-              <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase font-semibold border-b border-slate-200">
+            <table className="wm-table min-w-[920px]">
+              <thead>
                 <tr>
-                  <th className="py-3 px-4">Mã đơn</th>
+                  <th>Mã đơn</th>
                   <th
-                    className="py-3 px-4 cursor-pointer select-none hover:text-blue-600 transition"
+                    className="cursor-pointer select-none hover:text-[#926a09] transition"
                     onClick={() =>
                       setSortOrder((prev) => (prev === 'date_desc' ? 'date_asc' : 'date_desc'))
                     }
@@ -375,15 +353,15 @@ export const OrdersPage = () => {
                       <ArrowUpDown className="w-3 h-3" />
                     </span>
                   </th>
-                  <th className="py-3 px-4">Kênh</th>
-                  <th className="py-3 px-4">Khách hàng</th>
-                  <th className="py-3 px-4">Điểm bán / Kho</th>
-                  <th className="py-3 px-4 text-right">Tổng tiền</th>
-                  <th className="py-3 px-4 text-center">Trạng thái</th>
-                  <th className="py-3 px-4 text-center">Thao tác</th>
+                  <th>Kênh bán</th>
+                  <th>Khách hàng</th>
+                  <th>Điểm bán / Kho</th>
+                  <th className="text-right">Tổng tiền</th>
+                  <th className="text-center">Trạng thái</th>
+                  <th className="text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {loading ? (
                   <tr>
                     <td colSpan="8" className="py-12 text-center text-slate-400">
@@ -418,27 +396,22 @@ export const OrdersPage = () => {
                     return (
                       <tr
                         key={order.id || `order-${idx}`}
-                        className="hover:bg-slate-50/80 cursor-pointer transition"
+                        className="cursor-pointer"
                         onClick={() => canViewDetail && setSelectedOrderId(order.id)}
                       >
                         <td
-                          className="py-3.5 px-4 font-mono font-semibold text-blue-700 whitespace-nowrap"
+                          className="font-mono font-bold text-[#926a09] whitespace-nowrap"
                           title={`Mã đơn đầy đủ: ${fullOrderCode}`}
-                          aria-label={`Mã đơn ${fullOrderCode}`}
                         >
                           #{displayOrderCode}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap tabular-nums">
+                        <td className="text-slate-600 whitespace-nowrap tabular-nums">
                           {formatDateTime(order.created_at || order.createdAt)}
                         </td>
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`inline-flex px-2 py-0.5 rounded-md text-[11px] font-semibold border ${channelMeta.badge}`}
-                          >
-                            {channelMeta.label}
-                          </span>
+                        <td>
+                          <span className={`wm-badge ${channelMeta.badge}`}>{channelMeta.label}</span>
                         </td>
-                        <td className="py-3.5 px-4 font-semibold text-slate-900">
+                        <td className="font-semibold text-slate-900">
                           {order.customer_name || order.customerName || 'Khách lẻ'}
                           {order.customer_phone && (
                             <span className="block text-[11px] font-normal text-slate-500 font-mono">
@@ -446,25 +419,23 @@ export const OrdersPage = () => {
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600">
-                          {order.warehouse_name || order.warehouseName || (order.channel === 'pos' ? 'Tại quầy POS' : 'Kho trung tâm TP Ho Chi Minh')}
+                        <td className="text-slate-600">
+                          {order.warehouse_name ||
+                            order.warehouseName ||
+                            (order.channel === 'pos' ? 'Tại quầy POS' : 'Kho trung tâm TP.HCM')}
                         </td>
-                        <td className="py-3.5 px-4 text-right font-bold text-slate-900 whitespace-nowrap tabular-nums">
+                        <td className="text-right font-extrabold text-slate-900 whitespace-nowrap tabular-nums">
                           {formatCurrency(order.total_amount || order.totalAmount || 0)}
                         </td>
-                        <td className="py-3.5 px-4 text-center">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${statusMeta.color}`}
-                          >
-                            {statusMeta.label}
-                          </span>
+                        <td className="text-center">
+                          <span className={`wm-badge ${statusMeta.color}`}>{statusMeta.label}</span>
                         </td>
-                        <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                        <td className="text-right" onClick={(e) => e.stopPropagation()}>
                           {canViewDetail && (
                             <button
                               type="button"
                               onClick={() => setSelectedOrderId(order.id)}
-                              className="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-medium transition inline-flex items-center gap-1"
+                              className="wm-btn wm-btn-ghost !h-8 !px-2.5 text-xs"
                             >
                               <Eye className="w-3.5 h-3.5" />
                               <span>Chi tiết</span>
@@ -479,8 +450,8 @@ export const OrdersPage = () => {
             </table>
           </div>
 
-          {/* Pagination Bar */}
-          <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 bg-white">
+          {/* Pagination */}
+          <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 bg-white">
             <div className="tabular-nums">
               Hiển thị <strong>{filteredOrders.length}</strong> / {totalCount} đơn hàng
             </div>
@@ -490,26 +461,25 @@ export const OrdersPage = () => {
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 aria-label="Trang trước"
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 disabled:opacity-40 transition"
+                className="wm-act border border-slate-200 disabled:opacity-40"
               >
-                <ChevronLeft className="w-3.5 h-3.5" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="font-semibold text-slate-700 px-2 tabular-nums">Trang {page}</span>
+              <span className="font-bold text-slate-800 px-2 tabular-nums">Trang {page}</span>
               <button
                 type="button"
                 disabled={filteredOrders.length < limit}
                 onClick={() => setPage((p) => p + 1)}
                 aria-label="Trang sau"
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 disabled:opacity-40 transition"
+                className="wm-act border border-slate-200 disabled:opacity-40"
               >
-                <ChevronRight className="w-3.5 h-3.5" />
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
-      {/* Modal Chi tiết đơn hàng */}
       <OrderDetailModal
         isOpen={!!selectedOrderId}
         onClose={() => setSelectedOrderId(null)}

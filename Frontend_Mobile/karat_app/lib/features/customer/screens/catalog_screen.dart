@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/common_widgets.dart';
 import '../cart_provider.dart';
 import '../customer_service.dart';
+import 'product_detail_screen.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -167,56 +168,69 @@ class _ProductCard extends StatelessWidget {
     final stock = int.tryParse((product['available_quantity'] ?? product['available_stock'] ?? product['stock'])?.toString() ?? '0') ?? 0;
     final inCart = cart.items.firstWhere((i) => i.productId == id, orElse: () => CartItem(productId: '', productName: '', price: 0, quantity: 0)).quantity;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              child: (imgUrl != null && imgUrl.isNotEmpty)
-                  ? Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(6),
-                      width: double.infinity,
-                      child: Image.network(imgUrl, fit: BoxFit.contain,
-                          errorBuilder: (_, _, _) => _placeholder()),
-                    )
-                  : _placeholder(),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider.value(
+              value: cart,
+              child: ProductDetailScreen(product: product),
             ),
           ),
-          // Info
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, maxLines: 2, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 4),
-                Text(formatCurrency(price),
-                    style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 14)),
-                const SizedBox(height: 2),
-                Text(
-                  stock <= 0 ? 'Hết hàng' : (stock <= 5 ? 'Sắp hết hàng' : 'Còn hàng'),
-                  style: TextStyle(
-                    color: stock <= 0 ? AppTheme.error : (stock <= 5 ? AppTheme.warning : AppTheme.success),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                child: (imgUrl != null && imgUrl.isNotEmpty)
+                    ? Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(6),
+                        width: double.infinity,
+                        child: Image.network(imgUrl, fit: BoxFit.contain,
+                            errorBuilder: (_, _, _) => _placeholder()),
+                      )
+                    : _placeholder(),
+              ),
+            ),
+            // Info
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+                  const SizedBox(height: 4),
+                  Text(formatCurrency(price),
+                      style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 14)),
+                  const SizedBox(height: 2),
+                  Text(
+                    stock <= 0 ? 'Hết hàng' : (stock <= 5 ? 'Sắp hết hàng' : 'Còn hàng'),
+                    style: TextStyle(
+                      color: stock <= 0 ? AppTheme.error : (stock <= 5 ? AppTheme.warning : AppTheme.success),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                _AddToCartRow(productId: id, inCart: inCart, stock: stock),
-              ],
+                  const SizedBox(height: 8),
+                  _AddToCartRow(productId: id, inCart: inCart, stock: stock),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

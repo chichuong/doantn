@@ -110,10 +110,10 @@ export const OrderDetailModal = ({ isOpen, onClose, orderId, onUpdated, salesMod
               <button
                 type="button"
                 onClick={() => setShowDigitalSlip((v) => !v)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 ${
+                className={`wm-btn !h-8 text-xs ${
                   showDigitalSlip
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                    ? 'wm-btn-primary'
+                    : 'wm-btn-ghost'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" />
