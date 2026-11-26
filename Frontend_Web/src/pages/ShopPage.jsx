@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  ShoppingBag,
   ShoppingCart,
   ClipboardList,
   MapPin,
@@ -339,17 +338,7 @@ export const ShopPage = () => {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
       {/* Top Navigation Bar (Đồng bộ 4 tab như BottomNavigationBar trên Mobile) */}
-      <div className="bg-white border-b border-neutral-200 px-4 sm:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
-        <div>
-          <h1 className="text-lg font-semibold tracking-tight text-neutral-900 flex items-center gap-2.5">
-            <ShoppingBag className="w-5 h-5 text-neutral-900 stroke-[1.75]" />
-            <span>Karat Retail — Cửa hàng Trực tuyến</span>
-          </h1>
-          <p className="text-xs text-neutral-500 mt-0.5">
-            Sản phẩm chính hãng • Đồng bộ giỏ hàng &amp; tồn kho thời gian thực
-          </p>
-        </div>
-
+      <div className="bg-white border-b border-neutral-200 px-4 sm:px-8 py-2.5 flex justify-center md:justify-end shrink-0">
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1 bg-neutral-100 p-1 rounded-lg text-xs font-medium w-full md:w-auto border border-neutral-200/80">
           <button
             type="button"
